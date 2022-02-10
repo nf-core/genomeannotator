@@ -73,8 +73,8 @@ class WorkflowMain {
         NfcoreTemplate.awsBatch(workflow, params)
 
         // Check input has been provided
-        if (!params.input) {
-            log.error "Please provide an input samplesheet to the pipeline e.g. '--input samplesheet.csv'"
+        if (!params.assembly) {
+            log.error "Please provide an assembly as input. '--assembly genome.fa'"
             System.exit(1)
         }
     }

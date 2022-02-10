@@ -11,17 +11,17 @@
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
             "required": [
-                "input"
+                "assembly"
             ],
             "properties": {
-                "input": {
+                "assembly": {
                     "type": "string",
                     "format": "file-path",
                     "mimetype": "text/csv",
-                    "pattern": "^\\S+\\.csv$",
+                    "pattern": "^\\S+\\.fn?a(sta)?$",
                     "schema": "assets/schema_input.json",
-                    "description": "Path to comma-separated file containing information about the samples in the experiment.",
-                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. See [usage docs](https://nf-co.re/esga/usage#samplesheet-input).",
+                    "description": "Path to the genome assembly.",
+                    "help_text": "ou will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. See [usage docs](https://nf-co.re/esga/usage#samplesheet-input).",
                     "fa_icon": "fas fa-file-csv"
                 },
                 "outdir": {
@@ -41,45 +41,90 @@
                     "type": "string",
                     "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
                     "fa_icon": "fas fa-file-signature"
-                }
-            }
-        },
-        "reference_genome_options": {
-            "title": "Reference genome options",
-            "type": "object",
-            "fa_icon": "fas fa-dna",
-            "description": "Reference genome related files and options required for the workflow.",
-            "properties": {
-                "genome": {
-                    "type": "string",
-                    "description": "Name of iGenomes reference.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
                 },
-                "fasta": {
+                "proteins": {
                     "type": "string",
                     "format": "file-path",
-                    "mimetype": "text/plain",
-                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
-                    "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
-                    "fa_icon": "far fa-file-code"
+                    "mimetype": "text/csv",
+                    "pattern": "^\\S+\\.fn?a(sta)?$",
+                    "description": "Path to a fasta file with proteins",
+                    "help_text": "Specify a fasta-formatted file with proteins from related organisms. Typical sources are Uniprot, EnsEMBL or Refseq."
                 },
-                "igenomes_base": {
-                    "type": "string",
-                    "format": "directory-path",
-                    "description": "Directory / URL base for iGenomes references.",
-                    "default": "s3://ngi-igenomes/igenomes",
-                    "fa_icon": "fas fa-cloud-download-alt",
-                    "hidden": true
+                "proteins_targeted": {
+                    "type":"string",
+                    "format": "file-path",
+                    "mimetype": "text/csv",
+                    "pattern": "^\\S+\\.fn?a(sta)?$",
+                    "description": "Path to a fasta file with proteins",
+                    "help_text": "Specify a fasta-formatted file with proteins your organism of interest. Typical sources are Uniprot, EnsEMBL or Refseq."
                 },
-                "igenomes_ignore": {
-                    "type": "boolean",
-                    "description": "Do not load the iGenomes reference config.",
-                    "fa_icon": "fas fa-ban",
-                    "hidden": true,
-                    "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
+                "transcripts": {
+                    "type":"string",
+                    "format": "file-path",
+                    "mimetype": "text/csv",
+                    "pattern": "^\\S+\\.fn?a(sta)?$",
+                    "description": "Path to a fasta file with transcripts/ESTs",
+                    "help_text": "Specify a fasta-formatted file with transcripts/ESTs from your organism of interest. Typical sources are ENA and dbEST."
                 }
+                "rm_lib": {
+                    "type":"string",
+                    "format": "file-path",
+                    "mimetype": "text/csv",
+                    "pattern": "^\\S+\\.fn?a(sta)?$",
+                    "description": "Path to a fasta file with known repeat sequences for this organism",
+                    "help_text": "Specify a fasta-formatted file with repeat sequences for this organism. Typical sources are databases (NCBI, GRINST) or RepeatModeler."
+                }
+
+            }
+        },
+        "annotation_module_options": {
+            "title": "Options for pipeline behavior",
+            "type": "object",
+            "fa_icon": "fas fa-fna",
+            "description": "Options that control pipeline behavior",
+            "properties": {
+                "aug_species": {
+                    "type": "string",
+                    "description": "AUGUSTUS species model to use.",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "Specify which model AUGUSTUS will run with. A full list is available here: https://github.com/Gaius-Augustus/Augustus/blob/master/docs/RUNNING-AUGUSTUS.md" 
+                },
+                "npart_size": {
+                    "type": "string",
+                    "description": "Chunk size for splitting the assembly.",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "The assembly will split into pieces of this size, in bp, to increase parallelization."
+                },
+                "max_intron_size": {
+                    "type": "string",
+                    "description": "Maximum length of expected introns in bp.",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "This option specifies the longest expected intron in base-pairs. Seeting this too low will result in broken gene models. Conversely, setting this too large may create unreasonable gene models and increase run time."
+                },
+                "spaln_taxon": {
+                    "type": "string",
+                    "description": "Taxon model to use for SPALN protein alignments.",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "This option specifies which SPALN alignment model to use. For a full list of available models, see: https://github.com/ogotoh/spaln/blob/master/table/gnm2tab"
+                },
+                "min_prot_length": {
+                    "type": "string",
+                    "description": "Minimum size of a protein sequence to be included.",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "Protein-Databases often contain fragmented protein sequences. Use this option to filter out very small proteins from your evidence set."
+                },
+                "pri_prot": {
+                   "type": "string",
+                   "description": "Priority for protein-derived hints for gene building.",
+                   "fa_icon": "fas fa-book",
+                   "help_text": "This value determines the priority protein-derived hints are given during AUGUSTUS gene finding. The higher the value, the more important the hint (1-5)."
+                },
+                "nproteins": {
+                   "type": "string",
+                   "description": "Numbe of proteins per alignment job.",
+                   "fa_icon": "fas fa-book",
+                   "help_text": "Specifies the number of proteins per alignnment job. This option controls parallelism - the higher this number, the fewer jobs are created and the longer the individual run times. Only increase if you have a very large number of sequences to align."
+                 }
             }
         },
         "institutional_config_options": {

@@ -11,11 +11,17 @@ WorkflowEsga.initialise(params, log)
 
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.fasta ]
+def checkPathParamList = [ params.multiqc_config, params.fasta ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+if (params.assembly) { ch_genome = file(params.assembly) } else { exit 1, 'No assembly specified!' }
+if (params.proteins) { ch_proteins = file(params.proteins) } else { ch_proteins = Channel.empty() }
+if (params.proteins_targeted) { ch_proteins_targeted = file(params.proteins_targeted) } else { ch_proteins_targeted = Channel.empty() }
+if (params.transcripts) { ch_transcripts = file(params.transcripts) } else { ch_transcripts = Channel.empty() }
+if (params.reads) { ch_reads = Channel.fromFilePairs(params.reads).ifEmpty { exit 1, "File pattern did not return any reads" } } else { reads = Channel.empty() }
+if (params.rm_lib) { ch_repeats = Channel.fromPath(file(params.rm_lib)) } else { ch_repeats = Channel.empty()}
+if (params.rm_species) { ch_repeat_species = Channel.from(params.rm_species) } else { ch_repeat_species = Channel.empty() }
 
 /*
 ========================================================================================
@@ -35,7 +41,9 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { ASSEMBLY_PREPROCESS } from '../subworkflows/local/assembly_preprocess'
+include { REPEATMASK } from '../subworkflows/local/repeatmask'
+include { SPALN_PROTEIN_HINTS } from '../subworkflows/local/spaln_protein_hints'
 
 /*
 ========================================================================================
@@ -46,7 +54,6 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                      } from '../modules/nf-core/modules/fastqc/main'
 include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
 
@@ -64,21 +71,31 @@ workflow ESGA {
     ch_versions = Channel.empty()
 
     //
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
+    // SUBWORKFLOW: Validate and pre-process the assembly
     //
-    INPUT_CHECK (
-        ch_input
+    ASSEMBLY_PREPROCESS(
+        ch_genome
     )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+
+    //  
+    // SUBWORKFLOW: Repeatmasking and optional modelling
+    //
+    REPEATMASK(
+	ASSEMBLY_PREPROCESS.out.fasta,
+	ch_repeats
+    )
 
     //
-    // MODULE: Run FastQC
+    // SUBWORKFLOW: Align proteins against the assembly using SPALN
     //
-    FASTQC (
-        INPUT_CHECK.out.reads
+    SPALN_PROTEIN_HINTS(
+       ASSEMBLY_PREPROCESS.out.fasta,
+       ch_proteins
     )
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
+    //
+    // MODULE: Collect all software versions
+    //
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
@@ -94,7 +111,6 @@ workflow ESGA {
     ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_custom_config.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
 
     MULTIQC (
         ch_multiqc_files.collect()
