@@ -65,7 +65,7 @@
                     "pattern": "^\\S+\\.fn?a(sta)?$",
                     "description": "Path to a fasta file with transcripts/ESTs",
                     "help_text": "Specify a fasta-formatted file with transcripts/ESTs from your organism of interest. Typical sources are ENA and dbEST."
-                }
+                },
                 "rm_lib": {
                     "type":"string",
                     "format": "file-path",
@@ -90,13 +90,13 @@
                     "help_text": "Specify which model AUGUSTUS will run with. A full list is available here: https://github.com/Gaius-Augustus/Augustus/blob/master/docs/RUNNING-AUGUSTUS.md" 
                 },
                 "npart_size": {
-                    "type": "string",
+                    "type": "integer",
                     "description": "Chunk size for splitting the assembly.",
                     "fa_icon": "fas fa-book",
                     "help_text": "The assembly will split into pieces of this size, in bp, to increase parallelization."
                 },
                 "max_intron_size": {
-                    "type": "string",
+                    "type": "integer",
                     "description": "Maximum length of expected introns in bp.",
                     "fa_icon": "fas fa-book",
                     "help_text": "This option specifies the longest expected intron in base-pairs. Seeting this too low will result in broken gene models. Conversely, setting this too large may create unreasonable gene models and increase run time."
@@ -107,20 +107,32 @@
                     "fa_icon": "fas fa-book",
                     "help_text": "This option specifies which SPALN alignment model to use. For a full list of available models, see: https://github.com/ogotoh/spaln/blob/master/table/gnm2tab"
                 },
-                "min_prot_length": {
+                "spaln_options": {
                     "type": "string",
+                    "description": "SPALN custom options.",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "USers can pass custom options to the SPALN alignment process. Normally, this will not be necessary!"
+                },
+                "spaln_protein_id": {
+                    "type": "integer",
+                    "description": "SPALN id threshold for aligning.",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "USers can pass custom id threshold to the SPALN alignment process. Normally, this will not be necessary!"
+                },
+                "min_prot_length": {
+                    "type": "integer",
                     "description": "Minimum size of a protein sequence to be included.",
                     "fa_icon": "fas fa-book",
                     "help_text": "Protein-Databases often contain fragmented protein sequences. Use this option to filter out very small proteins from your evidence set."
                 },
                 "pri_prot": {
-                   "type": "string",
+                   "type": "integer",
                    "description": "Priority for protein-derived hints for gene building.",
                    "fa_icon": "fas fa-book",
                    "help_text": "This value determines the priority protein-derived hints are given during AUGUSTUS gene finding. The higher the value, the more important the hint (1-5)."
                 },
                 "nproteins": {
-                   "type": "string",
+                   "type": "integer",
                    "description": "Numbe of proteins per alignment job.",
                    "fa_icon": "fas fa-book",
                    "help_text": "Specifies the number of proteins per alignnment job. This option controls parallelism - the higher this number, the fewer jobs are created and the longer the individual run times. Only increase if you have a very large number of sequences to align."
@@ -292,7 +304,7 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
-            "$ref": "#/definitions/reference_genome_options"
+            "$ref": "#/definitions/annotation_module_options"
         },
         {
             "$ref": "#/definitions/institutional_config_options"

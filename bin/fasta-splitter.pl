@@ -59,7 +59,7 @@ for (my $i=0; $i<scalar(@ARGV); $i++)
     else { push @files, $ARGV[$i]; }
 }
 
-my $ver_str = "$script_name, version $script_version, $script_date\nCopyright (c) $script_years Kirill Kryukov\n";
+my $ver_str = "$script_name, version $script_version , $script_date\nCopyright (c) $script_years Kirill Kryukov\n";
 my $help_str = qq{Usage: ${script_name} [options] <file>...
 Options:
     --n-parts <N>        - Divide into <N> parts

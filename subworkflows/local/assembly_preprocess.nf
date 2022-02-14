@@ -2,22 +2,32 @@
 // Clean and filter assembly
 //
 
-include { FASTA_CLEAN_NAMES } from '../../modules/local/fasta_clean_names'
-include { ASSEMBLY_STATS } from '../../modules/local/assembly_stats'
-include { FASTA_FILTER_SIZE as ASSEMBLY_FILTER_SIZE } from '../../modules/local/fasta_filter_size'
+include { GAAS_FASTASTATISTICS } from '../../modules/local/gaas/fastastatistics'
+include { GAAS_FASTAFILTERBYSIZE } from '../../modules/local/gaas/fastafilterbysize'
 
 workflow ASSEMBLY_PREPROCESS {
     take:
     genome // file: /path/to/samplesheet.csv
 
     main:
-    FASTA_CLEAN_NAMES(genome)
-    ASSEMBLY_FILTER_SIZE(FASTA_CLEAN_NAMES.out.fasta)
-    ASSEMBLY_STATS(ASSEMBLY_FILTER_SIZE.out.fasta)
+	
+    GAAS_FASTAFILTERBYSIZE(
+       create_genome_channel(genome),
+       params.min_contig_size
+    )
+    GAAS_FASTASTATISTICS(GAAS_FASTAFILTERBYSIZE.out.fasta)
 
     emit:
-    fasta = ASSEMBLY_FILTER_SIZE.out.fasta
-    stats = ASSEMBLY_STATS.out.stats
-
+    fasta = GAAS_FASTAFILTERBYSIZE.out.fasta
+    stats = GAAS_FASTASTATISTICS.out.stats
+    versions = GAAS_FASTAFILTERBYSIZE.out.versions
 }
 
+def create_genome_channel(genome) {
+    def meta = [:]
+    meta.id           = file(genome).getSimpleName()
+
+    def array = [ meta, genome ]
+
+    return array
+}

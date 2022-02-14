@@ -42,8 +42,8 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { ASSEMBLY_PREPROCESS } from '../subworkflows/local/assembly_preprocess'
-include { REPEATMASK } from '../subworkflows/local/repeatmask'
-include { SPALN_PROTEIN_HINTS } from '../subworkflows/local/spaln_protein_hints'
+include { REPEATMASKER } from '../subworkflows/local/repeatmasker'
+include { SPALN_PROTEIN_ALIGN ; SPALN_PROTEIN_ALIGN as SPALN_ALIGN_MODELS } from '../subworkflows/local/spaln_protein_align'
 
 /*
 ========================================================================================
@@ -76,26 +76,61 @@ workflow ESGA {
     ASSEMBLY_PREPROCESS(
         ch_genome
     )
+    ch_versions = ch_versions.mix(ASSEMBLY_PREPROCESS.out.versions)
 
     //  
     // SUBWORKFLOW: Repeatmasking and optional modelling
     //
-    REPEATMASK(
-	ASSEMBLY_PREPROCESS.out.fasta,
-	ch_repeats
+    REPEATMASKER(
+       ASSEMBLY_PREPROCESS.out.fasta,
+       ch_repeats       
+    )
+    ch_versions = ch_versions.mix(REPEATMASKER.out.versions)
+
+    //
+    // SUBWORKFLOW: Align proteins from related organisms with SPALN
+    SPALN_PROTEIN_ALIGN(
+       ASSEMBLY_PREPROCESS.out.fasta,
+       ch_proteins,
+       params.spaln_protein_id
+    )
+    ch_versions = ch_versions.mix(SPALN_PROTEIN_ALIGN.out.versions)
+
+    // 
+    // SUBWORKFLOW: Align species-specific proteins 
+    SPALN_ALIGN_MODELS(
+       ASSEMBLY_PREPROCESS.out.fasta,
+       ch_proteins_targeted,
+       params.spaln_protein_id_targeted
     )
 
     //
-    // SUBWORKFLOW: Align proteins against the assembly using SPALN
-    //
-    SPALN_PROTEIN_HINTS(
+    // SUBWORKFLOW: Align RNAseq reads
+    STAR_ALIGN(
        ASSEMBLY_PREPROCESS.out.fasta,
-       ch_proteins
+       ch_reads
     )
+
+    // 
+    // SUBWORKFLOW: Assemble RNA-seq reads using Trinity
+
+   
+    //
+    // SUBWORKFLOW: Assemble transcripts into gene models using PASA
+
+
+    // SUBWORKFLOW: Align transcripts using Minimap2
+
+
+    // SUBWORKFLOW: Predict gene models using AUGUSTUS
+
+
+    // SUBWORKFLOW: Consensus gene building with EVM
 
     //
     // MODULE: Collect all software versions
     //
+
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
