@@ -42,6 +42,16 @@
                     "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
                     "fa_icon": "fas fa-file-signature"
                 },
+                "samplesheet": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/csv",
+                     "pattern": "^\\S+\\.csv$",
+                    "schema": "assets/schema_input.json",
+                    "description": "Path to samplesheet for RNAseq data.",
+                    "help_text": "If you wish to include RNAseq data, You will need to create a samplesheet in CSV format. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row.", 
+                    "fa_icon": "fas fa-file-csv"
+                },
                 "proteins": {
                     "type": "string",
                     "format": "file-path",

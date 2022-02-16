@@ -16,7 +16,7 @@
 //               list (`[]`) instead of a file can be used to work around this issue.
 
 process SPALN_MERGE {
-    tag "$meta.id"
+    //tag "$meta.id"
     label 'process_medium'
     
     // TODO nf-core: List required Conda package(s).
@@ -35,19 +35,20 @@ process SPALN_MERGE {
     //               https://github.com/nf-core/modules/blob/master/modules/bwa/index/main.nf
     // TODO nf-core: Where applicable please provide/convert compressed files as input/output
     //               e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
-    tuple val(meta), path(aligns)
-    path spaln_index
-    val similarity
+    tuple val(meta), path(spaln_index)
+    path(aligns)
+    val(similarity)
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path("*.gff"), emit: gff
+    tuple val(meta), path(spaln_final), emit: gff
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    spaln_final = meta.id + ".spaln_merged.gff"
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10
     //               If the software is unable to output a version number on the command-line then it can be manually specified
     //               e.g. https://github.com/nf-core/modules/blob/master/modules/homer/annotatepeaks/main.nf

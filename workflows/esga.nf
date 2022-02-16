@@ -19,7 +19,7 @@ if (params.assembly) { ch_genome = file(params.assembly) } else { exit 1, 'No as
 if (params.proteins) { ch_proteins = file(params.proteins) } else { ch_proteins = Channel.empty() }
 if (params.proteins_targeted) { ch_proteins_targeted = file(params.proteins_targeted) } else { ch_proteins_targeted = Channel.empty() }
 if (params.transcripts) { ch_transcripts = file(params.transcripts) } else { ch_transcripts = Channel.empty() }
-if (params.reads) { ch_reads = Channel.fromFilePairs(params.reads).ifEmpty { exit 1, "File pattern did not return any reads" } } else { reads = Channel.empty() }
+if (params.samplesheet) { ch_samplesheet = file(params.samplesheet) } else { ch_samplesheet = Channel.empty() }
 if (params.rm_lib) { ch_repeats = Channel.fromPath(file(params.rm_lib)) } else { ch_repeats = Channel.empty()}
 if (params.rm_species) { ch_repeat_species = Channel.from(params.rm_species) } else { ch_repeat_species = Channel.empty() }
 
@@ -44,7 +44,7 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 include { ASSEMBLY_PREPROCESS } from '../subworkflows/local/assembly_preprocess'
 include { REPEATMASKER } from '../subworkflows/local/repeatmasker'
 include { SPALN_PROTEIN_ALIGN ; SPALN_PROTEIN_ALIGN as SPALN_ALIGN_MODELS } from '../subworkflows/local/spaln_protein_align'
-
+include { STAR_ALIGN } from '../subworkflows/local/star_align'
 /*
 ========================================================================================
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -54,6 +54,7 @@ include { SPALN_PROTEIN_ALIGN ; SPALN_PROTEIN_ALIGN as SPALN_ALIGN_MODELS } from
 //
 // MODULE: Installed directly from nf-core/modules
 //
+include { SAMTOOLS_MERGE } from '../modules/local/samtools/merge'
 include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
 
@@ -89,27 +90,48 @@ workflow ESGA {
 
     //
     // SUBWORKFLOW: Align proteins from related organisms with SPALN
-    SPALN_PROTEIN_ALIGN(
-       ASSEMBLY_PREPROCESS.out.fasta,
-       ch_proteins,
-       params.spaln_protein_id
-    )
-    ch_versions = ch_versions.mix(SPALN_PROTEIN_ALIGN.out.versions)
+    if (params.proteins) {
+       SPALN_PROTEIN_ALIGN(
+          ASSEMBLY_PREPROCESS.out.fasta,
+          ch_proteins,
+          params.spaln_protein_id
+       )
+       ch_versions = ch_versions.mix(SPALN_PROTEIN_ALIGN.out.versions)
+    }
 
     // 
     // SUBWORKFLOW: Align species-specific proteins 
-    SPALN_ALIGN_MODELS(
-       ASSEMBLY_PREPROCESS.out.fasta,
-       ch_proteins_targeted,
-       params.spaln_protein_id_targeted
-    )
+    if (params.proteins_targeted) {
+       SPALN_ALIGN_MODELS(
+          ASSEMBLY_PREPROCESS.out.fasta,
+          ch_proteins_targeted,
+          params.spaln_protein_id_targeted
+       )
+    }
 
     //
     // SUBWORKFLOW: Align RNAseq reads
-    STAR_ALIGN(
-       ASSEMBLY_PREPROCESS.out.fasta,
-       ch_reads
-    )
+    if (params.samplesheet) {
+       STAR_ALIGN(
+          ASSEMBLY_PREPROCESS.out.fasta.collect(),
+          ch_samplesheet
+       )
+       // 
+       // MODULE: Merge all BAM files
+       STAR_ALIGN.out.bam.map{ meta, bam ->
+        new_meta = [:]
+        new_meta.id = meta.ref
+        tuple(new_meta,bam)
+       }.groupTuple(by:[0])
+       .set{bam_mapped}
+
+       SAMTOOLS_MERGE(
+          bam_mapped
+       )
+       
+       ch_versions = ch_versions.mix(STAR_ALIGN.out.versions)
+
+    }
 
     // 
     // SUBWORKFLOW: Assemble RNA-seq reads using Trinity

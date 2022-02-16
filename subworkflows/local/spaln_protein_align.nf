@@ -41,9 +41,10 @@ workflow SPALN_PROTEIN_ALIGN {
           params.spaln_taxon,
           params.spaln_options
        )
+
        SPALN_MERGE(
-          SPALN_ALIGN.out.align.collect(),
           SPALN_MAKEINDEX.out.spaln_index,
+          SPALN_ALIGN.out.align.collect(),
           protein_identity
        )
        AUGUSTUS_ALIGNTOHINTS(
@@ -58,7 +59,7 @@ workflow SPALN_PROTEIN_ALIGN {
     emit:
        hints = AUGUSTUS_ALIGNTOHINTS.out.gff
        gff = SPALN_MERGE.out.gff
-       versions = GAAS_FASTACLEANER.out.versions.mix(EXONERATE_FASTACLEAN.out.versions)
+       versions = GAAS_FASTACLEANER.out.versions.mix(EXONERATE_FASTACLEAN.out.versions, SPALN_ALIGN.out.versions)
 
 }
 

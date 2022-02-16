@@ -39,7 +39,7 @@ process SPALN_MAKEINDEX {
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path("genome_spaln*"), emit: spaln_index
+    tuple val(meta),path("genome_spaln*"), emit: spaln_index
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 

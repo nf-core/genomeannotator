@@ -2,7 +2,6 @@
 
 use strict;
 use Getopt::Long;
-use Data::Dumper;
 
 my $usage = qq{
 perl my_script.pl
