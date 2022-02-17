@@ -15,18 +15,18 @@
 // TODO nf-core: Optional inputs are not currently supported by Nextflow. However, using an empty
 //               list (`[]`) instead of a file can be used to work around this issue.
 
-process TRINITY_GENOMEGUIDED {
+process SAMTOOLS_FAIDX {
     tag "$meta.id"
-    label 'process_high'
+    label 'process_low'
     
     // TODO nf-core: List required Conda package(s).
     //               Software MUST be pinned to channel (i.e. "bioconda"), version (i.e. "1.10").
     //               For Conda, the build (i.e. "h9402c20_2") must be EXCLUDED to support installation on different operating systems.
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
-    conda (params.enable_conda ? "bioconda::trinity=2.13.2" : null)
+    conda (params.enable_conda ? "bioconda::samtools=1.14" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/trinity:2.13.2--h00214ad_1':
-        'quay.io/biocontainers/trinity:2.13.2--h00214ad_1' }"
+        'https://depot.galaxyproject.org/singularity/samtools:1.14--hb421002_0':
+        'quay.io/biocontainers/samtools:1.14--hb421002_0' }"
 
     input:
     // TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
@@ -36,18 +36,16 @@ process TRINITY_GENOMEGUIDED {
     // TODO nf-core: Where applicable please provide/convert compressed files as input/output
     //               e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
     tuple val(meta), path(bam)
-    val(max_intron_size)
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    path("transcriptome_trinity/Trinity-GG.fasta"), emit: fasta
+    tuple val(meta), path("*.bam"), emit: bam
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    trinity_option = ( meta.strandedness == "unstranded" ) ? "" : "--SS_lib_type RF"
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10
     //               If the software is unable to output a version number on the command-line then it can be manually specified
     //               e.g. https://github.com/nf-core/modules/blob/master/modules/homer/annotatepeaks/main.nf
@@ -58,16 +56,17 @@ process TRINITY_GENOMEGUIDED {
     // TODO nf-core: Please replace the example samtools command below with your module's command
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
     """
-    Trinity --genome_guided_bam $bam \
-       --genome_guided_max_intron ${max_intron_size} \
-       --CPU ${task.cpus} \
-       --max_memory ${task.memory.toGiga()-1}G \
-       --output transcriptome_trinity \
-       $trinity_option
-   
+    samtools \\
+        sort \\
+        $args \\
+        -@ $task.cpus \\
+        -o ${prefix}.bam \\
+        -T $prefix \\
+        $bam
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        trinity: \$(echo \$(Trinity --version ) | grep "Trinity version" | cut -f3 -d" " | sed "s/Trinity-//" )
+        samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//' ))
     END_VERSIONS
     """
 }

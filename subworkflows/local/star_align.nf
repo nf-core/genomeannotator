@@ -6,6 +6,7 @@ include { SAMPLESHEET_CHECK } from '../../modules/local/samplesheet_check'
 include { STAR_INDEX } from '../../modules/local/star/index'
 include { STAR_ALIGN as STAR_ALIGN_PASS_ONE ; STAR_ALIGN as STAR_ALIGN_PASS_TWO } from '../../modules/local/star/align'
 include { FASTP } from '../../modules/local/fastp'
+include { CAT_FASTQ } from '../../modules/nf-core/modules/cat/fastq/main'
 
 workflow STAR_ALIGN {
 
@@ -27,16 +28,49 @@ workflow STAR_ALIGN {
     FASTP(
        reads
     )
+    
+    FASTP.out.reads
+        .map {
+           meta,fastq ->
+              meta.id = meta.id.split('_')[0..-2].join('_')
+           [ meta , fastq ] }
+        .groupTuple(by: [0])
+        .branch {
+           meta, fastq ->
+              single: fastq.size() == 1
+                 return [ meta, fastq.flatten() ]
+              multiple: fastq.size() > 1
+                 return [ meta, fastq.flatten() ]
+              
+        }
+        .set { ch_fastq }
+
+    //
+    // MODULE: concatenate reads per library
+    CAT_FASTQ(
+       ch_fastq.multiple
+    )
+    .reads
+    .mix( ch_fastq.single )
+    .set { ch_cat_fastq }
+
+    //
+    // MODULE: Align reads, first pass to produce junction information
     STAR_ALIGN_PASS_ONE(
        STAR_INDEX.out.star_index.collect(),
-       FASTP.out.reads,
+       ch_cat_fastq,
        Channel.from(params.dummy_gff).collect(),
        true
     )
+
+    junctions = STAR_ALIGN_PASS_ONE.out.junctions.collectFile(name: 'all_juncs.gtf')
+   
+    //
+    // MODULE: Align reads with junction information
     STAR_ALIGN_PASS_TWO(
        STAR_INDEX.out.star_index.collect(),
        FASTP.out.reads,
-       STAR_ALIGN_PASS_ONE.out.junctions.collectFile(),
+       junctions.collect(),
        false
     )
  

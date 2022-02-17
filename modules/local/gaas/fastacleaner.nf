@@ -57,7 +57,7 @@ process GAAS_FASTACLEANER {
     // TODO nf-core: Please replace the example samtools command below with your module's command
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
     """
-    sed "s/[.]\$//" $fasta > tmp
+    sed "s/[.]\$//" $fasta | sed "s/ .*//" > tmp
     gaas_fasta_cleaner.pl -f tmp -o $fasta_clean
     rm tmp
     cat <<-END_VERSIONS > versions.yml

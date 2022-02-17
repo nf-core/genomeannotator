@@ -54,9 +54,11 @@ process STAR_ALIGN {
     options = "--outFilterType BySJout --outFilterMultimapNmax 5 --outSAMstrandField intronMotif"
     ReadsBase = reads[0].toString() - ~/(_R1)?(_trimmed)?(_val_1)?(\.fq)?(\.fastq)?(\.gz)?$/
     junctions = ReadsBase + ".SJ.out.tab"
-    bamFile = ReadsBase + ".aligned.bam"
     if (!star_ignore_sjdbgtf) {
-       options.concat(" -sjdbFileChrStartEnd $gtf") \
+       options.concat(" -sjdbFileChrStartEnd $gtf") 
+       bamFile = ReadsBase + ".with_juncs.aligned.bam"
+    } else {
+       bamFile = ReadsBase + ".aligned.bam"
     }
     meta.ref = meta_g.id
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10

@@ -17,7 +17,7 @@
 
 process SAMTOOLS_MERGE {
     tag "$meta.id"
-    label 'process_long'
+    label 'process_high'
     
     // TODO nf-core: List required Conda package(s).
     //               Software MUST be pinned to channel (i.e. "bioconda"), version (i.e. "1.10").
@@ -25,8 +25,8 @@ process SAMTOOLS_MERGE {
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
     conda (params.enable_conda ? "bioconda::samtools=1.14" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/samtools:0.1.14--1':
-        'quay.io/biocontainers/samtools:0.1.14--1' }"
+        'https://depot.galaxyproject.org/singularity/samtools:1.14--hb421002_0':
+        'quay.io/biocontainers/samtools:1.14--hb421002_0' }"
 
     input:
     // TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
@@ -57,10 +57,9 @@ process SAMTOOLS_MERGE {
     // TODO nf-core: Please replace the example samtools command below with your module's command
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
     """
-    samtools \
-        merge \
+    samtools merge \
         $args \
-        -@ $task.cpus} \
+        -@ ${task.cpus} \
         -o ${merged_bam} \
         -O BAM \
         $bams

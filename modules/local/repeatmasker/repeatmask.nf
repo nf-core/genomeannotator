@@ -38,6 +38,7 @@ process REPEATMASKER_REPEATMASK {
     tuple val(meta), path(fasta)
     env REPEATMASKER_LIB_DIR
     path rm_lib
+    val rm_species
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
@@ -54,6 +55,12 @@ process REPEATMASKER_REPEATMASK {
     rm_gff = base_name + ".out.gff"
     rm_tbl = base_name + ".tbl"
     rm_out = base_name + ".out"
+    def options = ""
+    if (rm_species) {
+       options = "-species $rm_species"
+    } else {
+       options = "-lib $rm_lib"
+    }
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10
     //               If the software is unable to output a version number on the command-line then it can be manually specified
     //               e.g. https://github.com/nf-core/modules/blob/master/modules/homer/annotatepeaks/main.nf
@@ -64,7 +71,7 @@ process REPEATMASKER_REPEATMASK {
     // TODO nf-core: Please replace the example samtools command below with your module's command
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
     """
-    RepeatMasker -lib $rm_lib -gff -xsmall -q -nolow -pa ${task.cpus} $fasta
+    RepeatMasker $options -gff -xsmall -q -nolow -pa ${task.cpus} $fasta
     test -f ${genome_rm} || cp $fasta $genome_rm && touch $rm_gff
 
     cat <<-END_VERSIONS > versions.yml

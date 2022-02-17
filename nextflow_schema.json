@@ -149,6 +149,20 @@
                  }
             }
         },
+        "annotation_tool_options": {
+            "title": "Options for tool behavior",
+            "type": "object",
+            "fa_icon": "fas fa-fna",
+            "description": "Options that control individual tool behavior",
+            "properties": {
+                "trinity": {
+                   "type": "boolean",
+                   "description": "Activate the trinity assembly sub-pipeline",
+                   "fa_icon": "fas fa-book",
+                   "help_text": "Assemble short-reads into transcripts using Trinity"
+                }
+            }
+        },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
@@ -313,6 +327,9 @@
         {
             "$ref": "#/definitions/input_output_options"
         },
+        {
+            "$ref": "#/definitions/annotation_tool_options"
+        },  
         {
             "$ref": "#/definitions/annotation_module_options"
         },

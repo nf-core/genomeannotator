@@ -23,10 +23,10 @@ process MINIMAP2_ALIGN {
     //               Software MUST be pinned to channel (i.e. "bioconda"), version (i.e. "1.10").
     //               For Conda, the build (i.e. "h9402c20_2") must be EXCLUDED to support installation on different operating systems.
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
-    conda (params.enable_conda ? "bioconda::snippy:4.6.0" : null)
+    conda (params.enable_conda ? "bioconda::nanovar:1.4.1" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/snippy:4.6.0--hdfd78af_1':
-        'quay.io/biocontainers/snippy:4.6.0--hdfd78af_1' }"
+        'https://depot.galaxyproject.org/singularity/nanovar:1.4.1--py39h38f01e4_0':
+        'quay.io/biocontainers/nanovar:1.4.1--py39h38f01e4_0' }"
 
     input:
     // TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
@@ -48,7 +48,7 @@ process MINIMAP2_ALIGN {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def bam = meta.id + ".minimap2.bam"
+    def bam = fasta.getBaseName() + ".minimap2.bam"
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10
     //               If the software is unable to output a version number on the command-line then it can be manually specified
     //               e.g. https://github.com/nf-core/modules/blob/master/modules/homer/annotatepeaks/main.nf
@@ -60,7 +60,7 @@ process MINIMAP2_ALIGN {
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
     """
     samtools faidx $genome
-    minimap2 -t ${task.cpus} --split-prefix tmp -ax splice:hq -c -G $max_intron_size  $genome $fasta | samtools sort -@ ${task.cpus} -m 2G -O BAM -o $bam
+    minimap2 -t ${task.cpus} --split-prefix tmp -ax splice:hq -c -G $max_intron_size $genome $fasta | samtools sort -@ ${task.cpus} -m 2G -O BAM -o $bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

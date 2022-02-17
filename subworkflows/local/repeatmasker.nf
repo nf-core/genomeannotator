@@ -5,11 +5,13 @@
 include { REPEATMASKER_STAGELIB } from '../../modules/local/repeatmasker/stagelib'
 include { REPEATMASKER_REPEATMASK } from '../../modules/local/repeatmasker/repeatmask'
 include { FASTASPLITTER } from '../../modules/local/fastasplitter'
+include { CAT_FASTA } from '../../modules/local/cat/fasta'
 
 workflow REPEATMASKER {
     take:
     genome // file path
     rm_lib // file path
+    rm_species
 
     main:
     FASTASPLITTER(genome,params.npart_size)
@@ -17,12 +19,13 @@ workflow REPEATMASKER {
     REPEATMASKER_REPEATMASK( 
        FASTASPLITTER.out.chunks,
        REPEATMASKER_STAGELIB.out.library.collect(),
-       rm_lib.collect()
+       rm_lib.collect(),
+       rm_species
     )
-
-    rm = REPEATMASKER_REPEATMASK.out.masked.collectFile(name: "genome_rm.fa", newLine: true)
+    
+    CAT_FASTA(REPEATMASKER_REPEATMASK.out.masked)
     
     emit:
-    genome_rm = rm
-    versions = REPEATMASKER_STAGELIB.out.versions.mix(REPEATMASKER_REPEATMASK.out.versions,FASTASPLITTER.out.versions)
+    fasta = CAT_FASTA.out.fasta
+    versions = REPEATMASKER_STAGELIB.out.versions.mix(REPEATMASKER_REPEATMASK.out.versions,FASTASPLITTER.out.versions,CAT_FASTA.out.versions)
 }

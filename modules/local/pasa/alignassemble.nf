@@ -25,8 +25,8 @@ process PASA_ALIGNASSEMBLE {
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
     conda (params.enable_conda ? "bioconda::pasa=2.4.1" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/YOUR-TOOL-HERE':
-        'quay.io/biocontainers/YOUR-TOOL-HERE' }"
+        'https://depot.galaxyproject.org/singularity/pasa:2.4.1--h1b792b2_1':
+        'quay.io/biocontainers/pasa:2.4.1--h1b792b2_1' }"
 
     input:
     // TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
@@ -35,17 +35,27 @@ process PASA_ALIGNASSEMBLE {
     //               https://github.com/nf-core/modules/blob/master/modules/bwa/index/main.nf
     // TODO nf-core: Where applicable please provide/convert compressed files as input/output
     //               e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
-    tuple val(meta), path(bam)
+    tuple val(meta), path(genome)
+    tuple val(meta_t), path(transcripts_cln), path(transcripts)
+    path(pasa_config)
+    val(max_intron_size)
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path("*.bam"), emit: bam
+    tuple val(meta), path(pasa_assemblies_fasta),path(pasa_assemblies_gff),  emit: out
+    tuple val(meta), path(db_name), emit: db
+
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+
+    pasa_assemblies_fasta = "pasa_DB_${prefix}.sqlite.assemblies.fasta"
+    pasa_assemblies_gff = "pasa_DB_${prefix}.sqlite.pasa_assemblies.gff3"
+    db_name = "pasa_DB_" + prefix + ".sqlite"
+
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10
     //               If the software is unable to output a version number on the command-line then it can be manually specified
     //               e.g. https://github.com/nf-core/modules/blob/master/modules/homer/annotatepeaks/main.nf
@@ -56,17 +66,20 @@ process PASA_ALIGNASSEMBLE {
     // TODO nf-core: Please replace the example samtools command below with your module's command
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
     """
-    samtools \\
-        sort \\
-        $args \\
-        -@ $task.cpus \\
-        -o ${prefix}.bam \\
-        -T $prefix \\
-        $bam
+    make_pasa_config.pl --infile ${pasa_config} --trunk $prefix --outfile pasa_DB.config
+
+    \$PASAHOME/Launch_PASA_pipeline.pl \
+       --ALIGNERS blat,gmap \
+       -c pasa_DB.config -C -R \
+       -t $transcripts_cln \
+       -I $max_intron_size \
+       --transcribed_is_aligned_orient \
+       -g $genome \
+       --CPU ${task.cpus} \
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        pasa: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//' ))
+        pasa: 2.4.1
     END_VERSIONS
     """
 }
