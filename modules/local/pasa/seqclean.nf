@@ -23,10 +23,10 @@ process PASA_SEQCLEAN {
     //               Software MUST be pinned to channel (i.e. "bioconda"), version (i.e. "1.10").
     //               For Conda, the build (i.e. "h9402c20_2") must be EXCLUDED to support installation on different operating systems.
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
-    conda (params.enable_conda ? "bioconda::pasa=2.4.1" : null)
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/pasa:2.4.1--h1b792b2_1':
-        'quay.io/biocontainers/pasa:2.4.1--h1b792b2_1' }"
+    if (params.enable_conda) {
+        exit 1, "Conda environments cannot be used when using this version of PASA. Please use docker or singularity containers."
+    }
+    container 'pasapipeline/pasapipeline:2.5.2'
 
     input:
     // TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
@@ -39,7 +39,7 @@ process PASA_SEQCLEAN {
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta),path("*.clean"), emit: fasta
+    tuple val(meta),path(fasta),path("*.clean"),path("*.cln"), emit: fasta
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 

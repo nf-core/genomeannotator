@@ -11,7 +11,7 @@ WorkflowEsga.initialise(params, log)
 
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.multiqc_config, params.fasta ]
+def checkPathParamList = [ params.multiqc_config, params.assembly ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
@@ -19,10 +19,12 @@ if (params.assembly) { ch_genome = file(params.assembly) } else { exit 1, 'No as
 if (params.proteins) { ch_proteins = file(params.proteins) } else { ch_proteins = Channel.empty() }
 if (params.proteins_targeted) { ch_proteins_targeted = file(params.proteins_targeted) } else { ch_proteins_targeted = Channel.empty() }
 if (params.transcripts) { ch_transcripts = file(params.transcripts) } else { ch_transcripts = Channel.empty() }
-if (params.samplesheet) { ch_samplesheet = file(params.samplesheet) } else { ch_samplesheet = Channel.empty() }
+if (params.rnaseq_samples) { ch_samplesheet = file(params.rnaseq_samples) } else { ch_samplesheet = Channel.empty() }
 if (params.rm_lib) { ch_repeats = Channel.fromPath(file(params.rm_lib)) } else { ch_repeats = Channel.from([])}
 if (params.aug_config_dir) { ch_aug_config_folder = file(params.aug_config_dir) } else { ch_aug_config_folder = Channel.from(params.aug_config_container) }
-if (params.aug_extrinsic_cfg) { ch_aug_extrinsic_cfg = file(params.aug_extrinsic_cfg) } else { ch_aug_extrinsic_cfg = Channel.from(params.aug_ext_builtin) }
+if (params.aug_extrinsic_cfg) { ch_aug_extrinsic_cfg = file(params.aug_extrinsic_cfg) } else { ch_aug_extrinsic_cfg = file("${baseDir}/assets/augustus/augustus_default.cfg") }
+if (params.references) { ch_ref_genomes = create_ref_genome_channel(params.references) } else { ch_ref_genomes = Channel.empty() }
+if (params.evm_weights) { ch_evm_weights = file(params.evm_weights, checkIfExists: true) } else { ch_evm_weights = file("${baseDir}/assets/evm/weights.txt", checkIfExists: true) }
 /*
 ========================================================================================
     CONFIG FILES
@@ -44,10 +46,12 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 
 include { ASSEMBLY_PREPROCESS } from '../subworkflows/local/assembly_preprocess'
 include { REPEATMASKER } from '../subworkflows/local/repeatmasker'
-include { SPALN_PROTEIN_ALIGN ; SPALN_PROTEIN_ALIGN as SPALN_ALIGN_MODELS } from '../subworkflows/local/spaln_protein_align'
-include { STAR_ALIGN } from '../subworkflows/local/star_align'
+include { SPALN_ALIGN_PROTEIN ; SPALN_ALIGN_PROTEIN as SPALN_ALIGN_MODELS } from '../subworkflows/local/spaln_align_protein'
+include { RNASEQ_ALIGN } from '../subworkflows/local/rnaseq_align'
 include { MINIMAP_ALIGN_TRANSCRIPTS ; MINIMAP_ALIGN_TRANSCRIPTS as TRINITY_ALIGN_TRANSCRIPTS } from '../subworkflows/local/minimap_align_transcripts'
 include { AUGUSTUS_PIPELINE } from '../subworkflows/local/augustus_pipeline'
+include { PASA_PIPELINE } from '../subworkflows/local/pasa_pipeline'
+include { GENOME_ALIGN } from '../subworkflows/local/genome_align'
 
 /*
 ========================================================================================
@@ -81,6 +85,9 @@ workflow ESGA {
     ch_merged_transcripts = ch_transcripts
     ch_hints = Channel.empty()
     ch_repeats_lib = Channel.empty()
+    ch_proteins_gff = Channel.empty()
+    ch_transcripts_gff = Channel.empty()
+    ch_genes_gff = Channel.empty()
 
     //
     // MODULE: Stage Augustus config dir to be editable
@@ -95,6 +102,18 @@ workflow ESGA {
         ch_genome
     )
     ch_versions = ch_versions.mix(ASSEMBLY_PREPROCESS.out.versions)
+
+    //
+    // SUBWORKFLOW: Align genomes and map annotations
+    //
+    if (params.references) {
+       GENOME_ALIGN(
+          ASSEMBLY_PREPROCESS.out.fasta,
+          ch_ref_genomes
+       )
+       ch_versions = ch_versions.mix(GENOME_ALIGN.out.versions)
+       ch_hints = ch_hints.mix(GENOME_ALIGN.out.hints)
+    }          
 
     //  
     // SUBWORKFLOW: Repeatmasking and optional modelling
@@ -115,13 +134,14 @@ workflow ESGA {
     //
     // SUBWORKFLOW: Align proteins from related organisms with SPALN
     if (params.proteins) {
-       SPALN_PROTEIN_ALIGN(
+       SPALN_ALIGN_PROTEIN(
           ASSEMBLY_PREPROCESS.out.fasta,
           ch_proteins,
           params.spaln_protein_id
        )
-       ch_versions = ch_versions.mix(SPALN_PROTEIN_ALIGN.out.versions)
-       ch_hints = ch_hints.mix(SPALN_PROTEIN_ALIGN.out.hints)
+       ch_versions = ch_versions.mix(SPALN_ALIGN_PROTEIN.out.versions)
+       ch_hints = ch_hints.mix(SPALN_ALIGN_PROTEIN.out.hints)
+       ch_proteins_gff = ch_proteins_gff.mix(SPALN_ALIGN_PROTEIN.out.gff)
     }
 
     // 
@@ -132,21 +152,23 @@ workflow ESGA {
           ch_proteins_targeted,
           params.spaln_protein_id_targeted
        )
+       ch_versions = ch_versions.mix(SPALN_ALIGN_MODELS.out.versions)
        ch_hints = ch_hints.mix(SPALN_ALIGN_MODELS.out.hints)
+       ch_genes_gff = ch_genes_gff.mix(SPALN_ALIGN_MODELS.out.gff)
     }
 
     //
     // SUBWORKFLOW: Align RNAseq reads
     //
-    if (params.samplesheet) {
-       STAR_ALIGN(
+    if (params.rnaseq_samples) {
+       RNASEQ_ALIGN(
           ASSEMBLY_PREPROCESS.out.fasta.collect(),
           ch_samplesheet
        )
        // 
        // MODULE: Merge all BAM files
        //
-       STAR_ALIGN.out.bam.map{ meta, bam ->
+       RNASEQ_ALIGN.out.bam.map{ meta, bam ->
         new_meta = [:]
         new_meta.id = meta.ref
         tuple(new_meta,bam)
@@ -164,7 +186,7 @@ workflow ESGA {
           params.pri_rnaseq
        )
        ch_hints = ch_hints.mix(AUGUSTUS_BAM2HINTS.out.gff)
-       ch_versions = ch_versions.mix(STAR_ALIGN.out.versions)
+       ch_versions = ch_versions.mix(RNASEQ_ALIGN.out.versions,AUGUSTUS_BAM2HINTS.out.versions,SAMTOOLS_MERGE.out.versions)
 
        //
        // SUBWORKFLOW: Assemble transcripts using Trinity and align to genome
@@ -188,6 +210,7 @@ workflow ESGA {
           ch_transcripts
        )
        ch_versions = ch_versions.mix(MINIMAP_ALIGN_TRANSCRIPTS.out.versions)
+       //ch_transcripts_gff = ch_transcripts_gff.mix(MINIMAP_ALIGN_TRANSCRIPTS.out.gff)
        ch_hints = ch_hints.mix(MINIMAP_ALIGN_TRANSCRIPTS.out.hints)
     }
 
@@ -195,26 +218,39 @@ workflow ESGA {
     // SUBWORKFLOW: Assemble transcripts into gene models
     //
     if (params.pasa) {
-        //PASA_PIPELINE(
-        //   ASSEMBLY_PREPROCESS.out.fasta,
-        //   ch_transcripts.unique().collectFile(name: 'merged_transcripts.fasta')
-        //)
+        PASA_PIPELINE(
+           ASSEMBLY_PREPROCESS.out.fasta,
+           ch_transcripts
+        )
+        ch_versions = ch_versions.mix(PASA_PIPELINE.out.versions)
+        //ch_genes_gff = ch_genes_gff.mix(PASA_PIPELINE.out.gff)
     }
        
     //
     // SUBWORKFLOW: Predict gene models using AUGUSTUS
     //
     all_hints = ch_hints.unique().collectFile(name: 'hints.gff')
+
     AUGUSTUS_PIPELINE(
        REPEATMASKER.out.fasta,
        all_hints,
        ch_aug_config_folder,
        ch_aug_extrinsic_cfg,
     )
+    ch_genes_gff = ch_genes_gff.mix(AUGUSTUS_PIPELINE.out.gff)
 
     //
     // SUBWORKFLOW: Consensus gene building with EVM
     //
+    if (params.evm) {
+       EVM(
+          REPEATMASKER.out.fasta,
+          ch_genes_gff,
+          ch_proteins_gff.ifEmpty(false),
+          ch_transcripts_gff.ifEmpty(false),
+          ch_evm_weights
+       )
+    }
 
     //
     // MODULE: Collect all software versions
@@ -261,3 +297,21 @@ workflow.onComplete {
     THE END
 ========================================================================================
 */
+
+
+def create_ref_genome_channel(fasta) {
+
+    def meta = [:]
+    meta.id           = file(fasta).getSimpleName()
+
+    gtf = file(
+       fasta.getParent()
+       .toString() + "/" + fasta.getBaseName().toString() + ".gtf", 
+       checkIfExists: true
+    )
+
+    def array = [ meta, fasta, gtf ]
+
+    return array
+}
+

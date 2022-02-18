@@ -12,7 +12,7 @@ include { SPALN_MERGE } from '../../modules/local/spaln/merge'
 include { SPALNTOGMOD } from '../../modules/local/spalntogmod'
 include { AUGUSTUS_ALIGNTOHINTS } from '../../modules/local/augustus/aligntohints'
 
-workflow SPALN_PROTEIN_ALIGN {
+workflow SPALN_ALIGN_PROTEIN {
 
     take:
     genome // file path
@@ -59,7 +59,7 @@ workflow SPALN_PROTEIN_ALIGN {
     emit:
        hints = AUGUSTUS_ALIGNTOHINTS.out.gff
        gff = SPALN_MERGE.out.gff
-       versions = GAAS_FASTACLEANER.out.versions.mix(EXONERATE_FASTACLEAN.out.versions, SPALN_ALIGN.out.versions)
+       versions = GAAS_FASTACLEANER.out.versions
 
 }
 

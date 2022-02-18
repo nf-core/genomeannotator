@@ -15,18 +15,18 @@
 // TODO nf-core: Optional inputs are not currently supported by Nextflow. However, using an empty
 //               list (`[]`) instead of a file can be used to work around this issue.
 
-process SPALN_ALIGN {
-    tag "$meta.id | $meta_p.id"
-    label 'process_high'
+process HELPER_CREATEGFFIDS {
+    tag "$meta.id"
+    label 'process_low'
     
     // TODO nf-core: List required Conda package(s).
     //               Software MUST be pinned to channel (i.e. "bioconda"), version (i.e. "1.10").
     //               For Conda, the build (i.e. "h9402c20_2") must be EXCLUDED to support installation on different operating systems.
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
-    conda (params.enable_conda ? "bioconda::spaln=2.4.7" : null)
+    conda (params.enable_conda ? "bioconda::multiqc=1.12" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/spaln:2.4.7--pl5321h9a82719_1':
-        'quay.io/biocontainers/spaln:2.4.7--pl5321h9a82719_1' }"
+        'https://depot.galaxyproject.org/singularity/multiqc:1.12--pyhdfd78af_0':
+        'quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0' }"
 
     input:
     // TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
@@ -35,22 +35,18 @@ process SPALN_ALIGN {
     //               https://github.com/nf-core/modules/blob/master/modules/bwa/index/main.nf
     // TODO nf-core: Where applicable please provide/convert compressed files as input/output
     //               e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
-    tuple val(meta), path(spaln_index)
-    tuple val(meta_p), path(proteins)
-    val spaln_q
-    val spaln_taxon
-    val spaln_options
+    tuple val(meta), path(gff)
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    path("${chunk_name}.*"), emit: align
+    tuple val(meta), path("*.stable_ids.gff"), emit: gff
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    chunk_name = proteins.getBaseName()
+    updated_gff = prefix + ".stable_id.gff"
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10
     //               If the software is unable to output a version number on the command-line then it can be manually specified
     //               e.g. https://github.com/nf-core/modules/blob/master/modules/homer/annotatepeaks/main.nf
@@ -61,11 +57,12 @@ process SPALN_ALIGN {
     // TODO nf-core: Please replace the example samtools command below with your module's command
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
     """
-    spaln -o $chunk_name -Q${spaln_q} -T${spaln_taxon} ${spaln_options} -O12 -t${task.cpus} -Dgenome_spaln $proteins
+    cat $gff > merged.gff
+    create_gff_ids.pl --gff merged.gff > $updated_gff
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        spaln: \$(echo \$( spaln 2>&1 | head -n3 | tail -n1 | cut -f4 -d " " ))
+        helper: 1.0.0
     END_VERSIONS
     """
 }

@@ -6,7 +6,7 @@ include { GAAS_FASTACLEANER } from '../../modules/local/gaas/fastacleaner'
 include { EXONERATE_FASTACLEAN } from '../../modules/local/exonerate/fastaclean'
 include { PASA_SEQCLEAN } from '../../modules/local/pasa/seqclean'
 include { PASA_ALIGNASSEMBLE } from '../../modules/local/pasa/alignassemble'
-include { PASA_PASATOMODELS } from '../../modules/local/pasa/pasatomodels'
+include { PASA_ASMBLSTOTRAINING } from '../../modules/local/pasa/asmblstotraining'
 
 workflow PASA_PIPELINE {
 
@@ -27,14 +27,16 @@ workflow PASA_PIPELINE {
        )
        PASA_ALIGNASSEMBLE(
           genome,
-          SEQCLEAN.out.fasta,
+          PASA_SEQCLEAN.out.fasta,
           params.pasa_config_file,
           params.max_intron_size
        )
+       PASA_ASMBLSTOTRAINING(
+          PASA_ALIGNASSEMBLE.out.pasa_out
+       )
   
     emit:
-       gff = PASATOMODELS.out.gff
-       fasta = PASATOMODELS.out.fasta
+       gff = PASA_ASMBLSTOTRAINING.out.gff
        versions = PASA_ALIGNASSEMBLE.out.versions
 
 }

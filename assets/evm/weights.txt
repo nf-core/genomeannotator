@@ -1,0 +1,10 @@
+ABINITIO_PREDICTION      AUGUSTUS       1
+OTHER_PREDICTION	ALN	10
+OTHER_PREDICTION	transdecoder	5
+OTHER_PREDICTION	transmapped	7
+OTHER_PREDICTION	ensembl	7
+OTHER_PREDICTION	ensembl_havana 7
+PROTEIN		SPALN_OTHER	6
+PROTEIN         protein2genome 8
+TRANSCRIPT      est2genome      9
+TRANSCRIPT      PASA_transcript_assemblies      2

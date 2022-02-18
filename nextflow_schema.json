@@ -21,7 +21,7 @@
                     "pattern": "^\\S+\\.fn?a(sta)?$",
                     "schema": "assets/schema_input.json",
                     "description": "Path to the genome assembly.",
-                    "help_text": "ou will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. See [usage docs](https://nf-co.re/esga/usage#samplesheet-input).",
+                    "help_text": "This is the assembly you wish to annotate.",
                     "fa_icon": "fas fa-file-csv"
                 },
                 "outdir": {
@@ -42,14 +42,14 @@
                     "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
                     "fa_icon": "fas fa-file-signature"
                 },
-                "samplesheet": {
+                "rnaseq_samples": {
                     "type": "string",
                     "format": "file-path",
                     "mimetype": "text/csv",
                      "pattern": "^\\S+\\.csv$",
                     "schema": "assets/schema_input.json",
                     "description": "Path to samplesheet for RNAseq data.",
-                    "help_text": "If you wish to include RNAseq data, You will need to create a samplesheet in CSV format. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row.", 
+                    "help_text": "If you wish to include RNAseq data, you will need to create a samplesheet in CSV format. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row.", 
                     "fa_icon": "fas fa-file-csv"
                 },
                 "proteins": {
@@ -127,7 +127,7 @@
                     "type": "integer",
                     "description": "SPALN id threshold for aligning.",
                     "fa_icon": "fas fa-book",
-                    "help_text": "USers can pass custom id threshold to the SPALN alignment process. Normally, this will not be necessary!"
+                    "help_text": "Users can pass custom id threshold to the SPALN alignment process. Normally, this will not be necessary!"
                 },
                 "min_prot_length": {
                     "type": "integer",
@@ -160,7 +160,19 @@
                    "description": "Activate the trinity assembly sub-pipeline",
                    "fa_icon": "fas fa-book",
                    "help_text": "Assemble short-reads into transcripts using Trinity"
-                }
+                },
+                "pasa": {
+                   "type": "boolean",
+                   "description": "Activate the PASA sub-pipeline",
+                   "fa_icon": "fas fa-book",
+                   "help_text": "Assemble into gene models using PASA."
+                },
+                "evm": {
+                   "type": "boolean",
+                   "description": "Activate the EvidenceModeler sub-pipeline",
+                   "fa_icon": "fas fa-book",
+                   "help_text": "Perform consensus gene building using EvidenceModeler."
+                },
             }
         },
         "institutional_config_options": {

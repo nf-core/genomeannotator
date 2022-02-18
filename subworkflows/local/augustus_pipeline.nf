@@ -4,6 +4,8 @@
 
 include { FASTASPLITTER } from '../../modules/local/fastasplitter'
 include { AUGUSTUS_AUGUSTUSBATCH } from '../../modules/local/augustus/augustusbatch'
+include { AUGUSTUS_FIXJOINGENES } from '../../modules/local/augustus/fixjoingenes'
+include { HELPER_CREATEGFFIDS } from '../../modules/local/helper/creategffids'
 
 workflow AUGUSTUS_PIPELINE {
     take:
@@ -26,13 +28,18 @@ workflow AUGUSTUS_PIPELINE {
        params.aug_chunk_length,
        params.aug_species
     )
-    //AUGUSTUS_FIXJOINGENES(
-    //   AUGUSTUS_AUGUSTUSBATCH.out.gff
-    //)
-    
-    //merged_models = AUGUSTUS_FIXJOINGENES.out.gff.collecFile(name: "augustus_merged_models.gff3")    
+    AUGUSTUS_FIXJOINGENES(
+       AUGUSTUS_AUGUSTUSBATCH.out.gff
+    )
+    AUGUSTUS_FIXJOINGENES.out.gff
+    .groupTuple()
+    .set { grouped_augustus_gff }
+  
+    HELPER_CREATEGFFIDS(
+       grouped_augustus_gff
+    )    
 
     emit:
-    //gff = AUGUSTUS_FIXJOINGENES.out.gff
+    gff = HELPER_CREATEGFFIDS.out.gff
     versions = FASTASPLITTER.out.versions
 }

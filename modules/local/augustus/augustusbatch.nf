@@ -42,7 +42,7 @@ process AUGUSTUS_AUGUSTUSBATCH {
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path("*.gff"), emit: gff
+    tuple val(meta), path(augustus_result), emit: gff
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 

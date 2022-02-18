@@ -23,10 +23,10 @@ process PASA_ALIGNASSEMBLE {
     //               Software MUST be pinned to channel (i.e. "bioconda"), version (i.e. "1.10").
     //               For Conda, the build (i.e. "h9402c20_2") must be EXCLUDED to support installation on different operating systems.
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
-    conda (params.enable_conda ? "bioconda::pasa=2.4.1" : null)
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/pasa:2.4.1--h1b792b2_1':
-        'quay.io/biocontainers/pasa:2.4.1--h1b792b2_1' }"
+    if (params.enable_conda) {
+        exit 1, "Conda environments cannot be used when using this version of PASA. Please use docker or singularity containers."
+    }
+    container 'pasapipeline/pasapipeline:2.5.2'
 
     input:
     // TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
@@ -36,13 +36,13 @@ process PASA_ALIGNASSEMBLE {
     // TODO nf-core: Where applicable please provide/convert compressed files as input/output
     //               e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
     tuple val(meta), path(genome)
-    tuple val(meta_t), path(transcripts_cln), path(transcripts)
+    tuple val(meta_t), path(transcripts), path(transcripts_clean),path(transcripts_cln)
     path(pasa_config)
     val(max_intron_size)
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path(pasa_assemblies_fasta),path(pasa_assemblies_gff),  emit: out
+    tuple val(meta), path(pasa_assemblies_fasta),path(pasa_assemblies_gff),  emit: pasa_out
     tuple val(meta), path(db_name), emit: db
 
     // TODO nf-core: List additional required output channels/values here
@@ -69,9 +69,11 @@ process PASA_ALIGNASSEMBLE {
     make_pasa_config.pl --infile ${pasa_config} --trunk $prefix --outfile pasa_DB.config
 
     \$PASAHOME/Launch_PASA_pipeline.pl \
-       --ALIGNERS blat,gmap \
+       --ALIGNERS minimap2 \
        -c pasa_DB.config -C -R \
-       -t $transcripts_cln \
+       -t $transcripts_clean \
+       -T \
+       -u $transcripts \
        -I $max_intron_size \
        --transcribed_is_aligned_orient \
        -g $genome \
@@ -79,7 +81,7 @@ process PASA_ALIGNASSEMBLE {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        pasa: 2.4.1
+        pasa: 2.5.2
     END_VERSIONS
     """
 }

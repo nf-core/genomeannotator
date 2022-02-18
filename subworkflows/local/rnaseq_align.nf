@@ -8,7 +8,7 @@ include { STAR_ALIGN as STAR_ALIGN_PASS_ONE ; STAR_ALIGN as STAR_ALIGN_PASS_TWO 
 include { FASTP } from '../../modules/local/fastp'
 include { CAT_FASTQ } from '../../modules/nf-core/modules/cat/fastq/main'
 
-workflow STAR_ALIGN {
+workflow RNASEQ_ALIGN {
 
     take:
     genome // file path
@@ -32,7 +32,7 @@ workflow STAR_ALIGN {
     FASTP.out.reads
         .map {
            meta,fastq ->
-              meta.id = meta.id.split('_')[0..-2].join('_')
+               meta.id = (meta.id.contains("SRR")) ? meta.id : meta.id.split('_')[0..-2].join('_')
            [ meta , fastq ] }
         .groupTuple(by: [0])
         .branch {
