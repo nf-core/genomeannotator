@@ -2,7 +2,10 @@
 // Clean and filter assembly
 //
 
+include { EVIDENCEMODELER_MERGE } from '../../modules/local/evidencemodeler/merge'
 include { EVIDENCEMODELER_PARTITION } from '../../modules/local/evidencemodeler/partition'
+include { EVIDENCEMODELER_EXECUTE } from '../../modules/local/evidencemodeler/execute'
+
 
 workflow EVM {
     take:
@@ -17,23 +20,20 @@ workflow EVM {
     EVIDENCEMODELER_PARTITION(
        genome,
        genes_gff,
-       proteins_gff.ifEmpty(false),
-       transcripts_gff.ifEmpty(false),
+       proteins_gff,
+       transcripts_gff,
        evm_config
     )
     EVIDENCEMODELER_EXECUTE(
-        EVIDENCEMODELER_PARTITION.out.partition.splitText(by: params.nevm, file: true)
+        EVIDENCEMODELER_PARTITION.out.commands.splitText(by: params.nevm, file: true)
+    )
+    
+    EVIDENCEMODELER_MERGE(
+       EVIDENCEMODELER_PARTITION,out.partitions.collect(),
+       EVIDENCEMODELER_EXECUTE.out.log.collect(),
+       genome.collect()
     )
     
     emit:
     versions = EVIDENCEMODELER_PARTITION.out.versions
-}
-
-def create_genome_channel(genome) {
-    def meta = [:]
-    meta.id           = file(genome).getSimpleName()
-
-    def array = [ meta, genome ]
-
-    return array
 }

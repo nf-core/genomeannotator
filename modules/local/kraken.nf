@@ -35,11 +35,12 @@ process KRAKEN {
     //               https://github.com/nf-core/modules/blob/master/modules/bwa/index/main.nf
     // TODO nf-core: Where applicable please provide/convert compressed files as input/output
     //               e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
-    tuple val(query_id), val(target_id).path(chains),path(query),path(target),path(target_gtf)
+    tuple val(meta), path(query),path(target),path(target_gtf),path(chains)
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path(target),path(target_gtf),path(query),path(chain_file), emit: bam
+    tuple val(meta), path(mapped_gtf), emit: gtf
+
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 

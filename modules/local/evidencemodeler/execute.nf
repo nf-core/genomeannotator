@@ -39,13 +39,14 @@ process EVIDENCEMODELER_EXECUTE {
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path("*.bam"), emit: bam
+    tuple val(meta), path("*.log"), emit: log
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    log_file = partition.getBaseName() + ".log"
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10
     //               If the software is unable to output a version number on the command-line then it can be manually specified
     //               e.g. https://github.com/nf-core/modules/blob/master/modules/homer/annotatepeaks/main.nf
@@ -56,17 +57,11 @@ process EVIDENCEMODELER_EXECUTE {
     // TODO nf-core: Please replace the example samtools command below with your module's command
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
     """
-    samtools \\
-        sort \\
-        $args \\
-        -@ $task.cpus \\
-        -o ${prefix}.bam \\
-        -T $prefix \\
-        $bam
+    \$EVM_HOME/EvmUtils/execute_EVM_commands.pl $partition | tee $log_file
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        evidencemodeler: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//' ))
+        evidencemodeler: 1.1.0
     END_VERSIONS
     """
 }

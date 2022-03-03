@@ -56,6 +56,9 @@ workflow SPALN_ALIGN_PROTEIN {
        SPALNTOGMOD(
           SPALN_MERGE.out.gff
        )
+       //SPALNTOTRAINING(
+       //   SPALN_MERGE.out.gff
+       //)
     emit:
        hints = AUGUSTUS_ALIGNTOHINTS.out.gff
        gff = SPALN_MERGE.out.gff

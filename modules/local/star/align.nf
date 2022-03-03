@@ -42,23 +42,22 @@ process STAR_ALIGN {
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path(bamFile), emit: bam
+    tuple val(meta), path('*.bam'), emit: bam
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
     path junctions                , emit: junctions
+    path '*.wig'                  , emit: wiggle, optional: true
 
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    junctions = meta.id + "_SJ.out.tab"
     options = "--outFilterType BySJout --outFilterMultimapNmax 5 --outSAMstrandField intronMotif"
-    ReadsBase = reads[0].toString() - ~/(_R1)?(_trimmed)?(_val_1)?(\.fq)?(\.fastq)?(\.gz)?$/
-    junctions = ReadsBase + ".SJ.out.tab"
-    if (!star_ignore_sjdbgtf) {
-       options.concat(" -sjdbFileChrStartEnd $gtf") 
-       bamFile = ReadsBase + ".with_juncs.aligned.bam"
+    junctions = prefix + ".SJ.out.tab"
+    if (star_ignore_sjdbgtf) {
+       bamFile = prefix + ".aligned.bam"
     } else {
-       bamFile = ReadsBase + ".aligned.bam"
+       options = options.concat(" --sjdbFileChrStartEnd $gtf --outWigType wiggle")
+       bamFile = prefix + ".with_juncs.aligned.bam"
     }
     meta.ref = meta_g.id
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10
@@ -79,10 +78,11 @@ process STAR_ALIGN {
        --alignIntronMin 20 \
        --alignIntronMax $params.max_intron_size \
        --outSAMtype BAM SortedByCoordinate \
+       --outFileNamePrefix $prefix \
        $options
     
-    mv Aligned.sortedByCoord.out.bam $bamFile
-    cp SJ.out.tab $junctions
+    mv *Aligned.sortedByCoord.out.bam $bamFile
+    cp *SJ.out.tab $junctions
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

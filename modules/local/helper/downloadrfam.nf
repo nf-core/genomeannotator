@@ -15,20 +15,21 @@
 // TODO nf-core: Optional inputs are not currently supported by Nextflow. However, using an empty
 //               list (`[]`) instead of a file can be used to work around this issue.
 
-process SATSUMA2_SATSUMASYNTENY2 {
-    tag "$meta.id"
-    label 'process_high'
+process HELPER_DOWNLOADRFAM {
+    tag 'Rfam14'
+    label 'process_low'
     
+    // Local execution as not all clusters have node access to the internet
+    executor 'local'
+
     // TODO nf-core: List required Conda package(s).
     //               Software MUST be pinned to channel (i.e. "bioconda"), version (i.e. "1.10").
     //               For Conda, the build (i.e. "h9402c20_2") must be EXCLUDED to support installation on different operating systems.
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
-    if (params.enable_conda) {
-        exit 1, "Conda environments cannot be used when using this version of Satsuma2. Please use docker or singularity containers."
-    }
+    conda (params.enable_conda ? "bioconda::multiqc=1.12" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/satsuma2:20161123--h7d875b9_3':
-        'quay.io/biocontainers/satsuma2:20161123--h7d875b9_3' }"
+        'https://depot.galaxyproject.org/singularity/multiqc:1.12--pyhdfd78af_0':
+        'quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0' }"
 
     input:
     // TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
@@ -37,19 +38,19 @@ process SATSUMA2_SATSUMASYNTENY2 {
     //               https://github.com/nf-core/modules/blob/master/modules/bwa/index/main.nf
     // TODO nf-core: Where applicable please provide/convert compressed files as input/output
     //               e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
-    tuple val(meta), path(query)
-    tuple val(meta_t), path(target),path(target_gtf)
+    tuple val(meta),path(fasta)
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta),path(query),path(target),path(target_gtf),path(satsuma_chain_chunk), emit: chain
+    path("*.cm"), emit: cm
+    path("*.txt"), emit: txt
+    
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
-    satsuma_chain_chunk = query.getBaseName() + "-" + meta_t.id + ".satsuma_summary.chained.out"
+    
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10
     //               If the software is unable to output a version number on the command-line then it can be manually specified
     //               e.g. https://github.com/nf-core/modules/blob/master/modules/homer/annotatepeaks/main.nf
@@ -59,17 +60,15 @@ process SATSUMA2_SATSUMASYNTENY2 {
     //               using the Nextflow "task" variable e.g. "--threads $task.cpus"
     // TODO nf-core: Please replace the example samtools command below with your module's command
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
-    meta.target = meta_t.id
     """
-
-    export SATSUMA2_PATH=/usr/local/bin
-
-    SatsumaSynteny2 -q $query -t $target -threads ${task.cpus} -o align 2>&1 >/dev/null
-    cp align/satsuma_summary.chained.out $satsuma_chain_chunk
+    wget ftp://ftp.ebi.ac.uk/pub/databases/Rfam/14.2/Rfam.cm.gz
+    gunzip Rfam.cm.gz
+    wget ftp://ftp.ebi.ac.uk/pub/databases/Rfam/14.2/database_files/family.txt.gz
+    gunzip family.txt.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        satsuma2: 20161123
+        wget: \$(echo \$(wget --version) |  head -n1 | cut -f3 -d " " ))
     END_VERSIONS
     """
 }

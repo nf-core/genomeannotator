@@ -19,10 +19,6 @@ class WorkflowEsga {
             log.error "Augustus profile model not specified with e.g. '--aug_species human'"
             System.exit(1)
         }
-        if (params.protein_aligner == "spaln" && !params.spaln_taxon) {
-            log.error "Must provide a SPALN taxon when using the Spaln protein aligner with e.g. '--spaln_taxon Tetrapod'"
-            System.exit(1)
-        }
 
     }
 

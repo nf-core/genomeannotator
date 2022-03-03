@@ -82,6 +82,7 @@ workflow RNASEQ_ALIGN {
 }
 
 def create_fastq_channel(LinkedHashMap row) {
+    // sample,fastq_1,fastq_2,strandedness
     def meta = [:]
     meta.id           = row.sample
     meta.single_end   = row.single_end.toBoolean()

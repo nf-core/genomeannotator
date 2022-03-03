@@ -57,10 +57,10 @@ process EVIDENCEMODELER_PARTITION {
     protein_options = ""
     transcript_options = ""
     if (proteins) {
-       protein_options = "--protein_alignments $protein_gff"   
+       protein_options = "--protein_alignments $proteins"   
     }
     if (transcripts) {
-       transcript_options = "--transcript_alignments transcripts"
+       transcript_options = "--transcript_alignments $transcripts"
     }
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10
     //               If the software is unable to output a version number on the command-line then it can be manually specified
@@ -85,7 +85,7 @@ process EVIDENCEMODELER_PARTITION {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        evidencemodeler: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//' ))
+        evidencemodeler: 1.1.0
     END_VERSIONS
     """
 }

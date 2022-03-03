@@ -62,7 +62,7 @@ process AUGUSTUS_BAM2HINTS {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        augustus: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//' ))
+        augustus: \$(echo \$(augustus  | head -n1 | cut -f2 -d " " | sed "s/[)]//" | sed "s/[(]//" ))
     END_VERSIONS
     """
 }

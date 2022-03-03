@@ -39,7 +39,7 @@ process HELPER_CREATEGFFIDS {
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path("*.stable_ids.gff"), emit: gff
+    tuple val(meta), path("*.stable_id.gff"), emit: gff
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 

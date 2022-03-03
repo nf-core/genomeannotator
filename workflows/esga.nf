@@ -15,16 +15,15 @@ def checkPathParamList = [ params.multiqc_config, params.assembly ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-if (params.assembly) { ch_genome = file(params.assembly) } else { exit 1, 'No assembly specified!' }
-if (params.proteins) { ch_proteins = file(params.proteins) } else { ch_proteins = Channel.empty() }
-if (params.proteins_targeted) { ch_proteins_targeted = file(params.proteins_targeted) } else { ch_proteins_targeted = Channel.empty() }
-if (params.transcripts) { ch_transcripts = file(params.transcripts) } else { ch_transcripts = Channel.empty() }
-if (params.rnaseq_samples) { ch_samplesheet = file(params.rnaseq_samples) } else { ch_samplesheet = Channel.empty() }
-if (params.rm_lib) { ch_repeats = Channel.fromPath(file(params.rm_lib)) } else { ch_repeats = Channel.from([])}
-if (params.aug_config_dir) { ch_aug_config_folder = file(params.aug_config_dir) } else { ch_aug_config_folder = Channel.from(params.aug_config_container) }
-if (params.aug_extrinsic_cfg) { ch_aug_extrinsic_cfg = file(params.aug_extrinsic_cfg) } else { ch_aug_extrinsic_cfg = file("${baseDir}/assets/augustus/augustus_default.cfg") }
-if (params.references) { ch_ref_genomes = create_ref_genome_channel(params.references) } else { ch_ref_genomes = Channel.empty() }
-if (params.evm_weights) { ch_evm_weights = file(params.evm_weights, checkIfExists: true) } else { ch_evm_weights = file("${baseDir}/assets/evm/weights.txt", checkIfExists: true) }
+if (params.assembly) { ch_genome = file(params.assembly, checkIfExists: true) } else { exit 1, 'No assembly specified!' }
+if (params.proteins) { ch_proteins = file(params.proteins, checkIfExists: true) } else { ch_proteins = Channel.empty() }
+if (params.proteins_targeted) { ch_proteins_targeted = file(params.proteins_targeted, checkIfExists: true) } else { ch_proteins_targeted = Channel.empty() }
+if (params.transcripts) { ch_transcripts = file(params.transcripts, checkIfExists: true) } else { ch_transcripts = Channel.empty() }
+if (params.rnaseq_samples) { ch_samplesheet = file(params.rnaseq_samples, checkIfExists: true) } else { ch_samplesheet = Channel.empty() }
+if (params.rm_lib) { ch_repeats = Channel.fromPath(file(params.rm_lib, checkIfExists: true)) } else { ch_repeats = Channel.from([])}
+if (params.aug_config_dir) { ch_aug_config_folder = file(params.aug_config_dir, checkIfExists: true) } else { ch_aug_config_folder = Channel.from(params.aug_config_container) }
+if (params.references) { ch_ref_genomes = Channel.fromPath(params.references, checkIfExists: true)  } else { ch_ref_genomes = Channel.empty() }
+
 /*
 ========================================================================================
     CONFIG FILES
@@ -33,6 +32,8 @@ if (params.evm_weights) { ch_evm_weights = file(params.evm_weights, checkIfExist
 
 ch_multiqc_config        = file("$projectDir/assets/multiqc_config.yaml", checkIfExists: true)
 ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
+ch_aug_extrinsic_cfg = params.aug_extrinsic_cfg ? Channel.from( file(params.aug_extrinsic_cfg, checkIfExists: true) ) : Channel.from( file("${workflow.projectDir}/assets/augustus/augustus_default.cfg"))
+ch_evm_weights = params.evm_weights ? Channel.from(file(params.evm_weights, checkIfExists: true)) : Channel.from(file("${baseDir}/assets/evm/weights.txt", checkIfExists: true))
 
 /*
 ========================================================================================
@@ -112,7 +113,7 @@ workflow ESGA {
           ch_ref_genomes
        )
        ch_versions = ch_versions.mix(GENOME_ALIGN.out.versions)
-       ch_hints = ch_hints.mix(GENOME_ALIGN.out.hints)
+       //ch_hints = ch_hints.mix(GENOME_ALIGN.out.hints)
     }          
 
     //  
@@ -186,7 +187,7 @@ workflow ESGA {
           params.pri_rnaseq
        )
        ch_hints = ch_hints.mix(AUGUSTUS_BAM2HINTS.out.gff)
-       ch_versions = ch_versions.mix(RNASEQ_ALIGN.out.versions,AUGUSTUS_BAM2HINTS.out.versions,SAMTOOLS_MERGE.out.versions)
+       ch_versions = ch_versions.mix(RNASEQ_ALIGN.out.versions.first(),AUGUSTUS_BAM2HINTS.out.versions,SAMTOOLS_MERGE.out.versions)
 
        //
        // SUBWORKFLOW: Assemble transcripts using Trinity and align to genome
@@ -210,7 +211,7 @@ workflow ESGA {
           ch_transcripts
        )
        ch_versions = ch_versions.mix(MINIMAP_ALIGN_TRANSCRIPTS.out.versions)
-       //ch_transcripts_gff = ch_transcripts_gff.mix(MINIMAP_ALIGN_TRANSCRIPTS.out.gff)
+       ch_transcripts_gff = ch_transcripts_gff.mix(MINIMAP_ALIGN_TRANSCRIPTS.out.gff)
        ch_hints = ch_hints.mix(MINIMAP_ALIGN_TRANSCRIPTS.out.hints)
     }
 
@@ -223,9 +224,30 @@ workflow ESGA {
            ch_transcripts
         )
         ch_versions = ch_versions.mix(PASA_PIPELINE.out.versions)
-        //ch_genes_gff = ch_genes_gff.mix(PASA_PIPELINE.out.gff)
+        ch_genes_gff = ch_genes_gff.mix(PASA_PIPELINE.out.gff)
     }
-       
+
+    //
+    // SUBWORKFLOW: Train augustus prediction model
+    //
+    if (params.aug_training) {
+
+       if (params.proteins_targeted) {
+          AUGUSTUS_TRAINING(
+             SPALN_ALIGN_MODELS.out.gff
+          )
+          ch_aug_config_final = AUGUSTUS_TRAINING.out.aug_config_folder             
+       } else if (params.pasa) {
+          AUGUSTUS_TRAINING(
+             PASA_PIPELINE.out.gff_training
+          )
+          ch_aug_config_final = AUGUSTUS_TRAINING.out.aug_config_folder
+       }
+
+    } else {
+       ch_aug_config_final = ch_aug_config_folder
+    }
+
     //
     // SUBWORKFLOW: Predict gene models using AUGUSTUS
     //
@@ -237,6 +259,7 @@ workflow ESGA {
        ch_aug_config_folder,
        ch_aug_extrinsic_cfg,
     )
+    ch_versions = ch_versions.mix(AUGUSTUS_PIPELINE.out.versions)
     ch_genes_gff = ch_genes_gff.mix(AUGUSTUS_PIPELINE.out.gff)
 
     //
@@ -297,21 +320,4 @@ workflow.onComplete {
     THE END
 ========================================================================================
 */
-
-
-def create_ref_genome_channel(fasta) {
-
-    def meta = [:]
-    meta.id           = file(fasta).getSimpleName()
-
-    gtf = file(
-       fasta.getParent()
-       .toString() + "/" + fasta.getBaseName().toString() + ".gtf", 
-       checkIfExists: true
-    )
-
-    def array = [ meta, fasta, gtf ]
-
-    return array
-}
 
