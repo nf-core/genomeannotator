@@ -5,7 +5,8 @@
 include { FASTASPLITTER } from '../../modules/local/fastasplitter'
 include { SATSUMA2_SATSUMASYNTENY2 } from '../../modules/local/satsuma2/satsumasynteny2'
 include { KRAKEN } from '../../modules/local/kraken'
-INCLUDER { HELPER_KRAKEN2GFF } from '../../modules/local/helper/kraken2gff'
+include { HELPER_KRAKEN2GFF } from '../../modules/local/helper/kraken2gff'
+include { GAAS_FASTACLEANER } from '../../modules/local/gaas/fastacleaner'
 
 workflow GENOME_ALIGN {
 
@@ -61,7 +62,7 @@ workflow GENOME_ALIGN {
     KRAKEN(
        grouped_chains
     )
-    KRAKEN2GFF(
+    HELPER_KRAKEN2GFF(
        KRAKEN.out.gtf
     )
 
@@ -76,7 +77,7 @@ def create_target_channel(LinkedHashMap row) {
     def meta = [:]
     meta.id           = row.species
    
-    array = [ meta, [ file(row.fasta), file(row.gtf) ] ]
+    array = [ meta, file(row.fasta), file(row.gtf) ]
 
     return array
 }
