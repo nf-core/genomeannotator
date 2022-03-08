@@ -7,6 +7,7 @@ include { SATSUMA2_SATSUMASYNTENY2 } from '../../modules/local/satsuma2/satsumas
 include { KRAKEN } from '../../modules/local/kraken'
 include { HELPER_KRAKEN2GFF } from '../../modules/local/helper/kraken2gff'
 include { GAAS_FASTACLEANER } from '../../modules/local/gaas/fastacleaner'
+include { HELPER_GTF2HINTS } from '../../modules/local/helper/gtf2hints'
 
 workflow GENOME_ALIGN {
 
@@ -65,10 +66,15 @@ workflow GENOME_ALIGN {
     HELPER_KRAKEN2GFF(
        KRAKEN.out.gtf
     )
+    HELPER_GTF2HINTS(
+       KRAKEN.out.gtf,
+       params.pri_trans
+    )
 
     emit:
        versions = SATSUMA2_SATSUMASYNTENY2.out.versions
-
+       gff = HELPER_KRAKEN2GFF.out.gff
+       hints = HELPER_GTF2HINTS.out.gff
 }
 
 def create_target_channel(LinkedHashMap row) {

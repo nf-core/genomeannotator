@@ -39,7 +39,7 @@ process HELPER_KRAKEN2GFF {
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path("*.bam"), emit: bam
+    tuple val(meta), path("*.gff"), emit: gff
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 

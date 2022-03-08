@@ -5,7 +5,8 @@
 include { EVIDENCEMODELER_MERGE } from '../../modules/local/evidencemodeler/merge'
 include { EVIDENCEMODELER_PARTITION } from '../../modules/local/evidencemodeler/partition'
 include { EVIDENCEMODELER_EXECUTE } from '../../modules/local/evidencemodeler/execute'
-
+include { HELPER_EVM2GFF } from '../../modules/local/helper/evm2gff'
+include { GFFREAD as EVIDENCEMODELER_GFF2PROTEINS } from '../../modules/local/gffread'
 
 workflow EVM {
     take:
@@ -29,11 +30,18 @@ workflow EVM {
     )
     
     EVIDENCEMODELER_MERGE(
-       EVIDENCEMODELER_PARTITION,out.partitions.collect(),
-       EVIDENCEMODELER_EXECUTE.out.log.collect(),
+       EVIDENCEMODELER_PARTITION.out.partitions,
+       EVIDENCEMODELER_EXECUTE.out.log.groupTuple(by: [0]),
        genome.collect()
     )
-    
+    HELPER_EVM2GFF(
+       EVIDENCEMODELER_MERGE.out.partitions
+    )
+    EVIDENCEMODELER_GFF2PROTEINS(
+       HELPER_EVM2GFF.out.gff.join(genome)
+    )
+       
     emit:
     versions = EVIDENCEMODELER_PARTITION.out.versions
+
 }

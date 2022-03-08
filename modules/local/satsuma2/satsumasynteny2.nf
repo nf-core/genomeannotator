@@ -16,7 +16,7 @@
 //               list (`[]`) instead of a file can be used to work around this issue.
 
 process SATSUMA2_SATSUMASYNTENY2 {
-    tag "$meta.id"
+    tag "${meta.id} | #{meta_t.id}"
     label 'process_high'
     
     // TODO nf-core: List required Conda package(s).

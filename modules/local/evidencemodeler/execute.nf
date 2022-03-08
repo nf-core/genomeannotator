@@ -39,7 +39,7 @@ process EVIDENCEMODELER_EXECUTE {
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path("*.log"), emit: log
+    tuple val(meta), path(log_file), emit: log
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 
@@ -57,7 +57,7 @@ process EVIDENCEMODELER_EXECUTE {
     // TODO nf-core: Please replace the example samtools command below with your module's command
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
     """
-    \$EVM_HOME/EvmUtils/execute_EVM_commands.pl $partition | tee $log_file
+    /usr/local/opt/evidencemodeler-1.1.1/EvmUtils/execute_EVM_commands.pl $partition | tee $log_file
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

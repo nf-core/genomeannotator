@@ -46,10 +46,10 @@
                     "type": "string",
                     "format": "file-path",
                     "mimetype": "text/csv",
-                     "pattern": "^\\S+\\.csv$",
+                    "pattern": "^\\S+\\.csv$",
                     "schema": "assets/schema_input.json",
                     "description": "Path to samplesheet for RNAseq data.",
-                    "help_text": "If you wish to include RNAseq data, you will need to create a samplesheet in CSV format. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row.", 
+                    "help_text": "If you wish to include RNAseq data, you will need to create a samplesheet in CSV format. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row.",
                     "fa_icon": "fas fa-file-csv"
                 },
                 "proteins": {
@@ -61,7 +61,7 @@
                     "help_text": "Specify a fasta-formatted file with proteins from related organisms. Typical sources are Uniprot, EnsEMBL or Refseq."
                 },
                 "proteins_targeted": {
-                    "type":"string",
+                    "type": "string",
                     "format": "file-path",
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.fn?a(sta)?$",
@@ -69,7 +69,7 @@
                     "help_text": "Specify a fasta-formatted file with proteins your organism of interest. Typical sources are Uniprot, EnsEMBL or Refseq."
                 },
                 "transcripts": {
-                    "type":"string",
+                    "type": "string",
                     "format": "file-path",
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.fn?a(sta)?$",
@@ -77,7 +77,7 @@
                     "help_text": "Specify a fasta-formatted file with transcripts/ESTs from your organism of interest. Typical sources are ENA and dbEST."
                 },
                 "rm_lib": {
-                    "type":"string",
+                    "type": "string",
                     "format": "file-path",
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.fn?a(sta)?$",
@@ -93,8 +93,7 @@
                     "description": "Path to samplesheet for Reference genomes and annotations.",
                     "help_text": "If you wish to If you wish to include annotations from related species (lift-over), you will need to create a samplesheet in CSV format.  Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row.",
                     "fa_icon": "fas fa-file-csv"
-                },
-
+                }
             }
         },
         "annotation_module_options": {
@@ -107,7 +106,7 @@
                     "type": "string",
                     "description": "AUGUSTUS species model to use.",
                     "fa_icon": "fas fa-book",
-                    "help_text": "Specify which model AUGUSTUS will run with. A full list is available here: https://github.com/Gaius-Augustus/Augustus/blob/master/docs/RUNNING-AUGUSTUS.md" 
+                    "help_text": "Specify which model AUGUSTUS will run with. A full list is available here: https://github.com/Gaius-Augustus/Augustus/blob/master/docs/RUNNING-AUGUSTUS.md"
                 },
                 "npart_size": {
                     "type": "integer",
@@ -146,17 +145,17 @@
                     "help_text": "Protein-Databases often contain fragmented protein sequences. Use this option to filter out very small proteins from your evidence set."
                 },
                 "pri_prot": {
-                   "type": "integer",
-                   "description": "Priority for protein-derived hints for gene building.",
-                   "fa_icon": "fas fa-book",
-                   "help_text": "This value determines the priority protein-derived hints are given during AUGUSTUS gene finding. The higher the value, the more important the hint (1-5)."
+                    "type": "integer",
+                    "description": "Priority for protein-derived hints for gene building.",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "This value determines the priority protein-derived hints are given during AUGUSTUS gene finding. The higher the value, the more important the hint (1-5)."
                 },
                 "nproteins": {
-                   "type": "integer",
-                   "description": "Numbe of proteins per alignment job.",
-                   "fa_icon": "fas fa-book",
-                   "help_text": "Specifies the number of proteins per alignnment job. This option controls parallelism - the higher this number, the fewer jobs are created and the longer the individual run times. Only increase if you have a very large number of sequences to align."
-                 }
+                    "type": "integer",
+                    "description": "Numbe of proteins per alignment job.",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "Specifies the number of proteins per alignnment job. This option controls parallelism - the higher this number, the fewer jobs are created and the longer the individual run times. Only increase if you have a very large number of sequences to align."
+                }
             }
         },
         "annotation_tool_options": {
@@ -166,23 +165,23 @@
             "description": "Options that control individual tool behavior",
             "properties": {
                 "trinity": {
-                   "type": "boolean",
-                   "description": "Activate the trinity assembly sub-pipeline",
-                   "fa_icon": "fas fa-book",
-                   "help_text": "Assemble short-reads into transcripts using Trinity"
+                    "type": "boolean",
+                    "description": "Activate the trinity assembly sub-pipeline",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "Assemble short-reads into transcripts using Trinity"
                 },
                 "pasa": {
-                   "type": "boolean",
-                   "description": "Activate the PASA sub-pipeline",
-                   "fa_icon": "fas fa-book",
-                   "help_text": "Assemble into gene models using PASA."
+                    "type": "boolean",
+                    "description": "Activate the PASA sub-pipeline",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "Assemble into gene models using PASA."
                 },
                 "evm": {
-                   "type": "boolean",
-                   "description": "Activate the EvidenceModeler sub-pipeline",
-                   "fa_icon": "fas fa-book",
-                   "help_text": "Perform consensus gene building using EvidenceModeler."
-                },
+                    "type": "boolean",
+                    "description": "Activate the EvidenceModeler sub-pipeline",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "Perform consensus gene building using EvidenceModeler."
+                }
             }
         },
         "institutional_config_options": {
@@ -351,7 +350,7 @@
         },
         {
             "$ref": "#/definitions/annotation_tool_options"
-        },  
+        },
         {
             "$ref": "#/definitions/annotation_module_options"
         },
@@ -364,5 +363,91 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "rm_species": {
+            "type": "string",
+            "default": "false"
+        },
+        "min_contig_size": {
+            "type": "integer",
+            "default": 5000
+        },
+        "pasa_nmodels": {
+            "type": "integer",
+            "default": 1000
+        },
+        "evm_weights": {
+            "type": "string",
+            "default": null
+        },
+        "nevm": {
+            "type": "integer",
+            "default": 10
+        },
+        "aug_options": {
+            "type": "string",
+            "default": "--alternatives-from-evidence=on --minexonintronprob=0.08 --minmeanexonintronprob=0.4 --maxtracks=3"
+        },
+        "aug_config_container": {
+            "type": "string",
+            "default": "/usr/local/config"
+        },
+        "aug_config_dir": {
+            "type": "string",
+            "default": "false"
+        },
+        "aug_extrinsic_cfg": {
+            "type": "string",
+            "default": "false"
+        },
+        "aug_chunk_length": {
+            "type": "integer",
+            "default": 3000000
+        },
+        "aug_training": {
+            "type": "string",
+            "default": "false"
+        },
+        "spaln_q": {
+            "type": "integer",
+            "default": 5
+        },
+        "spaln_protein_id_targeted": {
+            "type": "integer",
+            "default": 90
+        },
+        "pri_prot_target": {
+            "type": "integer",
+            "default": 5
+        },
+        "pri_est": {
+            "type": "integer",
+            "default": 4
+        },
+        "pri_rnaseq": {
+            "type": "integer",
+            "default": 4
+        },
+        "pri_wiggle": {
+            "type": "integer",
+            "default": 2
+        },
+        "pri_trans": {
+            "type": "integer",
+            "default": 4
+        },
+        "t_est": {
+            "type": "string",
+            "default": "E"
+        },
+        "t_prot": {
+            "type": "string",
+            "default": "P"
+        },
+        "t_rnaseq": {
+            "type": "string",
+            "default": "E"
+        }
+    }
 }

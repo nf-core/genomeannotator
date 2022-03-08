@@ -23,10 +23,10 @@ process HELPER_PASA2TRAINING {
     //               Software MUST be pinned to channel (i.e. "bioconda"), version (i.e. "1.10").
     //               For Conda, the build (i.e. "h9402c20_2") must be EXCLUDED to support installation on different operating systems.
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
-    conda (params.enable_conda ? "bioconda::perl-uri=5.10" : null)
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/perl-uri:5.10--pl5321hdfd78af_0':
-        'quay.io/biocontainers/perl-uri:5.10--pl5321hdfd78af_0' }"
+    if (params.enable_conda) {
+        exit 1, "Conda environments cannot be used when using this version of PASA. Please use docker or singularity containers."
+    }
+    container 'pasapipeline/pasapipeline:2.5.2'
 
     input:
     // TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
@@ -40,14 +40,14 @@ process HELPER_PASA2TRAINING {
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path(trainig_gff), emit: bam
+    tuple val(meta), path(training_gff), emit: gff
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    training_gff = gff.getBaseName() + ".training.gff3"
+    training_gff = prefix + ".pasa_training.gff3"
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10
     //               If the software is unable to output a version number on the command-line then it can be manually specified
     //               e.g. https://github.com/nf-core/modules/blob/master/modules/homer/annotatepeaks/main.nf

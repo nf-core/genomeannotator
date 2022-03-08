@@ -16,7 +16,7 @@
 //               list (`[]`) instead of a file can be used to work around this issue.
 
 process EVIDENCEMODELER_PARTITION {
-    tag "$meta.id"
+    //tag "$meta.id"
     label 'process_medium'
     
     // TODO nf-core: List required Conda package(s).
@@ -72,14 +72,14 @@ process EVIDENCEMODELER_PARTITION {
     // TODO nf-core: Please replace the example samtools command below with your module's command
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
     """
-    \$EVM_HOME/EvmUtils/partition_EVM_inputs.pl --genome $genome \
+    /usr/local/opt/evidencemodeler-1.1.1/EvmUtils/partition_EVM_inputs.pl --genome $genome \
        --gene_predictions $genes \
        --segmentSize 2000000 --overlapSize 200000 --partition_listing $partitions \
        $protein_options $transcript_options
 
-    \$EVM_HOME/EvmUtils/write_EVM_commands.pl --genome $genome_rm \
-       --weights ${weights} \
-       --gene_predictions $gene_models \
+    /usr/local/opt/evidencemodeler-1.1.1/EvmUtils/write_EVM_commands.pl --genome $genome \
+       --weights \$PWD/${weights} \
+       --gene_predictions $genes \
        --output_file_name evm.out \
        --partitions $partitions > $evm_commands
 

@@ -2,7 +2,7 @@
 
 use strict;
 use Getopt::Long;
-use URI::Encode qw(uri_encode uri_decode);
+#use URI::Encode qw(uri_encode uri_decode);
 use Data::Dumper;
 
 my $usage = qq{
@@ -78,7 +78,8 @@ while (<$IN>) {
 
 			$valid = 1;
 
-			my $decoded = uri_decode($attributes);
+			my $decoded = $attributes;
+			$decoded =~ s/\%([A-Fa-f0-9]{2})/pack('C', hex($1))/seg;
 			my $score = (split "=",$decoded)[-1];
 
 			push(@scores,$score);
@@ -125,6 +126,7 @@ foreach my $gene_id (keys %score_table) {
 
 	foreach my $line (@$lines) {
 		
-		printf uri_decode($line) . "\n";
+		$line =~ s/\%([A-Fa-f0-9]{2})/pack('C', hex($1))/seg;
+		printf $line . "\n";
 	}
 }

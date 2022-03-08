@@ -53,6 +53,7 @@ include { MINIMAP_ALIGN_TRANSCRIPTS ; MINIMAP_ALIGN_TRANSCRIPTS as TRINITY_ALIGN
 include { AUGUSTUS_PIPELINE } from '../subworkflows/local/augustus_pipeline'
 include { PASA_PIPELINE } from '../subworkflows/local/pasa_pipeline'
 include { GENOME_ALIGN } from '../subworkflows/local/genome_align'
+include { EVM } from '../subworkflows/local/evm.nf'
 
 /*
 ========================================================================================
@@ -113,7 +114,8 @@ workflow ESGA {
           ch_ref_genomes
        )
        ch_versions = ch_versions.mix(GENOME_ALIGN.out.versions)
-       //ch_hints = ch_hints.mix(GENOME_ALIGN.out.hints)
+       ch_hints = ch_hints.mix(GENOME_ALIGN.out.hints)
+       ch_genes_gff = ch_genes_gff.mix(GENOME_ALIGN.out.gff)
     }          
 
     //  
@@ -268,9 +270,9 @@ workflow ESGA {
     if (params.evm) {
        EVM(
           REPEATMASKER.out.fasta,
-          ch_genes_gff,
-          ch_proteins_gff.ifEmpty(false),
-          ch_transcripts_gff.ifEmpty(false),
+          ch_genes_gff.map { m,g -> g },
+          ch_proteins_gff.map {m,p -> p },
+          ch_transcripts_gff.map { m,t -> t},
           ch_evm_weights
        )
     }

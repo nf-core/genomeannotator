@@ -15,7 +15,7 @@
 // TODO nf-core: Optional inputs are not currently supported by Nextflow. However, using an empty
 //               list (`[]`) instead of a file can be used to work around this issue.
 
-process GFFREAD {
+process HELPER_EVM2GFF {
     tag "$meta.id"
     label 'process_low'
     
@@ -23,10 +23,10 @@ process GFFREAD {
     //               Software MUST be pinned to channel (i.e. "bioconda"), version (i.e. "1.10").
     //               For Conda, the build (i.e. "h9402c20_2") must be EXCLUDED to support installation on different operating systems.
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
-    conda (params.enable_conda ? "bioconda::gffread=0.12.7" : null)
+    conda (params.enable_conda ? "bioconda::perl-bioperl=1.7.8" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/gffread:0.12.7--h9a82719_0':
-        'quay.io/biocontainers/gffread:0.12.7--h9a82719_0' }"
+        'https://depot.galaxyproject.org/singularity/perl-bioperl:1.7.2--pl526_11':
+        'quay.io/biocontainers/perl-bioperl:1.7.2--pl526_11' }"
 
     input:
     // TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
@@ -35,23 +35,18 @@ process GFFREAD {
     //               https://github.com/nf-core/modules/blob/master/modules/bwa/index/main.nf
     // TODO nf-core: Where applicable please provide/convert compressed files as input/output
     //               e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
-    tuple val(meta), path(gff),path(fasta)
-   
+    tuple val(meta), path(partitions)
+
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
-    tuple val(meta), path(proteins), emit: proteins
-    tuple val(meta), path(cdna), emit: cdna
-    tuple val(meta), path(cds), emit: cds
-
+    tuple val(meta), path("*.gff3"), emit: gff
     // TODO nf-core: List additional required output channels/values here
     path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    proteins = gff.getBaseName() + ".proteins.fasta"
-    cdna = gff.getBaseName() + ".cdna.fasta"
-    cds = gff.getBaseName() + ".cds.fasta"
+    gff = prefix + ".evm.gff3"
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10
     //               If the software is unable to output a version number on the command-line then it can be manually specified
     //               e.g. https://github.com/nf-core/modules/blob/master/modules/homer/annotatepeaks/main.nf
@@ -62,10 +57,11 @@ process GFFREAD {
     // TODO nf-core: Please replace the example samtools command below with your module's command
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
     """
-    gffread -y $proteins -w $cdna -x $cds -g $fasta $gff
+    merge_evm_gff.pl --partitions $partitions --gff $gff
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        gffread: \$(echo \$(gffread 2>&1) | head -n1 | cut -f2 -d " " ))
+        helper: 1.0
     END_VERSIONS
     """
 }

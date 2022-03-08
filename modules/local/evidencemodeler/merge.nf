@@ -16,7 +16,7 @@
 //               list (`[]`) instead of a file can be used to work around this issue.
 
 process EVIDENCEMODELER_MERGE {
-    tag "$meta.id"
+    //tag "$meta.id"
     label 'process_medium'
     
     // TODO nf-core: List required Conda package(s).
@@ -25,8 +25,8 @@ process EVIDENCEMODELER_MERGE {
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
     conda (params.enable_conda ? "bioconda::evidencemodeler=1.1.1" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/YOUR-TOOL-HERE':
-        'quay.io/biocontainers/YOUR-TOOL-HERE' }"
+        'https://depot.galaxyproject.org/singularity/evidencemodeler:1.1.1--hdfd78af_3':
+        'quay.io/biocontainers/evidencemodeler:1.1.1--hdfd78af_3' }"
 
     input:
     // TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
@@ -37,7 +37,7 @@ process EVIDENCEMODELER_MERGE {
     //               e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
     tuple val(meta), path(partitions)
     tuple val(meta_e),path(logs)
-    path(genome)
+    tuple val(meta_g),path(genome)
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
@@ -48,7 +48,7 @@ process EVIDENCEMODELER_MERGE {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    evm_out = prefix + ".evm.out"
+    evm_out = "evm.out"
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10
     //               If the software is unable to output a version number on the command-line then it can be manually specified
     //               e.g. https://github.com/nf-core/modules/blob/master/modules/homer/annotatepeaks/main.nf
@@ -59,8 +59,8 @@ process EVIDENCEMODELER_MERGE {
     // TODO nf-core: Please replace the example samtools command below with your module's command
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
     """
-    \$EVM_HOME/EvmUtils/recombine_EVM_partial_outputs.pl --partitions $partitions --output_file_name evm.out
-    \$EVM_HOME/EvmUtils/convert_EVM_outputs_to_GFF3.pl  --partitions $partitions --output $evm_out --genome $genome
+    /usr/local/opt/evidencemodeler-1.1.1/EvmUtils/recombine_EVM_partial_outputs.pl --partitions $partitions --output_file_name evm.out
+    /usr/local/opt/evidencemodeler-1.1.1/EvmUtils/convert_EVM_outputs_to_GFF3.pl  --partitions $partitions --output $evm_out --genome $genome
     touch done.txt
 
     cat <<-END_VERSIONS > versions.yml
