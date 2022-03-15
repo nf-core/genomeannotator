@@ -1,4 +1,4 @@
-process HELPER_GFFFILTERMULTI {
+process HELPER_SPALNTOGMOD {
     tag "$meta.id"
     label 'process_low'
     
@@ -8,27 +8,22 @@ process HELPER_GFFFILTERMULTI {
         'quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0' }"
 
     input:
-    tuple val(meta), path(bam)
+    tuple val(meta), path(gff)
 
     output:
-    tuple val(meta), path("*.bam"), emit: bam
+    tuple val(meta), path("*.gff3"), emit: gff
     path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    spaln_track = gff.getBaseName() + ".gmod.gff3"
     """
-    samtools \\
-        sort \\
-        $args \\
-        -@ $task.cpus \\
-        -o ${prefix}.bam \\
-        -T $prefix \\
-        $bam
+    spaln2gmod.pl --infile $gff > $spaln_track
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        helper: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//' ))
+        spalntogmod: 1.0
     END_VERSIONS
     """
 }

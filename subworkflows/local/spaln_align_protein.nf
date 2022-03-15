@@ -9,7 +9,7 @@ include { SPALN_MAKEINDEX } from '../../modules/local/spaln/makeindex'
 include { SPALN_ALIGN } from '../../modules/local/spaln/align'
 include { SPALN_MERGE } from '../../modules/local/spaln/merge'
 //include { SPALN_TO_EVM } from '../../modules/local/spaln_to_evm'
-include { SPALNTOGMOD } from '../../modules/local/spalntogmod'
+include { HELPER_SPALNTOGMOD } from '../../modules/local/helper/spalntogmod'
 include { AUGUSTUS_ALIGNTOHINTS } from '../../modules/local/augustus/aligntohints'
 
 workflow SPALN_ALIGN_PROTEIN {
@@ -53,7 +53,7 @@ workflow SPALN_ALIGN_PROTEIN {
           params.max_intron_size,
           params.pri_prot
        )
-       SPALNTOGMOD(
+       HELPER_SPALNTOGMOD(
           SPALN_MERGE.out.gff
        )
        //SPALNTOTRAINING(

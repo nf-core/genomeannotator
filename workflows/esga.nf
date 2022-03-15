@@ -9,8 +9,6 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 // Validate input parameters
 WorkflowEsga.initialise(params, log)
 
-// TODO nf-core: Add all file path parameters for the pipeline to the list below
-// Check input path parameters to see if they exist
 def checkPathParamList = [ params.multiqc_config, params.assembly ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
@@ -133,7 +131,7 @@ workflow ESGA {
     }          
 
     //  
-    // SUBWORKFLOW: Repeatmasking and optional modelling
+    // SUBWORKFLOW: Repeat modelling if no repeats are provided
     //
     if (!params.rm_lib && !params.rm_species) {
        REPEATMODELER(
@@ -141,12 +139,24 @@ workflow ESGA {
        )
        ch_repeats = REPEATMODELER.out.fasta
     }
-    REPEATMASKER(
-       ASSEMBLY_PREPROCESS.out.fasta,
-       ch_repeats,
-       params.rm_species
-    )
-    ch_versions = ch_versions.mix(REPEATMASKER.out.versions)
+
+    //
+    // MODULE: Repeatmask the genome; if a repeat species is provided, use that - else the repeats in FASTA format
+    if (params.rm_species) {
+       REPEATMASKER(
+          ASSEMBLY_PREPROCESS.out.fasta,
+          ch_repeats,
+          params.rm_species
+       )
+       ch_versions = ch_versions.mix(REPEATMASKER.out.versions)
+    } else {
+       REPEATMASKER(
+          ASSEMBLY_PREPROCESS.out.fasta,
+          ch_repeats,
+          false
+       )
+       ch_versions = ch_versions.mix(REPEATMASKER.out.versions)
+    }
 
     //
     // SUBWORKFLOW: Align proteins from related organisms with SPALN

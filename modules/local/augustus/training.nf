@@ -33,7 +33,6 @@ process AUGUSTUS_TRAINING {
     }
 
     """
-    echo $aug_folder > test.txt
     gff2gbSmallDNA.pl $gff $genome 1000 $complete_gb
     randomSplit.pl $complete_gb 250
     if [ ! -d $aug_folder ]; then

@@ -16,8 +16,7 @@
 
 ## Introduction
 
-<!-- TODO nf-core: Write a 1-2 sentence summary of what data the pipeline is for and what it does -->
-**nf-core/esga** is a bioinformatics best-practice analysis pipeline for Annotation of metazoan genomes.
+**nf-core/esga** is a bioinformatics best-practice analysis pipeline for the annotation of metazoan genomes.
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
 
@@ -30,6 +29,14 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+
+1. Preprocess assembly
+2. Align evidences (proteins, transcripts, RNAseq)
+3. Convert alignments to annotation support
+4. Build gene models using AUGUSTUS and optionally PASA
+5. Compute consensus gene build using EvidenceModeler
+
+Optional steps include de-novo transcriptome assembly (Trinity) and annotation mapping from related genomes (Satsuma2 and Kraken).
 
 ## Quick Start
 
@@ -64,9 +71,11 @@ The nf-core/esga pipeline comes with documentation about the pipeline [usage](ht
 
 ## Credits
 
-nf-core/esga was originally written by Marc P. Hoeppner.
+nf-core/esga was originally written by Marc P. Hoeppner. 
 
 We thank the following people for their extensive assistance in the development of this pipeline:
+
+Montserrat Torres-Oliva
 
 <!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 

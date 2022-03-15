@@ -1,0 +1,3 @@
+lint:
+    nextflow_config:
+        params.input

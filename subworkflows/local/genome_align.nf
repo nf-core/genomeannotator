@@ -58,18 +58,15 @@ workflow GENOME_ALIGN {
        params.npart_size
     )
     // map list of fasta chunks to meta<->fasta pairs
-    FASTASPLITTER.out.chunks.flatMap{ 
-       m, fastas -> fastas.collect { 
-          [m, file(it) ] 
-       }
+    FASTASPLITTER.out.chunks.flatMap{ row ->
+       row[1..-1].collect { [row[0].clone(), it]  }
     }.set {genome_chunks}
 
     //
     // MODULE: Align two genome sequences
     //
     SATSUMA2_SATSUMASYNTENY2(
-       genome_chunks,
-       targets_clean
+       genome_chunks.combine(targets_clean)
     )
     
     grouped_chains = SATSUMA2_SATSUMASYNTENY2.out.chain.groupTuple(by: [0,1,2,3])

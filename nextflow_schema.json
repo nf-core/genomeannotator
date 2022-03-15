@@ -367,7 +367,7 @@
     "properties": {
         "rm_species": {
             "type": "string",
-            "default": "false"
+            "default": "None"
         },
         "min_contig_size": {
             "type": "integer",
@@ -379,7 +379,7 @@
         },
         "evm_weights": {
             "type": "string",
-            "default": null
+            "default": "None"
         },
         "nevm": {
             "type": "integer",
@@ -406,7 +406,7 @@
             "default": 3000000
         },
         "aug_training": {
-            "type": "string",
+            "type": "boolean",
             "default": "false"
         },
         "spaln_q": {
@@ -448,6 +448,14 @@
         "t_rnaseq": {
             "type": "string",
             "default": "E"
+        },
+        "dummy_gff": {
+            "type": "string",
+            "default": "/home/sukmb352/git/esga2/nf-core-esga/assets/empty.gff3"
+        },
+        "pasa_config_file": {
+            "type": "string",
+            "default": "/home/sukmb352/git/esga2/nf-core-esga/assets/pasa/alignAssembly.config"
         }
     }
 }
