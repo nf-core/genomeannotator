@@ -48,7 +48,7 @@ process SPALN_MERGE {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    spaln_final = meta.id + ".spaln_merged.gff"
+    spaln_final = "${meta.id}.${similarity}.spaln_merged.gff"
     // TODO nf-core: Where possible, a command MUST be provided to obtain the version number of the software e.g. 1.10
     //               If the software is unable to output a version number on the command-line then it can be manually specified
     //               e.g. https://github.com/nf-core/modules/blob/master/modules/homer/annotatepeaks/main.nf

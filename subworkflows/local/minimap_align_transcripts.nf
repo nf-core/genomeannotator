@@ -8,6 +8,7 @@ include { MINIMAP2_ALIGN } from '../../modules/local/minimap2/align'
 include { SAMTOOLS_MERGE } from '../../modules/local/samtools/merge'
 include { HELPER_BAMTOGFF } from '../../modules/local/helper/bamtogff'
 include { HELPER_MINIMAPTOHINTS } from '../../modules/local/helper/minimaptohints'
+include { HELPER_MATCH2GMOD as GMOD_MATCH2TRACK } from '../../modules/local/helper/match2gmod'
 
 workflow MINIMAP_ALIGN_TRANSCRIPTS {
 
@@ -18,7 +19,7 @@ workflow MINIMAP_ALIGN_TRANSCRIPTS {
     main:
 
        GAAS_FASTACLEANER(
-          create_transcript_channel(transcripts)
+          transcripts
        )
        EXONERATE_FASTACLEAN(
           GAAS_FASTACLEANER.out.fasta
@@ -39,6 +40,9 @@ workflow MINIMAP_ALIGN_TRANSCRIPTS {
           params.t_est,
           params.pri_est
        )
+       GMOD_MATCH2TRACK(
+          HELPER_BAMTOGFF.out.gff
+       )
   
     emit:
        hints = HELPER_MINIMAPTOHINTS.out.gff
@@ -47,14 +51,3 @@ workflow MINIMAP_ALIGN_TRANSCRIPTS {
        versions = MINIMAP2_ALIGN.out.versions
 
 }
-
-
-def create_transcript_channel(transcripts) {
-    def meta = [:]
-    meta.id           = file(transcripts).getSimpleName()
-
-    def array = [ meta, transcripts ]
-
-    return array
-}
-

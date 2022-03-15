@@ -19,6 +19,26 @@ class WorkflowEsga {
             log.error "Augustus profile model not specified with e.g. '--aug_species human'"
             System.exit(1)
         }
+        if (params.aug_training && !params.proteins_targeted && !params.pasa) {
+            log.error "Cannot train AUGUSTUS without targeted proteins (' --proteins_targeted') OR pasa transcripts ('--pasa')"
+            System.exit(1)
+        }
+        if (params.aug_training && !params.aug_species) {
+            log.error "Cannot train AUGUSTUS without a species name ('--aug_species')"
+            System.exit(1)
+        }
+        if (params.pasa && !params.transcripts && !params.trinity) {
+            log.error "Cannot run PASA without transcripts ('--transcripts' or '--trinity')"
+            System.exit(1)
+        }
+        if (params.trinity && !params.rnaseq_samples) {
+            log.error "Cannot run Trinity assembly without RNAseq data ('--rnaseq_samples')"
+            System.exit(1)
+        }
+        if (!params.proteins && !params.proteins_targeted && !params.transcripts && !params.rnaseq_samples) {
+            log.error "This pipeline requires some form of supporting evidence as input from proteins, transcripts or RNAseq"
+            System.exit(1)
+        }
 
     }
 

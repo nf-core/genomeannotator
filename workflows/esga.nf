@@ -16,13 +16,16 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 
 // Check mandatory parameters
 if (params.assembly) { ch_genome = file(params.assembly, checkIfExists: true) } else { exit 1, 'No assembly specified!' }
+
+// Set relevant input channels
 if (params.proteins) { ch_proteins = file(params.proteins, checkIfExists: true) } else { ch_proteins = Channel.empty() }
 if (params.proteins_targeted) { ch_proteins_targeted = file(params.proteins_targeted, checkIfExists: true) } else { ch_proteins_targeted = Channel.empty() }
-if (params.transcripts) { ch_transcripts = file(params.transcripts, checkIfExists: true) } else { ch_transcripts = Channel.empty() }
+if (params.transcripts) { ch_t = file(params.transcripts) } else { ch_transcripts = Channel.empty() }
 if (params.rnaseq_samples) { ch_samplesheet = file(params.rnaseq_samples, checkIfExists: true) } else { ch_samplesheet = Channel.empty() }
 if (params.rm_lib) { ch_repeats = Channel.fromPath(file(params.rm_lib, checkIfExists: true)) } else { ch_repeats = Channel.from([])}
 if (params.aug_config_dir) { ch_aug_config_folder = file(params.aug_config_dir, checkIfExists: true) } else { ch_aug_config_folder = Channel.from(params.aug_config_container) }
 if (params.references) { ch_ref_genomes = Channel.fromPath(params.references, checkIfExists: true)  } else { ch_ref_genomes = Channel.empty() }
+
 
 /*
 ========================================================================================
@@ -54,6 +57,7 @@ include { AUGUSTUS_PIPELINE } from '../subworkflows/local/augustus_pipeline'
 include { PASA_PIPELINE } from '../subworkflows/local/pasa_pipeline'
 include { GENOME_ALIGN } from '../subworkflows/local/genome_align'
 include { EVM } from '../subworkflows/local/evm.nf'
+include { FASTA_PREPROCESS as TRANSCRIPT_PREPROCESS } from '../subworkflows/local/fasta_preprocess'
 
 /*
 ========================================================================================
@@ -84,12 +88,22 @@ def multiqc_report = []
 workflow ESGA {
 
     ch_versions = Channel.empty()
-    ch_merged_transcripts = ch_transcripts
     ch_hints = Channel.empty()
     ch_repeats_lib = Channel.empty()
     ch_proteins_gff = Channel.empty()
     ch_transcripts_gff = Channel.empty()
     ch_genes_gff = Channel.empty()
+    ch_transcripts = Channel.empty()
+
+    //
+    // SUBWORKFLOW: Turn transcript inputs to channel
+    //
+    if (params.transcripts) {
+       TRANSCRIPT_PREPROCESS(
+          ch_t
+       )
+       ch_transcripts = ch_transcripts.mix(TRANSCRIPT_PREPROCESS.out.fasta)
+    }
 
     //
     // MODULE: Stage Augustus config dir to be editable
@@ -199,7 +213,7 @@ workflow ESGA {
              SAMTOOLS_MERGE.out.bam,
              params.max_intron_size
           )
-          ch_transcripts = ch_transcripts.mix(TRINITY_GENOMEGUIDED.out.fasta)
+          //ch_transcripts = ch_transcripts.mix(TRINITY_GENOMEGUIDED.out.fasta)
           ch_versions = ch_versions.mix(TRINITY_GENOMEGUIDED.out.versions)
        }
     }
@@ -207,6 +221,7 @@ workflow ESGA {
     //
     // SUBWORKFLOW: Align transcripts to the genome
     //
+
     if (params.transcripts || params.trinity) {
        MINIMAP_ALIGN_TRANSCRIPTS(
           ASSEMBLY_PREPROCESS.out.fasta.collect(),
@@ -223,7 +238,11 @@ workflow ESGA {
     if (params.pasa) {
         PASA_PIPELINE(
            ASSEMBLY_PREPROCESS.out.fasta,
-           ch_transcripts
+           ch_transcripts.map { m,t -> t }.collectFile(name: "transcripts.merged.fa").map { it ->
+              def mmeta = [:]
+              mmeta.id = "merged"
+              tuple(mmeta,it)
+           }
         )
         ch_versions = ch_versions.mix(PASA_PIPELINE.out.versions)
         ch_genes_gff = ch_genes_gff.mix(PASA_PIPELINE.out.gff)
@@ -322,4 +341,3 @@ workflow.onComplete {
     THE END
 ========================================================================================
 */
-

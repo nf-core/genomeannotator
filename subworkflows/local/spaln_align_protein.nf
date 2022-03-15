@@ -22,7 +22,7 @@ workflow SPALN_ALIGN_PROTEIN {
     main:
 
        GAAS_FASTACLEANER(
-          create_protein_channel(proteins)
+          create_fasta_channel(proteins)
        )
        EXONERATE_FASTACLEAN(
           GAAS_FASTACLEANER.out.fasta
@@ -66,12 +66,11 @@ workflow SPALN_ALIGN_PROTEIN {
 
 }
 
-
-def create_protein_channel(proteins) {
+def create_fasta_channel(fasta) {
     def meta = [:]
-    meta.id           = file(proteins).getSimpleName()
+    meta.id           = file(fasta).getSimpleName()
 
-    def array = [ meta, proteins ]
+    def array = [ meta, fasta ]
 
     return array
 }

@@ -49,8 +49,7 @@ workflow RNASEQ_ALIGN {
     // MODULE: concatenate reads per library
     CAT_FASTQ(
        ch_fastq.multiple
-    )
-    .reads
+    ).reads
     .mix( ch_fastq.single )
     .set { ch_cat_fastq }
 

@@ -18,7 +18,7 @@ workflow PASA_PIPELINE {
     main:
 
        GAAS_FASTACLEANER(
-          create_transcript_channel(transcripts)
+          transcripts
        )
        EXONERATE_FASTACLEAN(
           GAAS_FASTACLEANER.out.fasta
@@ -49,6 +49,8 @@ workflow PASA_PIPELINE {
 
 
 def create_transcript_channel(transcripts) {
+    println transcripts
+
     def meta = [:]
     meta.id           = file(transcripts).getSimpleName()
 

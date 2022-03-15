@@ -23,10 +23,10 @@ process HELPER_CREATEGFFIDS {
     //               Software MUST be pinned to channel (i.e. "bioconda"), version (i.e. "1.10").
     //               For Conda, the build (i.e. "h9402c20_2") must be EXCLUDED to support installation on different operating systems.
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
-    conda (params.enable_conda ? "bioconda::multiqc=1.12" : null)
+    conda (params.enable_conda ? "bioconda::perl-bioperl=1.7.8" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/multiqc:1.12--pyhdfd78af_0':
-        'quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0' }"
+        'https://depot.galaxyproject.org/singularity/perl-bioperl:1.7.2--pl526_11':
+        'quay.io/biocontainers/perl-bioperl:1.7.2--pl526_11' }"
 
     input:
     // TODO nf-core: Where applicable all sample-specific information e.g. "id", "single_end", "read_group"
