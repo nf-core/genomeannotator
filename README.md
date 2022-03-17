@@ -65,9 +65,7 @@ nf-core/esga was originally written by Marc P. Hoeppner.
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 
-Montserrat Torres-Oliva
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
+Montserrat Torres-Oliva (@MontseTor)
 
 ## Contributions and Support
 
