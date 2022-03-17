@@ -19,8 +19,7 @@ process SATSUMA2_SATSUMASYNTENY2 {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def satsuma_chain_chunk = query.getBaseName() + "-" + meta_t.id + ".satsuma_summary.chained.out"
-
+    satsuma_chain_chunk = query.getBaseName() + "-" + meta_t.id + ".satsuma_summary.chained.out"
     // Satsuma is extremely chatty, need to redirect logs to /dev/null
     """
 

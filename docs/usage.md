@@ -6,7 +6,21 @@
 
 ## Introduction
 
-<!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
+ESGA is a pipeline for the annotation of metazoan genomes. While nothing within the pipelines makes it particularily specific to this taxonomic group, it has only been tested (and developed) for this purpose. ESGA combines a number of 
+established tools for the assembly, alignment and subsequent integration of so-called evidences into consensus gene builds. The product of ESGA are various tracks in GFF format, including gene models, but also various alignments. Output from ESGA is
+largely compatible with GMOD.
+
+Included in ESGA are:
+- Protein alignments with SPALN
+- Transcript alignments with Minimap2
+- RNAseq alignments with STAR
+- De-novo transcriptome assembly (genome-guided) with Trinity
+- Ab-initio gene finding with AUGUSTUS
+- Gene building from transcripts using PASA
+- Consensus gene building using EvidenceModeler
+- ncRNA predictions using RFam/Infernal
+- Synteny alignments and annotation projection using Satsuma2 and Kraken
+- Various scripts to transform in- and outputs between the above steps
 
 ## Assembly
 
@@ -60,6 +74,24 @@ SAMPLE2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,forwar
 | `fastq_1`      | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `fastq_2`      | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `strandedness` | The orientation the reads were sequenced in. Typically, this will be `forward` as per the Illumina TruSeq library kit (dUTP)                                                           |
+
+## Reference genome alignments
+
+ESGA can align your assembly to one or more related reference genomes to lift their existing annotations and use this information during gene building. We have tested this primarily with assemblies and annotations from EnsEMBL, but other sources
+may work too. Note that the annotation must be in GTF format! To pass this data to ESGA, a sample sheet is needed.
+
+The format should be as follows:
+
+```console
+species,fasta,gtf
+Human,/path/to/human.fasta,/path/to/human.gtf
+```
+
+| Column         | Description                                                                                                                                                                            |
+|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `species`      | Name of the species as a single string (i.e. should not include spaces or special characters                                                                                           |
+| `fasta `       | The genome sequence in FASTA format.                                                                                                                                                   |
+| `gtf`          | The matching annotation in GTF format.                                                                                                                                                 |
 
 ## Running the pipeline
 
