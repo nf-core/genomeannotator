@@ -9,21 +9,22 @@ include { HELPER_EVM2GFF } from '../../modules/local/helper/evm2gff'
 include { GFFREAD as EVIDENCEMODELER_GFF2PROTEINS } from '../../modules/local/gffread'
 
 workflow EVM {
+
     take:
-    genome // file: /path/to/samplesheet.csv
+    genome
     genes_gff
     proteins_gff
     transcripts_gff
     evm_config
 
     main:
-       	
+
     EVIDENCEMODELER_PARTITION(
        genome,
        genes_gff,
        proteins_gff,
        transcripts_gff,
-       evm_config
+       params.evm_weights
     )
     EVIDENCEMODELER_EXECUTE(
         EVIDENCEMODELER_PARTITION.out.commands.splitText(by: params.nevm, file: true)

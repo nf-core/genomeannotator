@@ -1,4 +1,5 @@
+repository_type: pipeline
+
 lint:
     nextflow_config:
         params.input
-repository_type: pipeline

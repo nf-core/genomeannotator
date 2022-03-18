@@ -1,5 +1,5 @@
 process EVIDENCEMODELER_PARTITION {
-    tag "$meta.id"
+    //tag "$meta.id"
     label 'process_medium'
     
     conda (params.enable_conda ? "bioconda::evidencemodeler=1.1.1" : null)

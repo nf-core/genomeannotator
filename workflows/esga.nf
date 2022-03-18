@@ -1,7 +1,7 @@
 /*
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     VALIDATE INPUTS
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
@@ -24,22 +24,21 @@ if (params.rm_lib) { ch_repeats = Channel.fromPath(file(params.rm_lib, checkIfEx
 if (params.aug_config_dir) { ch_aug_config_folder = file(params.aug_config_dir, checkIfExists: true) } else { ch_aug_config_folder = Channel.from(params.aug_config_container) }
 if (params.references) { ch_ref_genomes = Channel.fromPath(params.references, checkIfExists: true)  } else { ch_ref_genomes = Channel.empty() }
 
-
 /*
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 ch_multiqc_config        = file("$projectDir/assets/multiqc_config.yaml", checkIfExists: true)
 ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
 ch_aug_extrinsic_cfg = params.aug_extrinsic_cfg ? Channel.from( file(params.aug_extrinsic_cfg, checkIfExists: true) ) : Channel.from( file("${workflow.projectDir}/assets/augustus/augustus_default.cfg"))
-ch_evm_weights = params.evm_weights ? Channel.from(file(params.evm_weights, checkIfExists: true)) : Channel.from(file("${baseDir}/assets/evm/weights.txt", checkIfExists: true))
+ch_evm_weights = Channel.from(file(params.evm_weights, checkIfExists: true)) 
 
 /*
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT LOCAL MODULES/SUBWORKFLOWS
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 //
@@ -58,9 +57,9 @@ include { EVM } from '../subworkflows/local/evm.nf'
 include { FASTA_PREPROCESS as TRANSCRIPT_PREPROCESS } from '../subworkflows/local/fasta_preprocess'
 
 /*
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 //
@@ -75,9 +74,9 @@ include { REPEATMODELER } from '../modules/local/repeatmodeler'
 include { AUGUSTUS_STAGECONFIG } from '../modules/local/augustus/stageconfig'
 
 /*
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 // Info required for completion email and summary
@@ -85,13 +84,15 @@ def multiqc_report = []
 
 workflow ESGA {
 
+    ch_empty_gff = Channel.fromPath(params.dummy_gff)
     ch_versions = Channel.empty()
     ch_hints = Channel.empty()
     ch_repeats_lib = Channel.empty()
-    ch_proteins_gff = Channel.empty()
-    ch_transcripts_gff = Channel.empty()
+    ch_proteins_gff = Channel.from([])
+    ch_transcripts_gff = Channel.from([])
     ch_genes_gff = Channel.empty()
     ch_transcripts = Channel.empty()
+    ch_genome_rm = Channel.empty()
 
     //
     // SUBWORKFLOW: Turn transcript inputs to channel
@@ -149,6 +150,7 @@ workflow ESGA {
           params.rm_species
        )
        ch_versions = ch_versions.mix(REPEATMASKER.out.versions)
+       ch_genome_rm = REPEATMASKER.out.fasta
     } else {
        REPEATMASKER(
           ASSEMBLY_PREPROCESS.out.fasta,
@@ -156,6 +158,7 @@ workflow ESGA {
           false
        )
        ch_versions = ch_versions.mix(REPEATMASKER.out.versions)
+       ch_genome_rm = REPEATMASKER.out.fasta
     }
 
     //
@@ -169,7 +172,7 @@ workflow ESGA {
        ch_versions = ch_versions.mix(SPALN_ALIGN_PROTEIN.out.versions)
        ch_hints = ch_hints.mix(SPALN_ALIGN_PROTEIN.out.hints)
        ch_proteins_gff = ch_proteins_gff.mix(SPALN_ALIGN_PROTEIN.out.gff)
-    }
+    } 
 
     // 
     // SUBWORKFLOW: Align species-specific proteins 
@@ -223,7 +226,7 @@ workflow ESGA {
              SAMTOOLS_MERGE.out.bam,
              params.max_intron_size
           )
-          //ch_transcripts = ch_transcripts.mix(TRINITY_GENOMEGUIDED.out.fasta)
+          ch_transcripts = ch_transcripts.mix(TRINITY_GENOMEGUIDED.out.fasta)
           ch_versions = ch_versions.mix(TRINITY_GENOMEGUIDED.out.versions)
        }
     }
@@ -296,12 +299,13 @@ workflow ESGA {
     //
     // SUBWORKFLOW: Consensus gene building with EVM
     //
+
     if (params.evm) {
        EVM(
-          REPEATMASKER.out.fasta,
-          ch_genes_gff.map { m,g -> g },
-          ch_proteins_gff.map {m,p -> p },
-          ch_transcripts_gff.map { m,t -> t},
+          ch_genome_rm,
+          ch_genes_gff.map{m,g -> g}.collectFile(name: 'genes.gff3'),
+          ch_proteins_gff.map{m,p -> p}.mix(ch_empty_gff).collectFile(name: 'proteins.gff3'),
+          ch_transcripts_gff.map{m,t ->t}.mix(ch_empty_gff).collectFile(name: 'transcripts.gff3'),
           ch_evm_weights
        )
     }
@@ -334,9 +338,9 @@ workflow ESGA {
 }
 
 /*
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     COMPLETION EMAIL AND SUMMARY
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 workflow.onComplete {
@@ -347,7 +351,7 @@ workflow.onComplete {
 }
 
 /*
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     THE END
-========================================================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */

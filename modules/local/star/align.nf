@@ -2,10 +2,10 @@ process STAR_ALIGN {
     tag "$meta.id"
     label 'process_high'
     
-    conda (params.enable_conda ? "bioconda::star=2.7.10a" : null)
+    conda (params.enable_conda ? "bioconda::star=2.6.1d" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/star:2.7.10a--h9ee0642_0':
-        'quay.io/biocontainers/star:2.7.10a--h9ee0642_0' }"
+        'https://depot.galaxyproject.org/singularity/mulled-v2-1fa26d1ce03c295fe2fdcf85831a92fbcbd7e8c2:59cdd445419f14abac76b31dd0d71217994cbcc9-0' :
+        'quay.io/biocontainers/mulled-v2-1fa26d1ce03c295fe2fdcf85831a92fbcbd7e8c2:59cdd445419f14abac76b31dd0d71217994cbcc9-0' }"
 
     input:
     tuple val(meta_g), path(star_index)
