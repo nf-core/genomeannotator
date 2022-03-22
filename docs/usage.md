@@ -24,7 +24,7 @@ Included in ESGA are:
 
 ## Recommended strategy
 
-A typical annotation run will use tens of thousands of transcripts and/or tens of millions of paired-end RNAseq reads as well as tens of thousands of proteins. Source to obtain such data from include [Uniprot](www.uniprot.org), [SRA](https://www.ncbi.nlm.nih.gov/sra) or [ENA](https://www.ebi.ac.uk/ena/browser/).
+A typical annotation run will use tens of thousands of transcripts and/or tens of millions of paired-end RNAseq reads as well as tens of thousands of proteins. Sources to obtain such data include [Uniprot](www.uniprot.org), [SRA](https://www.ncbi.nlm.nih.gov/sra) or [ENA](https://www.ebi.ac.uk/ena/browser/).
 
 If available, adding related genomes and their reference annotations can help to further improve the resulting gene builds. We have had good experiences using [EnsEMBL](https://ftp.ensembl.org/pub/) as a source for this type of data.
 
@@ -37,11 +37,14 @@ split models or missing models. The extend to which these three problems occurs 
 
 ## Assembly
 
-Location of the genome you want to annotate. This file should be in FASTA format. Additionally, we recommend you clean the fasta headers in a way that they do not contain any special characters, unnecessary spaces or other "meta" data.
+The assembly refers to the genome you want to annotate. This file must be in FASTA format. Additionally, we recommend you clean the fasta headers in a way so they do not contain any special characters, unnecessary spaces or other "meta" data. While ESGA
+will try to sanitize the FASTA headers as well, it's generally better to take care of that beforehand so there are no surprises afterwards. 
+
 Please also be aware that some public databases do not allow the submission of assemblies that have leading or trailing 'N's in any of their scaffolds.
 
-Please also note that ESGA is not designed for the annotation of incomplete and/or highly fragmented assemblies. While such inputs may still work, some of the alignment heuristics will potentially perform poorly or fail entirely, i.e. crash the pipeline. As
-a rule of thumb, your BUSCO scores should be above 80% and the number of contigs not exceed "a few thousands". 
+Finally, note that ESGA is not designed for the annotation of incomplete and/or highly fragmented assemblies. While such inputs may still work, some of the alignment heuristics will potentially perform poorly or fail entirely, i.e. crash the pipeline. As
+a rule of thumb, your BUSCO scores should be above 80% and the number of contigs not exceed "a few thousand". There is no strict limit on the size of your assembly, but we have only tested ESGA with genomes up to 'human-size', i.e. 3Gb. Much larger genomes
+may cause unforseen issues. If so, please open a ticket on github and we can try to find a solution. 
 
 ```console
 --assembly '[path to assembly.fasta]'
@@ -62,17 +65,20 @@ The pipeline requires one of several types of annotation evidences to guide the 
 ## Repeatmasking
 
 Repeatmasking provides important information for the ab-initio prediction of gene models - it is thus a mandatory step in ESGA. Repeatmasking can be triggered in three ways. The preferred option is to provide a set of known repeats from public databases
-in FASTA format (--rm_lib). Alternatively, ESGA can run the DFam database built into RepeatMasker (--rm_species). If neither option is specified, repeats are modeled de-novo. This can take 24 hours or more. 
+in FASTA format (--rm_lib). Alternatively, ESGA can run the DFam database built into RepeatMasker (--rm_species). If neither option is specified, repeats are modeled de-novo. This can take 24 hours or more, depending on the size of your genomes. Please
+be aware that assemblies based on short reads tend to perform poorly in this as repeats are often collapsed by the assembly software. 
 
 ## FASTA inputs
 
 Several inputs to this pipeline are expected in FASTA format  (see table above). Note that the pipeline expects ONE file per input option. If you have multiple files of e.g. proteins, please concatenate them first and make sure no IDs are duplicated. 
 
-Similar to the assembly, the sequence identifies should be sparse, i.e.should not contain spaces, colons, semicolons or any other form of decoration beyond the basic, unique identifier. ESGA will remove any characters from the identifier past the first empty space. 
+Similar to the assembly, the sequence identifies should be sparse, i.e.should not contain spaces, colons, semicolons or any other form of decoration beyond the basic, unique identifier. ESGA will remove any characters from the identifier past the 
+first empty space. 
 
 ## RNAseq samplesheet input
 
-If you want to include RNAseq raw reads, you will need to create a samplesheet with information about the input data. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row as shown in the examples below.
+If you want to include RNAseq raw reads, you will need to create a samplesheet with information about the input data. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row as shown in the 
+example below.
 
 ```console
 --rnaseq_samples '[path to samplesheet file]'
@@ -93,9 +99,11 @@ SAMPLE2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,forwar
 | `fastq_2`      | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `strandedness` | The orientation the reads were sequenced in. Typically, this will be `forward` as per the Illumina TruSeq library kit (dUTP)                                                           |
 
+If at all possible, you should use poly-A selected, stranded mRNA-seq data for this with a read configuration of 2x150bp. It is not necessary (or recommended) to use biological replicates! Instead, rather try adding several developmental stages and tissues. 
+
 ## Reference genome alignments
 
-ESGA can align your assembly to one or more related reference genomes to lift their existing annotations and use this information during gene building. We have tested this primarily with assemblies and annotations from EnsEMBL, but other sources
+ESGA can align your assembly to one or more related reference genomes to lift their existing annotations and use this information during gene building. We have tested this primarily with assemblies and annotations from [EnsEMBL](https://ftp.ensembl.org/pub/), but other sources
 may work too. Note that the annotation must be in GTF format! To pass this data to ESGA, a sample sheet is needed.
 
 The format should be as follows:
@@ -110,6 +118,9 @@ Human,/path/to/human.fasta,/path/to/human.gtf
 | `species`      | Name of the species as a single string (i.e. should not include spaces or special characters                                                                                           |
 | `fasta `       | The genome sequence in FASTA format.                                                                                                                                                   |
 | `gtf`          | The matching annotation in GTF format.                                                                                                                                                 |
+
+Please beware that trying to align larger genomes and/or highly fragmented genomes can take a significant amount of computing time (i.e. days!). In extreme cases, jobs may exceed available walltime. If possible, limit the number of genomes
+you align to only a handful (1-3) and prefer genomes with very high contiguity (ideally chromosome-level assembly). 
 
 ## Running the pipeline
 

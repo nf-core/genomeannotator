@@ -5,7 +5,7 @@
 include { REPEATMASKER_STAGELIB } from '../../modules/local/repeatmasker/stagelib'
 include { REPEATMASKER_REPEATMASK } from '../../modules/local/repeatmasker/repeatmask'
 include { FASTASPLITTER } from '../../modules/local/fastasplitter'
-include { CAT_FASTA } from '../../modules/local/cat/fasta'
+include { CAT_FASTA as REPEAT_CAT_FASTA} from '../../modules/local/cat/fasta'
 
 workflow REPEATMASKER {
     take:
@@ -23,9 +23,9 @@ workflow REPEATMASKER {
        rm_species
     )
     
-    CAT_FASTA(REPEATMASKER_REPEATMASK.out.masked)
+    REPEAT_CAT_FASTA(REPEATMASKER_REPEATMASK.out.masked)
     
     emit:
-    fasta = CAT_FASTA.out.fasta
-    versions = REPEATMASKER_STAGELIB.out.versions.mix(REPEATMASKER_REPEATMASK.out.versions,FASTASPLITTER.out.versions,CAT_FASTA.out.versions)
+    fasta = REPEAT_CAT_FASTA.out.fasta
+    versions = REPEATMASKER_STAGELIB.out.versions.mix(REPEATMASKER_REPEATMASK.out.versions,FASTASPLITTER.out.versions,REPEAT_CAT_FASTA.out.versions)
 }

@@ -5,7 +5,7 @@
 include { FASTASPLITTER } from '../../modules/local/fastasplitter'
 include { AUGUSTUS_AUGUSTUSBATCH } from '../../modules/local/augustus/augustusbatch'
 include { AUGUSTUS_FIXJOINGENES } from '../../modules/local/augustus/fixjoingenes'
-include { HELPER_CREATEGFFIDS } from '../../modules/local/helper/creategffids'
+include { HELPER_CREATEGFFIDS as AUGUSTUS_CREATEGFFIDS } from '../../modules/local/helper/creategffids'
 include { GFFREAD as AUGUSTUS_GFF2PROTEINS } from '../../modules/local/gffread'
 workflow AUGUSTUS_PIPELINE {
     take:
@@ -35,14 +35,14 @@ workflow AUGUSTUS_PIPELINE {
     .groupTuple()
     .set { grouped_augustus_gff }
   
-    HELPER_CREATEGFFIDS(
+    AUGUSTUS_CREATEGFFIDS(
        grouped_augustus_gff
     )    
     AUGUSTUS_GFF2PROTEINS(
-       HELPER_CREATEGFFIDS.out.gff.join(genome)
+       AUGUSTUS_CREATEGFFIDS.out.gff.join(genome)
     )
 
     emit:
-    gff = HELPER_CREATEGFFIDS.out.gff
+    gff = AUGUSTUS_CREATEGFFIDS.out.gff
     versions = FASTASPLITTER.out.versions
 }
