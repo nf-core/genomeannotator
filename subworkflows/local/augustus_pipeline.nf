@@ -44,5 +44,6 @@ workflow AUGUSTUS_PIPELINE {
 
     emit:
     gff = AUGUSTUS_CREATEGFFIDS.out.gff
+    proteins = AUGUSTUS_GFF2PROTEINS.out.proteins
     versions = FASTASPLITTER.out.versions
 }

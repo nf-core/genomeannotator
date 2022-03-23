@@ -22,7 +22,7 @@ process HELPER_ADDEXONS {
     spaln_add_exons.pl --infile $gff > $models
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        helper: 1.0.0
+        helper: ${workflow.manifest.version}
     END_VERSIONS
     """
 }

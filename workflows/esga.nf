@@ -23,6 +23,7 @@ if (params.rnaseq_samples) { ch_samplesheet = file(params.rnaseq_samples, checkI
 if (params.rm_lib) { ch_repeats = Channel.fromPath(file(params.rm_lib, checkIfExists: true)) } else { ch_repeats = Channel.from([])}
 if (params.aug_config_dir) { ch_aug_config_folder = file(params.aug_config_dir, checkIfExists: true) } else { ch_aug_config_folder = Channel.from(params.aug_config_container) }
 if (params.references) { ch_ref_genomes = Channel.fromPath(params.references, checkIfExists: true)  } else { ch_ref_genomes = Channel.empty() }
+if (params.busco_lineage_dir) { ch_busco_lineage_dir = Channel.fromPath(params.busco_lineage_dir, checkIfExists: true) } else { ch_busco_lineage_dir = Channel.empty() }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -55,6 +56,8 @@ include { PASA_PIPELINE } from '../subworkflows/local/pasa_pipeline'
 include { GENOME_ALIGN } from '../subworkflows/local/genome_align'
 include { EVM } from '../subworkflows/local/evm.nf'
 include { FASTA_PREPROCESS as TRANSCRIPT_PREPROCESS } from '../subworkflows/local/fasta_preprocess'
+include { BUSCO_QC } from '../subworkflows/local/busco_qc'
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -93,6 +96,8 @@ workflow ESGA {
     ch_genes_gff = Channel.empty()
     ch_transcripts = Channel.empty()
     ch_genome_rm = Channel.empty()
+    ch_proteins_fa = Channel.empty()
+    ch_busco_qc = Channel.empty()
 
     //
     // SUBWORKFLOW: Turn transcript inputs to channel
@@ -295,11 +300,11 @@ workflow ESGA {
     )
     ch_versions = ch_versions.mix(AUGUSTUS_PIPELINE.out.versions)
     ch_genes_gff = ch_genes_gff.mix(AUGUSTUS_PIPELINE.out.gff)
+    ch_proteins_fa = ch_proteins_fa.mix(AUGUSTUS_PIPELINE.out.proteins)
 
     //
     // SUBWORKFLOW: Consensus gene building with EVM
     //
-
     if (params.evm) {
        EVM(
           ch_genome_rm,
@@ -308,6 +313,18 @@ workflow ESGA {
           ch_transcripts_gff.map{m,t ->t}.mix(ch_empty_gff).collectFile(name: 'transcripts.gff3'),
           ch_evm_weights
        )
+       ch_proteins_fa = ch_proteins_fa.mix(EVM.out.proteins)
+    }
+
+    //
+    // SUBWORKFLOW: Check proteome completeness with BUSCO
+    //
+    if (params.busco) {
+       BUSCO_QC(
+          ch_proteins_fa,
+          ch_busco_lineage_dir.ifEmpty([])
+       )
+       ch_busco_qc = BUSCO_QC.out.busco_summary
     }
 
     //
@@ -329,6 +346,7 @@ workflow ESGA {
     ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_custom_config.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
+    ch_multiqc_files = ch_multiqc_files.mix(ch_busco_qc.collect().ifEmpty([]))
 
     MULTIQC (
         ch_multiqc_files.collect()

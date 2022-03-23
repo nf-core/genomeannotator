@@ -43,6 +43,7 @@ workflow EVM {
     )
        
     emit:
+    proteins = EVIDENCEMODELER_GFF2PROTEINS.out.proteins
     versions = EVIDENCEMODELER_PARTITION.out.versions
 
 }

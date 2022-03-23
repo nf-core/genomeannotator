@@ -23,7 +23,7 @@ process HELPER_BAMTOGFF {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        bam2gff: 1.0
+        bam2gff: ${workflow.manifest.version}
     END_VERSIONS
     """
 }

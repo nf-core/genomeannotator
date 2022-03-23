@@ -23,7 +23,7 @@ process HELPER_EVM2GFF {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        helper: 1.0
+        helper: ${workflow.manifest.version}
     END_VERSIONS
     """
 }

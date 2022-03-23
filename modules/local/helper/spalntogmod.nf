@@ -23,7 +23,7 @@ process HELPER_SPALNTOGMOD {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        spalntogmod: 1.0
+        spalntogmod: ${workflow.manifest.version}
     END_VERSIONS
     """
 }

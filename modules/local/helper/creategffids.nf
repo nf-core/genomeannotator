@@ -24,7 +24,7 @@ process HELPER_CREATEGFFIDS {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        helper: 1.0.0
+        helper: ${workflow.manifest.version}
     END_VERSIONS
     """
 }
