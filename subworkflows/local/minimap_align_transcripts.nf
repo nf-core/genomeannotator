@@ -29,11 +29,23 @@ workflow MINIMAP_ALIGN_TRANSCRIPTS {
           genome.collect(),
           params.max_intron_size
        )
+   
+       MINIMAP2_ALIGN.out.bam
+          .groupTuple()
+          .branch {
+             meta,bam ->
+                single: bam.size() == 1
+                   return [meta, bam ]
+                multiple: bam.size() > 1
+                   return [meta, bam ]
+          }
+       .set { ch_bams }
+                    
        SAMTOOLS_MERGE(
-          MINIMAP2_ALIGN.out.bam.groupTuple()
+         ch_bams.multiple
        )
        MINIMAP_BAMTOGFF(
-          SAMTOOLS_MERGE.out.bam
+          SAMTOOLS_MERGE.out.bam.mix(ch_bams.single)
        )
        HELPER_MINIMAPTOHINTS(
           MINIMAP_BAMTOGFF.out.gff,

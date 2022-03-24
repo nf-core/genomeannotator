@@ -15,6 +15,10 @@ class WorkflowEsga {
             log.error "Genome assembly not specified with e.g. '--assembly genome.fa'"
             System.exit(1)
         }
+        if (params.assembly.contains('*')) {
+            log.error "ESGA is not currently designed to annotate multiple assemblies in one go. Please start separate pipeline runs for this."
+            System.exit(1)
+        }
         if (!params.aug_species) {
             log.error "Augustus profile model not specified with e.g. '--aug_species human'"
             System.exit(1)
@@ -37,6 +41,10 @@ class WorkflowEsga {
         }
         if (!params.proteins && !params.proteins_targeted && !params.transcripts && !params.rnaseq_samples) {
             log.error "This pipeline requires some form of supporting evidence as input from proteins, transcripts or RNAseq"
+            System.exit(1)
+        }
+        if  (params.busco_lineage && !params.busco_lineage ==~ /[a-z]*_odb10/) {
+            log.error "This does not look like a valid busco lineage name! Was expecting xxx_odb10"
             System.exit(1)
         }
 

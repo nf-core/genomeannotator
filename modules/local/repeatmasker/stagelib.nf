@@ -30,7 +30,7 @@ process REPEATMASKER_STAGELIB {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        repeatmasker: \$(echo \$(RepeatMasker -v 2> /dev/null) | cut -f3 -d " "))
+        repeatmasker: \$(echo \$(RepeatMasker -v 2> /dev/null) | cut -f3 -d " "| sed "s/[)]//") )
     END_VERSIONS
     """
 }

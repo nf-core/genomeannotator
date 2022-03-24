@@ -27,7 +27,7 @@ process MINIMAP2_ALIGN {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         minimap2: \$(echo \$(minimap2 --version ))
-        samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//' ))
+        samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
     END_VERSIONS
     """
 }

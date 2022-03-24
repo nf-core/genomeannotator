@@ -1,5 +1,5 @@
 process HELPER_CREATEGFFIDS {
-    tag "$meta.id"
+    //tag "$meta.id"
     label 'process_low'
     
     conda (params.enable_conda ? "bioconda::perl-bioperl=1.7.8" : null)
@@ -17,10 +17,9 @@ process HELPER_CREATEGFFIDS {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    updated_gff = prefix + ".stable_id.gff"
+    updated_gff = gff.getBaseName() + ".stable_id.gff"
     """
-    cat $gff > merged.gff
-    create_gff_ids.pl --gff merged.gff > $updated_gff
+    create_gff_ids.pl --gff $gff > $updated_gff
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

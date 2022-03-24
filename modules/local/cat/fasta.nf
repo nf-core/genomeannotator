@@ -16,8 +16,8 @@ process CAT_FASTA {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
-    merged_fasta = prefix + ".merged.fasta"
+    def prefix = "${meta.id}" + task.ext.prefix ?: "${meta.id}"
+    merged_fasta = prefix + ".fasta"
 
     """
     cat $fastas > $merged_fasta

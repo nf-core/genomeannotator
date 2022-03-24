@@ -9,10 +9,10 @@ process BUSCO_BUSCO {
 
     input:
     tuple val(meta), path(proteins)
-    path(lineage)
+    tuple val(lineage_path),path(db)
 
     output:
-    tuple val(meta), path(busco_summary), emit: summary
+    path(busco_summary), emit: summary
     path "versions.yml"           , emit: versions
 
     when:
@@ -21,11 +21,11 @@ process BUSCO_BUSCO {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    busco_summary = proteins.getBaseName() + "_busco.short_summary.txt"
+    busco_summary = "short_summary_" + proteins.getBaseName() + ".txt"
     """
 
-    busco -m proteins -i $proteins -l $lineage -o busco -c ${task.cpus} --offline
-    cp busco/short_summary.txt $busco_summary
+    busco -m proteins -i $proteins -l $lineage_path -o busco -c ${task.cpus} --offline
+    cp busco/short_summary*specific*busco.txt $busco_summary
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

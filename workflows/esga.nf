@@ -23,7 +23,6 @@ if (params.rnaseq_samples) { ch_samplesheet = file(params.rnaseq_samples, checkI
 if (params.rm_lib) { ch_repeats = Channel.fromPath(file(params.rm_lib, checkIfExists: true)) } else { ch_repeats = Channel.from([])}
 if (params.aug_config_dir) { ch_aug_config_folder = file(params.aug_config_dir, checkIfExists: true) } else { ch_aug_config_folder = Channel.from(params.aug_config_container) }
 if (params.references) { ch_ref_genomes = Channel.fromPath(params.references, checkIfExists: true)  } else { ch_ref_genomes = Channel.empty() }
-if (params.busco_lineage_dir) { ch_busco_lineage_dir = Channel.fromPath(params.busco_lineage_dir, checkIfExists: true) } else { ch_busco_lineage_dir = Channel.empty() }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -319,10 +318,10 @@ workflow ESGA {
     //
     // SUBWORKFLOW: Check proteome completeness with BUSCO
     //
-    if (params.busco) {
+    if (params.busco_lineage) {
        BUSCO_QC(
           ch_proteins_fa,
-          ch_busco_lineage_dir.ifEmpty([])
+          params.busco_lineage
        )
        ch_busco_qc = BUSCO_QC.out.busco_summary
     }

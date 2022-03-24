@@ -7,6 +7,8 @@ include { AUGUSTUS_AUGUSTUSBATCH } from '../../modules/local/augustus/augustusba
 include { AUGUSTUS_FIXJOINGENES } from '../../modules/local/augustus/fixjoingenes'
 include { HELPER_CREATEGFFIDS as AUGUSTUS_CREATEGFFIDS } from '../../modules/local/helper/creategffids'
 include { GFFREAD as AUGUSTUS_GFF2PROTEINS } from '../../modules/local/gffread'
+include { CAT_GFF as AUGUSTUS_MERGE_CHUNKS } from '../../modules/local/cat/gff'
+
 workflow AUGUSTUS_PIPELINE {
     take:
     genome // file: /path/to/samplesheet.csv
@@ -31,12 +33,25 @@ workflow AUGUSTUS_PIPELINE {
     AUGUSTUS_FIXJOINGENES(
        AUGUSTUS_AUGUSTUSBATCH.out.gff
     )
+
     AUGUSTUS_FIXJOINGENES.out.gff
-    .groupTuple()
-    .set { grouped_augustus_gff }
-  
+    .multiMap { m,gff ->
+       metadata: [m.id, m]
+       gffs: [m.id,gff ]
+    }.set { ch_gffs }
+
+    ch_gffs.gffs.collectFile { mkey, file -> [ "${mkey}.augustus.gff", file ] }
+    .map { file -> [ file.simpleName, file ] }
+    .set { ch_merged_gffs }
+
+    ch_gffs.metadata.join(
+       ch_merged_gffs
+    )
+    .map { k,m,f -> tuple(m,f) }
+    .set { ch_genome_gff }
+
     AUGUSTUS_CREATEGFFIDS(
-       grouped_augustus_gff
+       ch_genome_gff
     )    
     AUGUSTUS_GFF2PROTEINS(
        AUGUSTUS_CREATEGFFIDS.out.gff.join(genome)

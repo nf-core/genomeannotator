@@ -57,6 +57,7 @@
                     "type": "string",
                     "format": "file-path",
                     "mimetype": "text/csv",
+                    "fa_icon": "fas fa-file",
                     "pattern": "^\\S+\\.fn?a(sta)?$",
                     "description": "Path to a fasta file with proteins",
                     "help_text": "Specify a fasta-formatted file with proteins from related organisms. Typical sources are Uniprot, EnsEMBL or Refseq."
@@ -65,6 +66,7 @@
                     "type": "string",
                     "format": "file-path",
                     "mimetype": "text/csv",
+                    "fa_icon": "fas fa-file",
                     "pattern": "^\\S+\\.fn?a(sta)?$",
                     "description": "Path to a fasta file with proteins",
                     "help_text": "Specify a fasta-formatted file with proteins your organism of interest. Typical sources are Uniprot, EnsEMBL or Refseq."
@@ -75,11 +77,13 @@
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.fn?a(sta)?$",
                     "description": "Path to a fasta file with transcripts/ESTs",
+                    "fa_icon": "fas fa-file",
                     "help_text": "Specify a fasta-formatted file with transcripts/ESTs from your organism of interest. Typical sources are ENA and dbEST."
                 },
                 "rm_lib": {
                     "type": "string",
                     "format": "file-path",
+                    "fa_icon": "fas fa-file",
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.fn?a(sta)?$",
                     "description": "Path to a fasta file with known repeat sequences for this organism",
@@ -106,27 +110,42 @@
                 "npart_size": {
                     "type": "integer",
                     "description": "Chunk size for splitting the assembly.",
-                    "fa_icon": "fas fa-book",
+                    "fa_icon": "fas fa-wrench",
                     "help_text": "The assembly will split into pieces of this size, in bp, to increase parallelization."
                 },
                 "max_intron_size": {
                     "type": "integer",
                     "description": "Maximum length of expected introns in bp.",
-                    "fa_icon": "fas fa-book",
+                    "fa_icon": "fas fa-wrench",
                     "help_text": "This option specifies the longest expected intron in base-pairs. Seeting this too low will result in broken gene models. Conversely, setting this too large may create unreasonable gene models and increase run time."
                 },
                 "min_contig_size": {
-                   "type": "integer",
-                   "default": 5000,
-                   "description": "Minimum size of contig to consider",
-                   "help_text": "Small contigs will typically not add anything to the annotation, but can increase run time or trigger crashes. This value determines the cutoff for contig inclusion."  
+                    "type": "integer",
+                    "default": 5000,
+                    "fa_icon": "fas fa-wrench",
+                    "description": "Minimum size of contig to consider",
+                    "help_text": "Small contigs will typically not add anything to the annotation, but can increase run time or trigger crashes. This value determines the cutoff for contig inclusion."
                 },
                 "rm_species": {
+                    "type": "string",
+                    "description": "Taxonomic group to guide repeat masking.",
+                    "fa_icon": "fas fa-wrench",
+                    "help_text": "Use this taxonomic group or species to identify and mask repeats. Valid names can, in most cases, be guessed, and follow the nomenclature provided through the [NCBI taxonomy](https://www.ncbi.nlm.nih.gov/taxonomy). This option draws from available data included in [DFam 3.2](https://www.dfam.org/releases/Dfam_3.2/relnotes.txt), which contains HMM profiles for over 273.0000 repeat families from 347 species.",
+                    "default": "None"
+                },
+                "busco_lineage": {
                    "type": "string",
-                   "description": "Taxonomic group to guide repeat masking.",
-                   "help_text": "Use this taxonomic group or species to identify and mask repeats. Valid names can, in most cases, be guessed, and follow the nomenclature provided through the [NCBI taxonomy](https://www.ncbi.nlm.nih.gov/taxonomy). This option draws from available data included in [DFam 3.2](https://www.dfam.org/releases/Dfam_3.2/relnotes.txt), which contains HMM profiles for over 273.0000 repeat families from 347 species.",
-                   "default": "None"
+                   "fa_icon": "fas fa-wrench",
+                   "description": "Name of a BUSCO taxonomic group to evaluate the completeness of annotated gene set(s).",
+                   "help_text": "Use this to provide the name of a BUSCO [taxonomic group](https://busco.ezlab.org/list_of_lineages.html) against which to evaluate the resulting gene builds. Format should be taxgroup_odb10 (i.e. without the date).",
+                   "default": null
+                },
+                "dummy_gff": {
+                   "type": "string",
+                   "default": "/home/sukmb352/git/esga2/nf-core-esga/assets/empty.gff3",
+                   "description": "A placeholder gff file to help trigger certain processes."
                 }
+
             }
         },
         "augustus_options": {
@@ -142,97 +161,112 @@
                     "help_text": "Specify which model AUGUSTUS will run with. A full list is available here: https://github.com/Gaius-Augustus/Augustus/blob/master/docs/RUNNING-AUGUSTUS.md"
                 },
                 "aug_options": {
-                   "type": "string",
-                   "default": "--alternatives-from-evidence=on --minexonintronprob=0.08 --minmeanexonintronprob=0.4 --maxtracks=3",
-                   "description": "Options to pass to AUGUSTUS.",
-                   "help_text": "AUGUSTUS has many options that are not specifically available as pipeline options. Instead, you can pass them through this flag."
+                    "type": "string",
+                    "default": "--alternatives-from-evidence=on --minexonintronprob=0.08 --minmeanexonintronprob=0.4 --maxtracks=3",
+                    "description": "Options to pass to AUGUSTUS.",
+                    "fa_icon": "fas fa-wrench",
+                    "help_text": "AUGUSTUS has many options that are not specifically available as pipeline options. Instead, you can pass them through this flag."
                 },
                 "aug_config_container": {
-                   "type": "string",
-                   "default": "/usr/local/config",
-                   "description": "Location of the AUGUSTUS config directory within the docker container",
-                   "help_text": "This option specifies where to find the AUGUSTUS config directory inside the Docker container. Normally, you should not change this!"
+                    "type": "string",
+                    "default": "/usr/local/config",
+                    "fa_icon": "fas fa-folder-open",
+                    "description": "Location of the AUGUSTUS config directory within the docker container",
+                    "help_text": "This option specifies where to find the AUGUSTUS config directory inside the Docker container. Normally, you should not change this!"
                 },
                 "aug_config_dir": {
-                   "type": "string",
-                   "default": "false",
-                   "description": "A custom config directory for AUGUSTUS",
-                   "help_text" : "Use this to point to a custom AUGUSTUS config directory - for example if you have trained a new model outside of ESGA. Most be compatible with AUGUSTUS 3.4."
+                    "type": "string",
+                    "default": "false",
+                    "fa_icon": "fas fa-folder-open",
+                    "description": "A custom config directory for AUGUSTUS",
+                    "help_text": "Use this to point to a custom AUGUSTUS config directory - for example if you have trained a new model outside of ESGA. Most be compatible with AUGUSTUS 3.4."
                 },
                 "aug_extrinsic_cfg": {
-                   "type": "string",
-                   "default": "false",
-                   "description": "Custom AUGUSTUS extrinsic config file path",
-                   "help_text" : "Provide a custom extrinsic config file to AUGUSTUS, specifying the weight of different types if evidence. We suggest you start with our [built-in](https://raw.githubusercontent.com/marchoeppner/esga2/dev/assets/augustus/augustus_default.cfg) base version."
+                    "type": "string",
+                    "default": "false",
+                    "fa_icon": "fas fa-file",
+                    "description": "Custom AUGUSTUS extrinsic config file path",
+                    "help_text": "Provide a custom extrinsic config file to AUGUSTUS, specifying the weight of different types if evidence. We suggest you start with our [built-in](https://raw.githubusercontent.com/marchoeppner/esga2/dev/assets/augustus/augustus_default.cfg) base version."
                 },
                 "aug_chunk_length": {
-                   "type": "integer",
-                   "default": 3000000,
-                   "description": "Length of annotation chunks in AUGUSTUS",
-                   "help_text": "This value determines the length of a region worked on by each AUGUSTUS sub process. The overlap between neighboring chunks is 1/6 the chunk length. The default value should be adequate for most scenarios."
+                    "type": "integer",
+                    "default": 3000000,
+                    "description": "Length of annotation chunks in AUGUSTUS",
+                    "fa_icon": "fas fa-wrench",
+                    "help_text": "This value determines the length of a region worked on by each AUGUSTUS sub process. The overlap between neighboring chunks is 1/6 the chunk length. The default value should be adequate for most scenarios."
                 },
                 "aug_training": {
-                   "type": "boolean",
-                   "default": "false",
-                   "description": "Enable training of a new AUGUSTUS profile.",
-                   "help_text": "This option enables training of a new AUGUSTUS prediction profile. You must provide either a full (!) species-specific proteome via --proteins_targeted or a sufficiently comprehensive set of transcripts/RNA-seq data. When both are provided, proteins will be preferred."
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable training of a new AUGUSTUS profile.",
+                    "fa_icon": "fas fa-wrench",
+                    "help_text": "This option enables training of a new AUGUSTUS prediction profile. You must provide either a full (!) species-specific proteome via --proteins_targeted or a sufficiently comprehensive set of transcripts/RNA-seq data. When both are provided, proteins will be preferred."
                 },
                 "pri_prot": {
                     "type": "integer",
+                    "default": 3,
                     "description": "Priority for protein-derived hints for gene building.",
-                    "fa_icon": "fas fa-book",
+                    "fa_icon": "fas fa-wrench",
                     "help_text": "This value determines the priority protein-derived hints are given during AUGUSTUS gene finding. The higher the value, the more important the hint (1-5)."
                 },
                 "pri_prot_target": {
-                   "type": "integer",
-                   "default": 5,
-                   "description": "Priority for targeted protein evidences",
-                   "help_text": "A value to determine the weight of this type of evidence (1-5). A higher value means this type of evidence is given more consideration."
+                    "type": "integer",
+                    "default": 5,
+                    "fa_icon": "fas fa-wrench",
+                    "description": "Priority for targeted protein evidences",
+                    "help_text": "A value to determine the weight of this type of evidence (1-5). A higher value means this type of evidence is given more consideration."
                 },
                 "pri_est": {
-                   "type": "integer",
-                   "default": 4,
-                   "description": "Priority for transcript evidences",
-                   "help_text": "A value to determine the weight of this type of evidence (1-5). A higher value means this type of evidence is given more consideration."
+                    "type": "integer",
+                    "default": 4,
+                    "fa_icon": "fas fa-wrench",
+                    "description": "Priority for transcript evidences",
+                    "help_text": "A value to determine the weight of this type of evidence (1-5). A higher value means this type of evidence is given more consideration."
                 },
                 "pri_rnaseq": {
-                   "type": "integer",
-                   "default": 4,
-                   "description": "Priority for RNAseq splice junction evidences",
-                   "help_text": "A value to determine the weight of this type of evidence (1-5). A higher value means this type of evidence is given more consideration."
+                    "type": "integer",
+                    "default": 4,
+                    "fa_icon": "fas fa-wrench",
+                    "description": "Priority for RNAseq splice junction evidences",
+                    "help_text": "A value to determine the weight of this type of evidence (1-5). A higher value means this type of evidence is given more consideration."
                 },
                 "pri_wiggle": {
-                   "type": "integer",
-                   "default": 2,
-                   "description": "Priority for RNAseq exon coverage evidences",
-                   "help_text": "A value to determine the weight of this type of evidence (1-5). A higher value means this type of evidence is given more consideration."
+                    "type": "integer",
+                    "default": 2,
+                    "fa_icon": "fas fa-wrench",
+                    "description": "Priority for RNAseq exon coverage evidences",
+                    "help_text": "A value to determine the weight of this type of evidence (1-5). A higher value means this type of evidence is given more consideration."
                 },
                 "pri_trans": {
-                   "type": "integer",
-                   "default": 4,
-                   "description": "Priority for trans-mapped gene model evidences",
-                   "help_text": "A value to determine the weight of this type of evidence (1-5). A higher value means this type of evidence is given more consideration."
+                    "type": "integer",
+                    "default": 4,
+                    "fa_icon": "fas fa-wrench",
+                    "description": "Priority for trans-mapped gene model evidences",
+                    "help_text": "A value to determine the weight of this type of evidence (1-5). A higher value means this type of evidence is given more consideration."
                 },
                 "t_est": {
-                   "type": "string",
-                   "default": "E",
-                   "description": "Evidence label for transcriptome data",
-                   "help_text": "A label for a given type of evidence - corresponds to labels in the AUGUSTUS extrinsic config file. Should not be changed."
+                    "type": "string",
+                    "default": "E",
+                    "fa_icon": "fas fa-wrench",
+                    "description": "Evidence label for transcriptome data",
+                    "help_text": "A label for a given type of evidence - corresponds to labels in the AUGUSTUS extrinsic config file. Should not be changed."
                 },
                 "t_prot": {
-                   "type": "string",
-                   "default": "P",
-                   "description": "Evidence label for protein data",
-                   "help_text": "A label for a given type of evidence - corresponds to labels in the AUGUSTUS extrinsic config file. Should not be changed."
+                    "type": "string",
+                    "default": "P",
+                    "fa_icon": "fas fa-wrench",
+                    "description": "Evidence label for protein data",
+                    "help_text": "A label for a given type of evidence - corresponds to labels in the AUGUSTUS extrinsic config file. Should not be changed."
                 },
                 "t_rnaseq": {
-                   "type": "string",
-                   "default": "E",
-                   "description": "Evidence label for RNAseq data",
-                   "help_text": "A label for a given type of evidence - corresponds to labels in the AUGUSTUS extrinsic config file. Should not be changed."
+                    "type": "string",
+                    "default": "E",
+                    "fa_icon": "fas fa-wrench",
+                    "description": "Evidence label for RNAseq data",
+                    "help_text": "A label for a given type of evidence - corresponds to labels in the AUGUSTUS extrinsic config file. Should not be changed."
                 }
             }
-        },      
+        },
         "protein_tool_options": {
             "title": "Options for protein data processing",
             "type": "object",
@@ -242,40 +276,48 @@
                 "spaln_taxon": {
                     "type": "string",
                     "description": "Taxon model to use for SPALN protein alignments.",
-                    "fa_icon": "fas fa-book",
+                    "fa_icon": "fas fa-wrench",
                     "help_text": "This option specifies which SPALN alignment model to use. For a full list of available models, see: https://github.com/ogotoh/spaln/blob/master/table/gnm2tab"
                 },
                 "spaln_options": {
                     "type": "string",
+                    "default": "-M",
                     "description": "SPALN custom options.",
-                    "fa_icon": "fas fa-book",
+                    "fa_icon": "fas fa-wrench",
                     "help_text": "USers can pass custom options to the SPALN alignment process. Normally, this will not be necessary!"
                 },
                 "spaln_protein_id": {
                     "type": "integer",
+                    "default": 60,
                     "description": "SPALN id threshold for aligning.",
-                    "fa_icon": "fas fa-book",
+                    "fa_icon": "fas fa-wrench",
                     "help_text": "Users can pass custom id threshold to the SPALN alignment process. Normally, this will not be necessary!"
                 },
                 "min_prot_length": {
                     "type": "integer",
                     "description": "Minimum size of a protein sequence to be included.",
-                    "fa_icon": "fas fa-book",
+                    "default": 35,
+                    "fa_icon": "fas fa-wrench",
                     "help_text": "Protein-Databases often contain fragmented protein sequences. Use this option to filter out very small proteins from your evidence set."
                 },
                 "nproteins": {
                     "type": "integer",
+                    "default": 200,
                     "description": "Numbe of proteins per alignment job.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "Specifies the number of proteins per alignnment job. This option controls parallelism - the higher this number, the fewer jobs are created and the longer the individual run times. Only increase if you have a very large number of proteins to process. The default value should be fine though." 
+                    "fa_icon": "fas fa-wrench",
+                    "help_text": "Specifies the number of proteins per alignnment job. This option controls parallelism - the higher this number, the fewer jobs are created and the longer the individual run times. Only increase if you have a very large number of proteins to process. The default value should be fine though."
                 },
                 "spaln_q": {
-                   "type": "integer",
-                   "default": 5
+                    "type": "integer",
+                    "default": 5,
+                    "fa_icon": "fas fa-wrench",
+                    "description": "Q value for the SPALN alignment algorithm."
                 },
                 "spaln_protein_id_targeted": {
-                   "type": "integer",
-                   "default": 90
+                    "type": "integer",
+                    "default": 90,
+                    "fa_icon": "fas fa-wrench",
+                    "description" : "ID threshold for targeted protein alignments."
                 }
             }
         },
@@ -285,15 +327,39 @@
             "fa_icon": "fas fa-fna",
             "description": "Options that control the PASA transcriptome annotation pipeline",
             "properties": {
-               "pasa_nmodels": {
-                  "type": "integer",
-                  "default": 1000
+                "pasa_nmodels": {
+                    "type": "integer",
+                    "default": 1000,
+                    "fa_icon": "fas fa-wrench",
+                    "description": "Number of PASA models to select for AUGUSTUS training."
                 },
                 "pasa_config_file": {
-                   "type": "string",
-                   "default": "/home/sukmb352/git/esga2/nf-core-esga/assets/pasa/alignAssembly.config"
+                    "type": "string",
+                    "default": "PIPELINE_BASE/assets/pasa/alignAssembly.config",
+                    "fa_icon": "fas fa-wrench",
+                    "description": "Built-in config file for PASA."
                 }
-           }
+            }
+        },
+        "evm_options": {
+            "title": "Options for EvidenceModeler behavior",
+            "type": "object",
+            "fa_icon": "fas fa-fna",
+            "description": "Options that control the EvidenceModeler pipeline",
+            "properties": {
+               "evm_weights": {
+                  "type": "string",
+                  "default": "None",
+                  "fa_icon": "fas fa-tape",
+                  "description": "Weights file for EVM."
+               },
+               "nevm": {
+                  "type": "integer",
+                  "default": 10,
+                  "fa_icon": "fas fa-wrench",
+                  "description" :"Number of EVM jobs per chunk."
+               }
+            }
         },
         "annotation_tool_options": {
             "title": "Options for tool behavior",
@@ -304,19 +370,19 @@
                 "trinity": {
                     "type": "boolean",
                     "description": "Activate the trinity assembly sub-pipeline",
-                    "fa_icon": "fas fa-book",
+                    "fa_icon": "fas fa-toolbox",
                     "help_text": "Assemble short-reads into transcripts using Trinity"
                 },
                 "pasa": {
                     "type": "boolean",
                     "description": "Activate the PASA sub-pipeline",
-                    "fa_icon": "fas fa-book",
+                    "fa_icon": "fas fa-toolbox",
                     "help_text": "Assemble into gene models using PASA."
                 },
                 "evm": {
                     "type": "boolean",
                     "description": "Activate the EvidenceModeler sub-pipeline",
-                    "fa_icon": "fas fa-book",
+                    "fa_icon": "fas fa-toolbox",
                     "help_text": "Perform consensus gene building using EvidenceModeler."
                 }
             }
@@ -508,6 +574,9 @@
             "$ref": "#/definitions/augustus_options"
         },
         {
+            "$ref": "#/definitions/evm_options"
+        },
+        {
             "$ref": "#/definitions/pasa_options"
         },
         {
@@ -527,17 +596,5 @@
         }
     ],
     "properties": {
-        "evm_weights": {
-            "type": "string",
-            "default": "None"
-        },
-        "nevm": {
-            "type": "integer",
-            "default": 10
-        },
-        "dummy_gff": {
-            "type": "string",
-            "default": "/home/sukmb352/git/esga2/nf-core-esga/assets/empty.gff3"
-        }
     }
 }

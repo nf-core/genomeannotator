@@ -1,5 +1,5 @@
 process BUSCO_DOWNLOADDB {
-    tag '${lineage}'
+    //tag busco_tax
     label 'process_low'
 
     conda (params.enable_conda ? "bioconda::busco=5.3.0" : null)
@@ -8,10 +8,10 @@ process BUSCO_DOWNLOADDB {
         'quay.io/biocontainers/busco:5.3.0--pyhdfd78af_0' }"
 
     input:
-    val lineage
+    val(busco_tax)
 
     output:
-    path (lineage_folder), emit: busco_lineage_dir
+    tuple val(lineage_folder),path ("busco_downloads"), emit: busco_lineage_dir
     path "versions.yml"           , emit: versions
 
     when:
@@ -19,10 +19,11 @@ process BUSCO_DOWNLOADDB {
 
     script:
     def args = task.ext.args ?: ''
-    lineage_folder = "busco_downloads/lineages/${lineage}"
+    lineage_folder = "busco_downloads/lineages/${busco_tax}"
+ 
     """
 
-    busco --download $lineage
+    busco --download $busco_tax
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

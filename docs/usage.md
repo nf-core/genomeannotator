@@ -122,6 +122,18 @@ Human,/path/to/human.fasta,/path/to/human.gtf
 Please beware that trying to align larger genomes and/or highly fragmented genomes can take a significant amount of computing time (i.e. days!). In extreme cases, jobs may exceed available walltime. If possible, limit the number of genomes
 you align to only a handful (1-3) and prefer genomes with very high contiguity (ideally chromosome-level assembly). 
 
+## Evaluating results
+
+Gene builds can be evaluated in two ways - by gauging completeness against a reference data set and by simple visual inspection. 
+
+[BUSCO](https://busco.ezlab.org/) can be used to check how many genes specific to a particular taxonomic group were found in a respective annotation set. To enable this metric, run ESGA with `--busco_lineage xxx_odb10`, where `xxx` represents 
+a taxonomic group available through BUSCO (see parameter options). 
+
+Visual inspection requires for the annotation(s) and supporting alignment tracks to be loaded into a genome browser. This could be something like [IGV](https://software.broadinstitute.org/software/igv/) as a stand-alone option on your personal computer, or
+a community curation platform such as [WebApollo](http://genomearchitect.org/). This process will reveal key issues with your gene build, such as fragmented models caused by inadequate input data or other challenges related to the data. 
+
+WebApollo in particular is a key component to polishing your automated gene builds for scientific downstream uses. 
+
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:

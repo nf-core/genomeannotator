@@ -5,19 +5,21 @@ workflow BUSCO_QC {
 
    take:
    proteins
-   busco_lineage_dir
+   busco_lineage
 
    main:
 
-   if (params.busco_lineage_dir) {
-      ch_lineage_dir = busco_lineage_dir
-   } else {
-      BUSCO_DOWNLOADDB(
-         params.busco_lineage
-      )
-      ch_lineage_dir = BUSCO_DOWNLOADDB.out.busco_lineage_dir
-   }
+   // 
+   // MODULE: Download the BUSCO database for this taxonomic group
+   //
+   BUSCO_DOWNLOADDB(
+      busco_lineage
+   )
+   ch_lineage_dir = BUSCO_DOWNLOADDB.out.busco_lineage_dir
 
+   //
+   // MODULE: Run BUSCO on the protein sets
+   //
    BUSCO(
       proteins,
       ch_lineage_dir.collect()

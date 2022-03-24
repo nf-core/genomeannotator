@@ -14,7 +14,7 @@ process HELPER_DOWNLOADRFAM {
 
     output:
     path("*.cm"), emit: cm
-    path("*.txt"), emit: txt
+    path("*.txt"), emit: families
     
     path "versions.yml"           , emit: versions
 
