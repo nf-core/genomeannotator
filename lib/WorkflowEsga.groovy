@@ -16,7 +16,7 @@ class WorkflowEsga {
             System.exit(1)
         }
         if (params.assembly.contains('*')) {
-            log.error "ESGA is not currently designed to annotate multiple assemblies in one go. Please start separate pipeline runs for this."
+            log.error "ESGA is not currently designed to annotate multiple assemblies in parallel. Please start separate pipeline runs instead."
             System.exit(1)
         }
         if (!params.aug_species) {

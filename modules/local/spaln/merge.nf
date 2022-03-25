@@ -9,7 +9,7 @@ process SPALN_MERGE {
 
     input:
     tuple val(meta), path(spaln_index)
-    path(aligns)
+    tuple val(meta_p),path(aligns)
     val(similarity)
 
     output:
@@ -19,7 +19,8 @@ process SPALN_MERGE {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    spaln_final = "${meta.id}.${similarity}.spaln_merged.gff"
+    spaln_final = meta_p.id + "-" + meta.id + ".${similarity}.spaln_merged.gff"
+
     """
     sortgrcd  -I${similarity} -O0 -n0 *.grd > merged.gff
     spaln_add_exons.pl --infile merged.gff > $spaln_final

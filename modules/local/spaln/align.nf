@@ -15,13 +15,14 @@ process SPALN_ALIGN {
     val spaln_options
 
     output:
-    path("${chunk_name}.*"), emit: align
+    tuple val(meta_p),path("${chunk_name}.*rd"), emit: align
     path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     chunk_name = proteins.getBaseName()
+
     """
     spaln -o $chunk_name -Q${spaln_q} -T${spaln_taxon} ${spaln_options} -O12 -t${task.cpus} -Dgenome_spaln $proteins
 

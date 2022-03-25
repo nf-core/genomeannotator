@@ -1,4 +1,4 @@
-process HELPER_MATCH2GMOD {
+process HELPER_SPALNTOTRAINING {
     tag "$meta.id"
     label 'process_low'
     
@@ -11,19 +11,22 @@ process HELPER_MATCH2GMOD {
     tuple val(meta), path(gff)
 
     output:
-    tuple val(meta), path(gmod_track), emit: gff
+    tuple val(meta), path("*.spaln-training.gff3"), emit: gff
     path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    gmod_track = gff.getBaseName() + ".gmod.gff3"
+    def spaln_training =  gff.getBaseName() + ".spaln-training.gff3"
     """
-    match2track.pl --infile $gff > $gmod_track
+
+    spaln_add_exons.pl --infile $gff > $spaln_training
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        helper: 1.0
+        helper: ${workflow.manifest.version}
     END_VERSIONS
     """
 }
+
+

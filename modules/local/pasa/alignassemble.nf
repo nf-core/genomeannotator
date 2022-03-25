@@ -14,7 +14,7 @@ process PASA_ALIGNASSEMBLE {
     val(max_intron_size)
 
     output:
-    tuple val(meta), path(pasa_assemblies_fasta),path(pasa_assemblies_gff),  emit: pasa_out
+    tuple val(meta), path(pasa_fa_clean),path(pasa_gff_clean),  emit: pasa_out
     tuple val(meta), path(db_name), emit: db
 
     path "versions.yml"           , emit: versions
@@ -25,6 +25,10 @@ process PASA_ALIGNASSEMBLE {
 
     pasa_assemblies_fasta = "pasa_DB_${prefix}.sqlite.assemblies.fasta"
     pasa_assemblies_gff = "pasa_DB_${prefix}.sqlite.pasa_assemblies.gff3"
+
+    pasa_fa_clean = meta.id + ".pasa.fasta"
+    pasa_gff_clean = meta.id + "pasa.gff3"
+
     db_name = "pasa_DB_" + prefix + ".sqlite"
 
     """
@@ -40,6 +44,9 @@ process PASA_ALIGNASSEMBLE {
        --transcribed_is_aligned_orient \
        -g $genome \
        --CPU ${task.cpus} \
+
+    cp $pasa_assemblies_fasta $pasa_fa_clean
+    cp $pasa_assemblies_gff $pasa_gff_clean
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -8,7 +8,7 @@ include { MINIMAP2_ALIGN } from '../../modules/local/minimap2/align'
 include { SAMTOOLS_MERGE } from '../../modules/local/samtools/merge'
 include { HELPER_BAMTOGFF as MINIMAP_BAMTOGFF } from '../../modules/local/helper/bamtogff'
 include { HELPER_MINIMAPTOHINTS } from '../../modules/local/helper/minimaptohints'
-include { HELPER_MATCH2GMOD as GMOD_MATCH2TRACK } from '../../modules/local/helper/match2gmod'
+include { HELPER_MATCH2GMOD } from '../../modules/local/helper/match2gmod'
 
 workflow MINIMAP_ALIGN_TRANSCRIPTS {
 
@@ -52,7 +52,7 @@ workflow MINIMAP_ALIGN_TRANSCRIPTS {
           params.t_est,
           params.pri_est
        )
-       GMOD_MATCH2TRACK(
+       HELPER_MATCH2GMOD(
           MINIMAP_BAMTOGFF.out.gff
        )
   

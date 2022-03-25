@@ -8,8 +8,9 @@ include { GAAS_FASTAFILTERBYSIZE } from '../../modules/local/gaas/fastafilterbys
 include { SPALN_MAKEINDEX } from '../../modules/local/spaln/makeindex'
 include { SPALN_ALIGN } from '../../modules/local/spaln/align'
 include { SPALN_MERGE } from '../../modules/local/spaln/merge'
-//include { SPALN_TO_EVM } from '../../modules/local/spaln_to_evm'
+include { HELPER_SPALNTOEVM } from '../../modules/local/helper/spalntoevm'
 include { HELPER_SPALNTOGMOD } from '../../modules/local/helper/spalntogmod'
+include { HELPER_SPALNTOTRAINING } from '../../modules/local/helper/spalntotraining'
 include { AUGUSTUS_ALIGNTOHINTS } from '../../modules/local/augustus/aligntohints'
 
 workflow SPALN_ALIGN_PROTEIN {
@@ -44,24 +45,31 @@ workflow SPALN_ALIGN_PROTEIN {
 
        SPALN_MERGE(
           SPALN_MAKEINDEX.out.spaln_index,
-          SPALN_ALIGN.out.align.collect(),
+          SPALN_ALIGN.out.align.groupTuple().map { m,files -> tuple(m,files.flatten()) },
           protein_identity
        )
+
        AUGUSTUS_ALIGNTOHINTS(
           SPALN_MERGE.out.gff,
          "spaln",
           params.max_intron_size,
           params.pri_prot
        )
+
        HELPER_SPALNTOGMOD(
           SPALN_MERGE.out.gff
        )
-       //SPALNTOTRAINING(
-       //   SPALN_MERGE.out.gff
-       //)
+       HELPER_SPALNTOEVM(
+          SPALN_MERGE.out.gff
+       )
+       HELPER_SPALNTOTRAINING(
+          SPALN_MERGE.out.gff
+       )
     emit:
        hints = AUGUSTUS_ALIGNTOHINTS.out.gff
        gff = SPALN_MERGE.out.gff
+       gff_training = HELPER_SPALNTOTRAINING.out.gff
+       evm = HELPER_SPALNTOEVM.out.gff
        versions = GAAS_FASTACLEANER.out.versions
 
 }

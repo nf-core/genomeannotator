@@ -2,6 +2,7 @@ include { INFERNAL_PRESS } from '../../modules/local/infernal/press'
 include { INFERNAL_SEARCH } from '../../modules/local/infernal/search'
 include { FASTASPLITTER } from '../../modules/local/fastasplitter'
 include { HELPER_DOWNLOADRFAM } from '../../modules/local/helper/downloadrfam'
+include { HELPER_RFAMTOGFF } from '../../modules/local/helper/rfamtogff'
 
 workflow NCRNA {
 
@@ -14,14 +15,14 @@ workflow NCRNA {
       params.npart_size
    )
 
-   HELPER_DOWNLOADRFAM()
+   HELPER_DOWNLOADRFAM(genome)
 
    INFERNAL_PRESS(
-      DOWNLOAD_RFAM.out.fasta
+      HELPER_DOWNLOADRFAM.out.cm
    )
   
    INFERNAL_SEARCH(
-      FASTASPLITTER.out.fasta,
+      FASTASPLITTER.out.chunks,
       INFERNAL_PRESS.out.cm.collect()
    )
 

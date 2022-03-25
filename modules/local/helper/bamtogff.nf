@@ -17,7 +17,7 @@ process HELPER_BAMTOGFF {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    gff = prefix + ".gff"
+    gff = bam.getBaseName() + ".gff"
     """
     bam2gff.pl $bam > $gff
 

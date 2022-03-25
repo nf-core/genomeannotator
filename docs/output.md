@@ -40,6 +40,8 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
    * `*.cdna.fa`: The cDNA sequences corresponding to the EVM gene build.
    * `*.cds.fa`: The CDS sequences corresponding to the EVM gene build. 
 
+</details>
+
 ### PASA
 
 <details markdown="1">
@@ -51,6 +53,8 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
    * `*.cdna.fa`: The cDNA sequences corresponding to the PASA gene build.
    * `*.cds.fa`: The CDS sequences corresponding to the PASA gene build.
 
+</details>
+
 ### RFam
 
 <details markdown="1">
@@ -58,6 +62,8 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 * `annotations/rfam`
    * `*.rfam.gff`: Non-coding RNA preductions using RFam 14.
+
+</details>
 
 ### MultiQC
 

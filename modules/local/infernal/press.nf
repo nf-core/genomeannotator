@@ -1,5 +1,5 @@
 process INFERNAL_PRESS {
-    tag '$cm'
+    tag '$cm_file'
     label 'process_low'
     
     conda (params.enable_conda ? "bioconda::infernal=1.1.4" : null)
@@ -8,17 +8,17 @@ process INFERNAL_PRESS {
         'quay.io/biocontainers/infernal:1.1.4--h779adbc_0' }"
 
     input:
-    path(cm)
+    path(cm_file)
 
     output:
-    tuple path("*.cm"),path("*.i1f"),path("*.i1i"),path("*.i1m"),path("*.i1p"), emit: cm
+    tuple path(cm_file),path("*.i1f"),path("*.i1i"),path("*.i1m"),path("*.i1p"), emit: cm
     path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
     
     """
-    cmpress $cm
+    cmpress $cm_file
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

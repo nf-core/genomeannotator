@@ -2,12 +2,10 @@ process HELPER_DOWNLOADRFAM {
     tag 'Rfam14'
     label 'process_low'
     
-    executor 'local'
-
-    conda (params.enable_conda ? "bioconda::multiqc=1.12" : null)
+    conda (params.enable_conda ? "bioconda::gnu-wget=1.18" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/multiqc:1.12--pyhdfd78af_0':
-        'quay.io/biocontainers/multiqc:1.12--pyhdfd78af_0' }"
+        'https://depot.galaxyproject.org/singularity/gnu-wget:1.18--h7132678_6':
+        'quay.io/biocontainers/gnu-wget:1.18--h7132678_6' }"
 
     input:
     tuple val(meta),path(fasta)

@@ -56,7 +56,7 @@ include { GENOME_ALIGN } from '../subworkflows/local/genome_align'
 include { EVM } from '../subworkflows/local/evm.nf'
 include { FASTA_PREPROCESS as TRANSCRIPT_PREPROCESS } from '../subworkflows/local/fasta_preprocess'
 include { BUSCO_QC } from '../subworkflows/local/busco_qc'
-
+include { NCRNA } from '../subworkflows/local/ncrna'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -122,6 +122,15 @@ workflow ESGA {
     )
     ch_versions = ch_versions.mix(ASSEMBLY_PREPROCESS.out.versions)
 
+    // 
+    // SUBWORKFLOW: Search for ncRNAs
+    //
+    if (params.ncrna) {
+       NCRNA(
+          ASSEMBLY_PREPROCESS.out.fasta
+       )
+    }
+
     //
     // SUBWORKFLOW: Align genomes and map annotations
     //
@@ -175,7 +184,7 @@ workflow ESGA {
        )
        ch_versions = ch_versions.mix(SPALN_ALIGN_PROTEIN.out.versions)
        ch_hints = ch_hints.mix(SPALN_ALIGN_PROTEIN.out.hints)
-       ch_proteins_gff = ch_proteins_gff.mix(SPALN_ALIGN_PROTEIN.out.gff)
+       ch_proteins_gff = ch_proteins_gff.mix(SPALN_ALIGN_PROTEIN.out.evm)
     } 
 
     // 

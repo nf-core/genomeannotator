@@ -1,5 +1,5 @@
 process MINIMAP2_ALIGN {
-    tag "$meta.id"
+    tag "$meta_g.id | $meta.id"
     label 'process_high'
     
     conda (params.enable_conda ? "bioconda::nanovar:1.4.1" : null)
@@ -19,7 +19,7 @@ process MINIMAP2_ALIGN {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def bam = fasta.getBaseName() + "-" + meta_g.id + ".minimap2.bam"
+    def bam = meta.id + "-" + meta_g.id + ".minimap2.bam"
     """
     samtools faidx $genome
     minimap2 -t ${task.cpus} --split-prefix tmp -ax splice:hq -c -G $max_intron_size $genome $fasta | samtools sort -@ ${task.cpus} -m 2G -O BAM -o $bam
