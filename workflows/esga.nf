@@ -34,6 +34,8 @@ ch_multiqc_config        = file("$projectDir/assets/multiqc_config.yaml", checkI
 ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
 ch_aug_extrinsic_cfg = params.aug_extrinsic_cfg ? Channel.from( file(params.aug_extrinsic_cfg, checkIfExists: true) ) : Channel.from( file("${workflow.projectDir}/assets/augustus/augustus_default.cfg"))
 ch_evm_weights = Channel.from(file(params.evm_weights, checkIfExists: true)) 
+ch_rfam_cm = file("${workflow.projectDir}/assets/rfam/14.2/Rfam.cm.gz", checkIfExists: true)
+ch_rfam_family = file("${workflow.projectDir}/assets/rfam/14.2/family.txt.gz", checkIfExists: true)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -127,7 +129,9 @@ workflow ESGA {
     //
     if (params.ncrna) {
        NCRNA(
-          ASSEMBLY_PREPROCESS.out.fasta
+          ASSEMBLY_PREPROCESS.out.fasta,
+          ch_rfam_cm,
+          ch_rfam_family
        )
     }
 
@@ -333,7 +337,7 @@ workflow ESGA {
           params.busco_lineage
        )
        ch_busco_qc = BUSCO_QC.out.busco_summary
-    }
+    } 
 
     //
     // MODULE: Collect all software versions
