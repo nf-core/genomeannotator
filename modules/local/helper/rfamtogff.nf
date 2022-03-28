@@ -22,8 +22,10 @@ process HELPER_RFAMTOGFF {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def gff = prefix + ".rfam.gff"
 
+    // If no ncRNAs were found, emit an empty gff3 file with header
     """
     rfam2gff.pl --infile $tbl --family $families > $gff
+    test -f ${gff} || cat "##gff-version 3" >> $gff
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

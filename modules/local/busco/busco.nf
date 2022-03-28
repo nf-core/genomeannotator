@@ -24,7 +24,7 @@ process BUSCO_BUSCO {
     busco_summary = "short_summary_" + proteins.getBaseName() + ".txt"
     """
 
-    busco -m proteins -i $proteins -l $lineage_path -o busco -c ${task.cpus} --offline
+    busco -m proteins -i $proteins --download_path $db -l $lineage_path -o busco -c ${task.cpus} --offline
     cp busco/short_summary*specific*busco.txt $busco_summary
 
     cat <<-END_VERSIONS > versions.yml

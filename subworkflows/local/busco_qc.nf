@@ -6,16 +6,21 @@ workflow BUSCO_QC {
    take:
    proteins
    busco_lineage
+   busco_db_path
 
    main:
 
    // 
    // MODULE: Download the BUSCO database for this taxonomic group
    //
-   BUSCO_DOWNLOADDB(
-      busco_lineage
-   )
-   ch_lineage_dir = BUSCO_DOWNLOADDB.out.busco_lineage_dir
+   if (!busco_db_path) {
+      BUSCO_DOWNLOADDB(
+         busco_lineage
+      )
+      ch_lineage_dir = BUSCO_DOWNLOADDB.out.busco_lineage_dir
+   } else {
+      ch_lineage_dir = Channel.from([busco_lineage,busco_db_path])
+   }
 
    //
    // MODULE: Run BUSCO on the protein sets

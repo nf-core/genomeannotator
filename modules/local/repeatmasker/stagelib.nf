@@ -10,6 +10,8 @@ process REPEATMASKER_STAGELIB {
 
     input:
     path fasta
+    val species
+    path db
 
     output:
     path "Library", emit: library
@@ -18,15 +20,20 @@ process REPEATMASKER_STAGELIB {
 
     script:
     def args = task.ext.args ?: ''
-    
+    def options = ""
+    if (species) {
+       options = "-species $species"
+    } else {
+       options = "-lib $fasta"
+    }
     """
        cp ${baseDir}/assets/repeatmasker/my_genome.fa .
        cp ${baseDir}/assets/repeatmasker/repeats.fa .
        mkdir -p Library
-       cp ${baseDir}/assets/repeatmasker/DfamConsensus.embl Library/
+       cp $db Library/
        gunzip -c ${baseDir}/assets/repeatmasker/taxonomy.dat.gz > Library/taxonomy.dat
        export REPEATMASKER_LIB_DIR=\$PWD/Library
-       RepeatMasker -lib $fasta my_genome.fa > out
+       RepeatMasker $options my_genome.fa > out
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

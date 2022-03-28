@@ -134,6 +134,15 @@
                     "help_text": "Use this taxonomic group or species to identify and mask repeats. Valid names can, in most cases, be guessed, and follow the nomenclature provided through the [NCBI taxonomy](https://www.ncbi.nlm.nih.gov/taxonomy). This option draws from available data included in [DFam 3.2](https://www.dfam.org/releases/Dfam_3.2/relnotes.txt), which contains HMM profiles for over 273.0000 repeat families from 347 species.",
                     "default": null
                 },
+                "rm_db": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "A database of curated repeats in EMBL format.",
+                    "fa_icon": "fas fa-file",
+                    "help_text": "This option points to the DFam database of curated repeats for RepeatMasker. By default, the pipeline will get it from [DFam server](https://www.dfam.org/releases/Dfam_3.5/families/).",
+                    "default": "https://www.dfam.org/releases/Dfam_3.5/families/Dfam_curatedonly.embl.gz"
+                },
+
                 "busco_lineage": {
                    "type": "string",
                    "fa_icon": "fas fa-wrench",
@@ -187,7 +196,7 @@
                     "default": null,
                     "fa_icon": "fas fa-file",
                     "description": "Custom AUGUSTUS extrinsic config file path",
-                    "help_text": "Provide a custom extrinsic config file to AUGUSTUS, specifying the weight of different types if evidence. We suggest you start with our [built-in](https://raw.githubusercontent.com/marchoeppner/esga2/dev/assets/augustus/augustus_default.cfg) base version."
+                    "help_text": "Provide a custom extrinsic config file to AUGUSTUS, specifying the weight of different types if evidence. We suggest you start with our [built-in](https://raw.githubusercontent.com/nf-core/esga/dev/assets/augustus/augustus_default.cfg) base version."
                 },
                 "aug_chunk_length": {
                     "type": "integer",

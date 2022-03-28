@@ -22,7 +22,6 @@ process INFERNAL_SEARCH {
     rfam_txt = fasta.getBaseName() + ".rfam.out"
     """
     cmsearch --rfam --cpu ${task.cpus} --cut_tc --tblout $rfam_tbl -o $rfam_txt $cm $fasta
-
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         cmsearch: \$(echo \$(cmsearch -h) | head -n2 | tail -n1  | cut -f3 -d " " ))

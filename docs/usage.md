@@ -22,6 +22,8 @@ Included in ESGA are:
 - Synteny alignments and annotation projection using Satsuma2 and Kraken
 - Various scripts to transform in- and outputs between the above steps
 
+![ESGA schema](images/pipeline_schema.png)
+
 ## Recommended strategy
 
 A typical annotation run will use tens of thousands of transcripts and/or tens of millions of paired-end RNAseq reads as well as tens of thousands of proteins. Sources to obtain such data include [Uniprot](www.uniprot.org), [SRA](https://www.ncbi.nlm.nih.gov/sra) or [ENA](https://www.ebi.ac.uk/ena/browser/).
