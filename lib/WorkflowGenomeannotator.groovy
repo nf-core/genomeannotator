@@ -1,8 +1,8 @@
 //
-// This file holds several functions specific to the workflow/esga.nf in the nf-core/esga pipeline
+// This file holds several functions specific to the workflow/genomeannotator.nf in the nf-core/genomeannotator pipeline
 //
 
-class WorkflowEsga {
+class WorkflowGenomeannotator {
 
     //
     // Check and validate parameters
@@ -16,7 +16,7 @@ class WorkflowEsga {
             System.exit(1)
         }
         if (params.assembly.contains('*')) {
-            log.error "ESGA is not currently designed to annotate multiple assemblies in parallel. Please start separate pipeline runs instead."
+            log.error "This pipeline is not currently designed to annotate multiple assemblies in parallel. Please start separate pipeline runs instead."
             System.exit(1)
         }
         if (!params.aug_species) {

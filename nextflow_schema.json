@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/esga/master/nextflow_schema.json",
-    "title": "nf-core/esga pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/nf-core/genomeannotator/master/nextflow_schema.json",
+    "title": "nf-core/genomeannotator pipeline parameters",
     "description": "Annotation of metazoan genomes",
     "type": "object",
     "definitions": {
@@ -160,7 +160,7 @@
                 },
                 "dummy_gff": {
                    "type": "string",
-                   "default": "/home/sukmb352/git/esga2/nf-core-esga/assets/empty.gff3",
+                   "default": "PIPELINE_BASE/assets/empty.gff3",
                    "description": "A placeholder gff file to help trigger certain processes."
                 }
 
@@ -197,14 +197,14 @@
                     "default": null,
                     "fa_icon": "fas fa-folder-open",
                     "description": "A custom config directory for AUGUSTUS",
-                    "help_text": "Use this to point to a custom AUGUSTUS config directory - for example if you have trained a new model outside of ESGA. Most be compatible with AUGUSTUS 3.4."
+                    "help_text": "Use this to point to a custom AUGUSTUS config directory - for example if you have trained a new model outside of GENOMEANNOTATOR. Most be compatible with AUGUSTUS 3.4."
                 },
                 "aug_extrinsic_cfg": {
                     "type": "string",
                     "default": null,
                     "fa_icon": "fas fa-file",
                     "description": "Custom AUGUSTUS extrinsic config file path",
-                    "help_text": "Provide a custom extrinsic config file to AUGUSTUS, specifying the weight of different types if evidence. We suggest you start with our [built-in](https://raw.githubusercontent.com/nf-core/esga/dev/assets/augustus/augustus_default.cfg) base version."
+                    "help_text": "Provide a custom extrinsic config file to AUGUSTUS, specifying the weight of different types if evidence. We suggest you start with our [built-in](https://raw.githubusercontent.com/nf-core/genomeannotator/dev/assets/augustus/augustus_default.cfg) base version."
                 },
                 "aug_chunk_length": {
                     "type": "integer",

@@ -1,4 +1,4 @@
-# nf-core/esga: Output
+# nf-core/genomeannotator: Output
 
 ## Introduction
 

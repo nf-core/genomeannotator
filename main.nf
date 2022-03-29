@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    nf-core/esga
+    nf-core/genomeannotator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/nf-core/esga
-    Website: https://nf-co.re/esga
-    Slack  : https://nfcore.slack.com/channels/esga
+    Github : https://github.com/nf-core/genomeannotator
+    Website: https://nf-co.re/genomeannotator
+    Slack  : https://nfcore.slack.com/channels/genomeannotator
 ----------------------------------------------------------------------------------------
 */
 
@@ -33,13 +33,13 @@ WorkflowMain.initialise(workflow, params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { ESGA } from './workflows/esga'
+include { GENOMEANNOTATOR } from './workflows/genomeannotator'
 
 //
-// WORKFLOW: Run main nf-core/esga analysis pipeline
+// WORKFLOW: Run main nf-core/genomeannotator analysis pipeline
 //
-workflow NFCORE_ESGA {
-    ESGA ()
+workflow NFCORE_GENOMEANNOTATOR {
+    GENOMEANNOTATOR ()
 }
 
 /*
@@ -53,7 +53,7 @@ workflow NFCORE_ESGA {
 // See: https://github.com/nf-core/rnaseq/issues/619
 //
 workflow {
-    NFCORE_ESGA ()
+    NFCORE_GENOMEANNOTATOR ()
 }
 
 /*

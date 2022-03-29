@@ -1,6 +1,6 @@
 {
-    "name": "nf-core/esga",
-    "homePage": "https://github.com/nf-core/esga",
+    "name": "nf-core/genomeannotator",
+    "homePage": "https://github.com/nf-core/genomeannotator",
     "repos": {
         "nf-core/modules": {
             "cat/fastq": {

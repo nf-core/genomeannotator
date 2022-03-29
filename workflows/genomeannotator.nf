@@ -7,7 +7,7 @@
 def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 
 // Validate input parameters
-WorkflowEsga.initialise(params, log)
+WorkflowGenomeannotator.initialise(params, log)
 
 def checkPathParamList = [ params.multiqc_config, params.assembly ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
@@ -87,7 +87,7 @@ include { AUGUSTUS_STAGECONFIG } from '../modules/local/augustus/stageconfig'
 // Info required for completion email and summary
 def multiqc_report = []
 
-workflow ESGA {
+workflow GENOMEANNOTATOR {
 
     ch_empty_gff = Channel.fromPath(params.dummy_gff)
     ch_versions = Channel.empty()
@@ -354,7 +354,7 @@ workflow ESGA {
     //
     // MODULE: MultiQC
     //
-    workflow_summary    = WorkflowEsga.paramsSummaryMultiqc(workflow, summary_params)
+    workflow_summary    = WorkflowGenomeannotator.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
 
     ch_multiqc_files = Channel.empty()
