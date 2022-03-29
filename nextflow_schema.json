@@ -157,7 +157,7 @@
                    "description": "Path to the local BUSCO data.",
                    "help_text": "Use this to provide the path to a local copy of the busco database (usually /path/to/busco_downloads). For details, see the BUSCO [documentation](https://busco.ezlab.org/busco_userguide.html#download-and-automated-update).",
                    "default": null
-                }
+                },
                 "dummy_gff": {
                    "type": "string",
                    "default": "/home/sukmb352/git/esga2/nf-core-esga/assets/empty.gff3",
