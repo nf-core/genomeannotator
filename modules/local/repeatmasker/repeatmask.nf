@@ -9,13 +9,15 @@ process REPEATMASKER_REPEATMASK {
 
     input:
     tuple val(meta), path(fasta)
-    env REPEATMASKER_LIB_DIR
+    env LIBDIR
     path rm_lib
     val rm_species
 
     output:
     tuple val(meta), path("*.masked"), emit: masked
     tuple val(meta), path(rm_gff), emit: gff
+    tuple val(meta), path(rm_tbl), emit: tbl
+    tuple val(meta), path(rm_out), emit: rm_out
     path "versions.yml"           , emit: versions
 
     script:
@@ -33,6 +35,7 @@ process REPEATMASKER_REPEATMASK {
        options = "-lib $rm_lib"
     }
     """
+    echo \$LIBDIR > lib.txt
     RepeatMasker $options -gff -xsmall -q -nolow -pa ${task.cpus} $fasta
     test -f ${genome_rm} || cp $fasta $genome_rm && touch $rm_gff
 

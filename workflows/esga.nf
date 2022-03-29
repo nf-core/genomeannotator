@@ -156,7 +156,7 @@ workflow ESGA {
        REPEATMODELER(
           ASSEMBLY_PREPROCESS.out.fasta
        )
-       ch_repeats = REPEATMODELER.out.fasta
+       ch_repeats = REPEATMODELER.out.fasta.map {m,fasta -> fasta}
     }
 
     //

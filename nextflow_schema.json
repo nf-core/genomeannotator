@@ -136,11 +136,12 @@
                 },
                 "rm_db": {
                     "type": "string",
+                    "pattern": "^\\S+\\.gz$",
                     "format": "file-path",
                     "description": "A database of curated repeats in EMBL format.",
                     "fa_icon": "fas fa-file",
-                    "help_text": "This option points to the DFam database of curated repeats for RepeatMasker. By default, the pipeline will get it from [DFam server](https://www.dfam.org/releases/Dfam_3.5/families/).",
-                    "default": "https://www.dfam.org/releases/Dfam_3.5/families/Dfam_curatedonly.embl.gz"
+                    "help_text": "This option points to the DFam database (h5 format) of curated repeats for RepeatMasker. By default, the pipeline will get it on-the-fly from the [DFam server](https://www.dfam.org/releases/Dfam_3.5/families/). You can pre-download the file (.gz) and provide it via this option.",
+                    "default": "https://www.dfam.org/releases/Dfam_3.5/families/Dfam_curatedonly.h5.gz"
                 },
 
                 "busco_lineage": {
@@ -150,6 +151,13 @@
                    "help_text": "Use this to provide the name of a BUSCO [taxonomic group](https://busco.ezlab.org/list_of_lineages.html) against which to evaluate the resulting gene builds. Format should be taxgroup_odb10 (i.e. without the date).",
                    "default": null
                 },
+		"busco_db_path": {
+                   "type": "string",
+                   "fa_icon": "fas fa-folder-open",
+                   "description": "Path to the local BUSCO data.",
+                   "help_text": "Use this to provide the path to a local copy of the busco database (usually /path/to/busco_downloads). For details, see the BUSCO [documentation](https://busco.ezlab.org/busco_userguide.html#download-and-automated-update).",
+                   "default": null
+                }
                 "dummy_gff": {
                    "type": "string",
                    "default": "/home/sukmb352/git/esga2/nf-core-esga/assets/empty.gff3",

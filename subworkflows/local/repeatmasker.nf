@@ -27,7 +27,7 @@ workflow REPEATMASKER {
     )
     REPEATMASKER_REPEATMASK( 
        FASTASPLITTER.out.chunks,
-       REPEATMASKER_STAGELIB.out.library.collect(),
+       REPEATMASKER_STAGELIB.out.library.collect().map{it[0].toString()},
        rm_lib.collect(),
        rm_species
     )

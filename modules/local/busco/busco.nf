@@ -22,9 +22,13 @@ process BUSCO_BUSCO {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     busco_summary = "short_summary_" + proteins.getBaseName() + ".txt"
+    def options = ""
+    if (!lineage_path.contains("/") ) {
+       options = "--download_path $db"
+    }
     """
 
-    busco -m proteins -i $proteins --download_path $db -l $lineage_path -o busco -c ${task.cpus} --offline
+    busco -m proteins -i $proteins $options -l $lineage_path -o busco -c ${task.cpus} --offline
     cp busco/short_summary*specific*busco.txt $busco_summary
 
     cat <<-END_VERSIONS > versions.yml

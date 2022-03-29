@@ -24,7 +24,7 @@ class WorkflowEsga {
             System.exit(1)
         }
         if (params.aug_training && !params.proteins_targeted && !params.pasa) {
-            log.error "Cannot train AUGUSTUS without targeted proteins (' --proteins_targeted') OR pasa transcripts ('--pasa')"
+            log.error "Cannot train AUGUSTUS without targeted proteins ('--proteins_targeted') OR pasa transcripts ('--pasa')"
             System.exit(1)
         }
         if (params.aug_training && !params.aug_species) {
@@ -44,7 +44,7 @@ class WorkflowEsga {
             System.exit(1)
         }
         if  (params.busco_lineage && !params.busco_lineage ==~ /[a-z]*_odb10/) {
-            log.error "This does not look like a valid busco lineage name! Was expecting xxx_odb10"
+            log.error "This does not look like a valid busco lineage name! Was expecting xxx_odb10!"
             System.exit(1)
         }
 

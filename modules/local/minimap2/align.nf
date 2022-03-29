@@ -19,7 +19,7 @@ process MINIMAP2_ALIGN {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def bam = meta.id + "-" + meta_g.id + ".minimap2.bam"
+    def bam = fasta.getBaseName() + ".minimap2.bam"
     """
     samtools faidx $genome
     minimap2 -t ${task.cpus} --split-prefix tmp -ax splice:hq -c -G $max_intron_size $genome $fasta | samtools sort -@ ${task.cpus} -m 2G -O BAM -o $bam
