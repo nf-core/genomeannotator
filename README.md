@@ -16,7 +16,7 @@
 
 ## Introduction
 
-**nf-core/genomeannotator** is a bioinformatics best-practice analysis pipeline for the annotation of metazoan genomes. ESGA stands for **E**vidence-**S**upported **G**enome **A**nnotation. 
+**nf-core/genomeannotator** is a bioinformatics best-practice analysis pipeline for the annotation of eukaryote genomes. It was developed with a focus on metazoans - although other groups should work as well. 
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
 

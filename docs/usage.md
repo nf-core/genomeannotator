@@ -6,11 +6,11 @@
 
 ## Introduction
 
-GENOMEANNOTATOR is a pipeline for the annotation of metazoan genomes. While nothing within the pipelines makes it particularily specific to this taxonomic group, it has only been tested (and developed) for this purpose. GENOMEANNOTATOR combines a number of 
-established tools for the assembly, alignment and subsequent integration of so-called evidences into consensus gene builds. The product of GENOMEANNOTATOR are various tracks in GFF format, including gene models, but also various alignments. Output from GENOMEANNOTATOR is
+nf-core/genomeannotator is a pipeline for the annotation of metazoan genomes. While nothing within the pipelines makes it particularily specific to this taxonomic group, it has only been tested (and developed) for this purpose. nf-core/genomeannotator combines a number of 
+established tools for the assembly, alignment and subsequent integration of so-called evidences into consensus gene builds. The product of nf-core/genomeannotator are various tracks in GFF format, including gene models, but also various alignments. Output from nf-core/genomeannotator is
 largely compatible with GMOD.
 
-Included in GENOMEANNOTATOR are:
+Included in nf-core/genomeannotator are:
 - Protein alignments with SPALN
 - Transcript alignments with Minimap2
 - RNAseq alignments with STAR
@@ -22,7 +22,7 @@ Included in GENOMEANNOTATOR are:
 - Synteny alignments and annotation projection using Satsuma2 and Kraken
 - Various scripts to transform in- and outputs between the above steps
 
-![GENOMEANNOTATOR schema](images/pipeline_schema.png)
+![nf-core/genomeannotator schema](images/pipeline_schema.png)
 
 ## Recommended strategy
 
@@ -30,7 +30,7 @@ A typical annotation run will use tens of thousands of transcripts and/or tens o
 
 If available, adding related genomes and their reference annotations can help to further improve the resulting gene builds. We have had good experiences using [EnsEMBL](https://ftp.ensembl.org/pub/) as a source for this type of data.
 
-Finally, GENOMEANNOTATOR will perform a mandatory repeat masking of the assembly. Consider providing a  comprehensive library of known repeats to speed up this process (else, see below): 
+Finally, nf-core/genomeannotator will perform a mandatory repeat masking of the assembly. Consider providing a  comprehensive library of known repeats to speed up this process (else, see below): 
 
 ## Limitations
 
@@ -39,13 +39,13 @@ split models or missing models. The extend to which these three problems occurs 
 
 ## Assembly
 
-The assembly refers to the genome you want to annotate. This file must be in FASTA format. Additionally, we recommend you clean the fasta headers in a way so they do not contain any special characters, unnecessary spaces or other "meta" data. While GENOMEANNOTATOR
+The assembly refers to the genome you want to annotate. This file must be in FASTA format. Additionally, we recommend you clean the fasta headers in a way so they do not contain any special characters, unnecessary spaces or other "meta" data. While nf-core/genomeannotator
 will try to sanitize the FASTA headers as well, it's generally better to take care of that beforehand so there are no surprises afterwards. 
 
 Please also be aware that some public databases do not allow the submission of assemblies that have leading or trailing 'N's in any of their scaffolds.
 
-Finally, note that GENOMEANNOTATOR is not designed for the annotation of incomplete and/or highly fragmented assemblies. While such inputs may still work, some of the alignment heuristics will potentially perform poorly or fail entirely, i.e. crash the pipeline. As
-a rule of thumb, your BUSCO scores should be above 80% and the number of contigs not exceed "a few thousand". There is no strict limit on the size of your assembly, but we have only tested GENOMEANNOTATOR with genomes up to 'human-size', i.e. 3Gb. Much larger genomes
+Finally, note that nf-core/genomeannotator is not designed for the annotation of incomplete and/or highly fragmented assemblies. While such inputs may still work, some of the alignment heuristics will potentially perform poorly or fail entirely, i.e. crash the pipeline. As
+a rule of thumb, your BUSCO scores should be above 80% and the number of contigs not exceed "a few thousand". There is no strict limit on the size of your assembly, but we have only tested nf-core/genomeannotator with genomes up to 'human-size', i.e. 3Gb. Much larger genomes
 may cause unforseen issues. If so, please open a ticket on github and we can try to find a solution. 
 
 ```console
@@ -66,15 +66,15 @@ The pipeline requires one of several types of annotation evidences to guide the 
 
 ## Repeatmasking
 
-Repeatmasking provides important information for the ab-initio prediction of gene models - it is thus a mandatory step in GENOMEANNOTATOR. Repeatmasking can be triggered in three ways. The preferred option is to provide a set of known repeats from public databases
-in FASTA format (--rm_lib). Alternatively, GENOMEANNOTATOR can run the DFam database built into RepeatMasker (--rm_species). If neither option is specified, repeats are modeled de-novo. This can take 24 hours or more, depending on the size of your genomes. Please
+Repeatmasking provides important information for the ab-initio prediction of gene models - it is thus a mandatory step in nf-core/genomeannotator. Repeatmasking can be triggered in three ways. The preferred option is to provide a set of known repeats from public databases
+in FASTA format (--rm_lib). Alternatively, nf-core/genomeannotator can run the DFam database built into RepeatMasker (--rm_species). If neither option is specified, repeats are modeled de-novo. This can take 24 hours or more, depending on the size of your genomes. Please
 be aware that assemblies based on short reads tend to perform poorly in this as repeats are often collapsed by the assembly software. 
 
 ## FASTA inputs
 
 Several inputs to this pipeline are expected in FASTA format  (see table above). Note that the pipeline expects ONE file per input option. If you have multiple files of e.g. proteins, please concatenate them first and make sure no IDs are duplicated. 
 
-Similar to the assembly, the sequence identifies should be sparse, i.e.should not contain spaces, colons, semicolons or any other form of decoration beyond the basic, unique identifier. GENOMEANNOTATOR will remove any characters from the identifier past the 
+Similar to the assembly, the sequence identifies should be sparse, i.e.should not contain spaces, colons, semicolons or any other form of decoration beyond the basic, unique identifier. nf-core/genomeannotator will remove any characters from the identifier past the 
 first empty space. 
 
 ## RNAseq samplesheet input
@@ -105,8 +105,8 @@ If at all possible, you should use poly-A selected, stranded mRNA-seq data for t
 
 ## Reference genome alignments
 
-GENOMEANNOTATOR can align your assembly to one or more related reference genomes to lift their existing annotations and use this information during gene building. We have tested this primarily with assemblies and annotations from [EnsEMBL](https://ftp.ensembl.org/pub/), but other sources
-may work too. Note that the annotation must be in GTF format! To pass this data to GENOMEANNOTATOR, a sample sheet is needed.
+nf-core/genomeannotator can align your assembly to one or more related reference genomes to lift their existing annotations and use this information during gene building. We have tested this primarily with assemblies and annotations from [EnsEMBL](https://ftp.ensembl.org/pub/), but other sources
+may work too. Note that the annotation must be in GTF format! To pass this data to nf-core/genomeannotator, a sample sheet is needed.
 
 The format should be as follows:
 
@@ -128,7 +128,7 @@ you align to only a handful (1-3) and prefer genomes with very high contiguity (
 
 Gene builds can be evaluated in two ways - by gauging completeness against a reference data set and by simple visual inspection. 
 
-[BUSCO](https://busco.ezlab.org/) can be used to check how many genes specific to a particular taxonomic group were found in a respective annotation set. To enable this metric, run GENOMEANNOTATOR with `--busco_lineage xxx_odb10`, where `xxx` represents 
+[BUSCO](https://busco.ezlab.org/) can be used to check how many genes specific to a particular taxonomic group were found in a respective annotation set. To enable this metric, run nf-core/genomeannotator with `--busco_lineage xxx_odb10`, where `xxx` represents 
 a taxonomic group available through BUSCO (see parameter options). 
 
 Visual inspection requires for the annotation(s) and supporting alignment tracks to be loaded into a genome browser. This could be something like [IGV](https://software.broadinstitute.org/software/igv/) as a stand-alone option on your personal computer, or
@@ -187,7 +187,7 @@ Use this parameter to choose a configuration profile. Profiles can give configur
 
 Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud) - see below. When using Biocontainers, most of these software packaging methods pull Docker containers from quay.io e.g [FastQC](https://quay.io/repository/biocontainers/fastqc) except for Singularity which directly downloads Singularity images via https hosted by the [Galaxy project](https://depot.galaxyproject.org/singularity/).
 
-> GENOMEANNOTATOR requires Docker or Singularity for execution. Due to some of the more complex dependencies, Conda can not be supported at this time. 
+> nf-core/genomeannotator requires Docker or Singularity for execution. Due to some of the more complex dependencies, Conda can not be supported at this time. 
 
 The pipeline also dynamically loads configurations from [https://github.com/nf-core/configs](https://github.com/nf-core/configs) when it runs, making multiple config profiles for various institutional clusters available at run time. For more information and to see if your system is available in these configs please see the [nf-core/configs documentation](https://github.com/nf-core/configs#documentation).
 

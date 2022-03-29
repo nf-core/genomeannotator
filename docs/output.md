@@ -60,7 +60,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 <details markdown="1">
 <summary>Output files</summary>
 
-* `annotations/rfam`
+* `annotations/ncrna`
    * `*.rfam.gff`: Non-coding RNA preductions using RFam 14.
 
 </details>
