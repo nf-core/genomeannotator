@@ -185,19 +185,12 @@
                     "fa_icon": "fas fa-wrench",
                     "help_text": "AUGUSTUS has many options that are not specifically available as pipeline options. Instead, you can pass them through this flag."
                 },
-                "aug_config_container": {
-                    "type": "string",
-                    "default": "/usr/local/config",
-                    "fa_icon": "fas fa-folder-open",
-                    "description": "Location of the AUGUSTUS config directory within the docker container",
-                    "help_text": "This option specifies where to find the AUGUSTUS config directory inside the Docker container. Normally, you should not change this!"
-                },
                 "aug_config_dir": {
                     "type": "string",
                     "default": null,
                     "fa_icon": "fas fa-folder-open",
-                    "description": "A custom config directory for AUGUSTUS",
-                    "help_text": "Use this to point to a custom AUGUSTUS config directory - for example if you have trained a new model outside of GENOMEANNOTATOR. Most be compatible with AUGUSTUS 3.4."
+                    "description": "A config directory for AUGUSTUS",
+                    "help_text": "Use this to point to a AUGUSTUS config directory - for example if you have trained a new model outside of nf-core/genomeannotator. Must be compatible with AUGUSTUS 3.4. By default, the built-in version is used."
                 },
                 "aug_extrinsic_cfg": {
                     "type": "string",
