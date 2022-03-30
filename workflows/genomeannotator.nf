@@ -345,7 +345,7 @@ workflow GENOMEANNOTATOR {
 
     //
     // MODULE: Collect all software versions
-    //
+    // =======
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
