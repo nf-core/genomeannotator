@@ -1,23 +1,22 @@
-# nf-core/esga: Contributing Guidelines
+# nf-core/genomeannotator: Contributing Guidelines
 
 Hi there!
-Many thanks for taking an interest in improving nf-core/esga.
+Many thanks for taking an interest in improving nf-core/genomeannotator.
 
-We try to manage the required tasks for nf-core/esga using GitHub issues, you probably came to this page when creating one.
+We try to manage the required tasks for nf-core/genomeannotator using GitHub issues, you probably came to this page when creating one.
 Please use the pre-filled template to save time.
 
 However, don't be put off by this template - other more general issues and suggestions are welcome!
 Contributions to the code are even more welcome ;)
 
-> If you need help using or modifying nf-core/esga then the best place to ask is on the nf-core Slack [#esga](https://nfcore.slack.com/channels/esga) channel ([join our Slack here](https://nf-co.re/join/slack)).
+> If you need help using or modifying nf-core/genomeannotator then the best place to ask is on the nf-core Slack [#genomeannotator](https://nfcore.slack.com/channels/genomeannotator) channel ([join our Slack here](https://nf-co.re/join/slack)).
 
 ## Contribution workflow
 
-If you'd like to write some code for nf-core/esga, the standard workflow is as follows:
+If you'd like to write some code for nf-core/genomeannotator, the standard workflow is as follows:
 
-1. Check that there isn't already an issue about your idea in the [nf-core/esga issues](https://github.com/nf-core/esga/issues) to avoid duplicating work
-    * If there isn't one already, please create one so that others know you're working on this
-2. [Fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) the [nf-core/esga repository](https://github.com/nf-core/esga) to your GitHub account
+1. Check that there isn't already an issue about your idea in the [nf-core/genomeannotator issues](https://github.com/nf-core/genomeannotator/issues) to avoid duplicating work. If there isn't one already, please create one so that others know you're working on this
+2. [Fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) the [nf-core/genomeannotator repository](https://github.com/nf-core/genomeannotator) to your GitHub account
 3. Make the necessary changes / additions within your forked repository following [Pipeline conventions](#pipeline-contribution-conventions)
 4. Use `nf-core schema build` and add any new parameters to the pipeline JSON schema (requires [nf-core tools](https://github.com/nf-core/tools) >= 1.10).
 5. Submit a Pull Request against the `dev` branch and wait for the code to be reviewed and merged
@@ -49,17 +48,17 @@ These tests are run both with the latest available version of `Nextflow` and als
 
 :warning: Only in the unlikely and regretful event of a release happening with a bug.
 
-* On your own fork, make a new branch `patch` based on `upstream/master`.
-* Fix the bug, and bump version (X.Y.Z+1).
-* A PR should be made on `master` from patch to directly this particular bug.
+- On your own fork, make a new branch `patch` based on `upstream/master`.
+- Fix the bug, and bump version (X.Y.Z+1).
+- A PR should be made on `master` from patch to directly this particular bug.
 
 ## Getting help
 
-For further information/help, please consult the [nf-core/esga documentation](https://nf-co.re/esga/usage) and don't hesitate to get in touch on the nf-core Slack [#esga](https://nfcore.slack.com/channels/esga) channel ([join our Slack here](https://nf-co.re/join/slack)).
+For further information/help, please consult the [nf-core/genomeannotator documentation](https://nf-co.re/genomeannotator/usage) and don't hesitate to get in touch on the nf-core Slack [#genomeannotator](https://nfcore.slack.com/channels/genomeannotator) channel ([join our Slack here](https://nf-co.re/join/slack)).
 
 ## Pipeline contribution conventions
 
-To make the nf-core/esga code and processing logic more understandable for new contributors and to ensure quality, we semi-standardise the way the code and other contributions are written.
+To make the nf-core/genomeannotator code and processing logic more understandable for new contributors and to ensure quality, we semi-standardise the way the code and other contributions are written.
 
 ### Adding a new step
 
@@ -73,7 +72,7 @@ If you wish to contribute a new step, please use the following coding standards:
 6. Add sanity checks and validation for all relevant parameters.
 7. Perform local tests to validate that the new code works as expected.
 8. If applicable, add a new test command in `.github/workflow/ci.yml`.
-9. Update MultiQC config `assets/multiqc_config.yaml` so relevant suffixes, file name clean up and module plots are in the appropriate order. If applicable, add a [MultiQC](https://https://multiqc.info/) module.
+9. Update MultiQC config `assets/multiqc_config.yml` so relevant suffixes, file name clean up and module plots are in the appropriate order. If applicable, add a [MultiQC](https://https://multiqc.info/) module.
 10. Add a description of the output files and if relevant any appropriate images from the MultiQC report to `docs/output.md`.
 
 ### Default values
@@ -92,8 +91,8 @@ The process resources can be passed on to the tool dynamically within the proces
 
 Please use the following naming schemes, to make it easy to understand what is going where.
 
-* initial process channel: `ch_output_from_<process>`
-* intermediate and terminal channels: `ch_<previousprocess>_for_<nextprocess>`
+- initial process channel: `ch_output_from_<process>`
+- intermediate and terminal channels: `ch_<previousprocess>_for_<nextprocess>`
 
 ### Nextflow version bumping
 
