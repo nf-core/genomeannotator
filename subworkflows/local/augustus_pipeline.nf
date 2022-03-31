@@ -22,8 +22,19 @@ workflow AUGUSTUS_PIPELINE {
        genome,
        params.npart_size
     )           
+
+    // Splitter either outputs one file, or a list of files. 
+    FASTASPLITTER.out.chunks.branch { m,f ->
+       single: f.getClass() != ArrayList
+       multi: f.getClass() == ArrayList
+    }.set { ch_fa_chunks }
+
+    ch_fa_chunks.multi.flatMap { h,fastas ->
+       fastas.collect { [ h,file(it)] }
+    }.set { ch_chunks_split }
+
     AUGUSTUS_AUGUSTUSBATCH(
-       FASTASPLITTER.out.chunks,
+       ch_chunks_split.mix(ch_fa_chunks.single),
        hints.collect(),
        aug_config_folder.collect().map{ it[0].toString() },
        aug_extrinsic_cfg.collect(),

@@ -17,6 +17,16 @@ workflow NCRNA {
       params.npart_size
    )
 
+   // Splitter either outputs one file or a list of files
+   FASTASPLITTER.out.chunks.branch { m,f ->
+       single: f.getClass() != ArrayList
+       multi: f.getClass() == ArrayList
+    }.set { ch_fa_chunks }
+
+    ch_fa_chunks.multi.flatMap { h,fastas ->
+       fastas.collect { [ h,file(it)] }
+    }.set { ch_chunks_split }
+
    GUNZIP_RFAM_CM(
       create_file_channel(rfam_cm_gz)
    )
@@ -30,7 +40,7 @@ workflow NCRNA {
    )
   
    INFERNAL_SEARCH(
-      FASTASPLITTER.out.chunks,
+      ch_chunks_split.mix(ch_fa_chunks.single),
       INFERNAL_PRESS.out.cm.collect()
    )
 

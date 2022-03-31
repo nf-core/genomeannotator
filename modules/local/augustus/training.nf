@@ -11,11 +11,11 @@ process AUGUSTUS_TRAINING {
     tuple val(meta), path(gff)
     tuple val(meta_g), path(genome)
     env AUGUSTUS_CONFIG_PATH
-    path aug_config_dir    
+    path aug_config    
     val(species)
 
     output:
-    tuple val(meta), path(aug_config_dir), emit: augstus_config_dir
+    tuple val(meta), path(aug_config), emit: aug_config_dir
     path "versions.yml"           , emit: versions
 
     script:
@@ -26,7 +26,7 @@ process AUGUSTUS_TRAINING {
     test_gb = "complete_peptides.raw.gb.test"
     training_stats = "training_accuracy.out"
     options = ""
-    aug_folder = "${aug_config_dir}/species/${species}"
+    aug_folder = "${aug_config}/species/${species}"
     aug_folder_path = file(aug_folder)
     if (!aug_folder_path.exists()) {
        options = "new_species.pl --species=${species}"

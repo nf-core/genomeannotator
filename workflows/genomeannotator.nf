@@ -78,6 +78,7 @@ include { AUGUSTUS_BAM2HINTS } from '../modules/local/augustus/bam2hints'
 include { AUGUSTUS_FINDCONFIG } from '../modules/local/augustus/findconfig'
 include { REPEATMODELER } from '../modules/local/repeatmodeler'
 include { AUGUSTUS_STAGECONFIG } from '../modules/local/augustus/stageconfig'
+include { AUGUSTUS_TRAINING } from '../modules/local/augustus/training'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,6 +102,7 @@ workflow GENOMEANNOTATOR {
     ch_genome_rm = Channel.empty()
     ch_proteins_fa = Channel.empty()
     ch_busco_qc = Channel.empty()
+    ch_training_genes = Channel.empty()
 
     //
     // SUBWORKFLOW: Turn transcript inputs to channel
@@ -287,6 +289,7 @@ workflow GENOMEANNOTATOR {
         )
         ch_versions = ch_versions.mix(PASA_PIPELINE.out.versions)
         ch_genes_gff = ch_genes_gff.mix(PASA_PIPELINE.out.gff)
+        ch_training_genes =  PASA_PIPELINE.out.gff_training
     }
 
     //
@@ -296,14 +299,22 @@ workflow GENOMEANNOTATOR {
 
        if (params.proteins_targeted) {
           AUGUSTUS_TRAINING(
-             SPALN_ALIGN_MODELS.out.gff
+             ch_training_genes.collect(),
+             REPEATMASKER.out.fasta,
+             ch_aug_config_folder.collect().map {it[0].toString() },
+             ch_aug_config_folder,
+             params.aug_species
           )
           ch_aug_config_final = AUGUSTUS_TRAINING.out.aug_config_folder             
        } else if (params.pasa) {
           AUGUSTUS_TRAINING(
-             PASA_PIPELINE.out.gff_training
+             ch_training_genes.collect(),
+             REPEATMASKER.out.fasta.collect(),
+             ch_aug_config_folder.collect().map {it[0].toString() },
+             ch_aug_config_folder,
+             params.aug_species
           )
-          ch_aug_config_final = AUGUSTUS_TRAINING.out.aug_config_folder
+          ch_aug_config_final = AUGUSTUS_TRAINING.out.aug_config_dir
        }
 
     } else {
@@ -318,7 +329,7 @@ workflow GENOMEANNOTATOR {
     AUGUSTUS_PIPELINE(
        REPEATMASKER.out.fasta,
        all_hints,
-       ch_aug_config_folder,
+       ch_aug_config_final,
        ch_aug_extrinsic_cfg,
     )
     ch_versions = ch_versions.mix(AUGUSTUS_PIPELINE.out.versions)

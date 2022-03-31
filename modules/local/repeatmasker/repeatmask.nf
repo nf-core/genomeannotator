@@ -1,5 +1,5 @@
 process REPEATMASKER_REPEATMASK {
-    tag "$meta.id"
+    tag "$meta.id | $fasta"
     label 'process_high'
     
     conda (params.enable_conda ? "bioconda::repeatmasker=4.1.2.p1" : null)
@@ -35,7 +35,6 @@ process REPEATMASKER_REPEATMASK {
        options = "-lib $rm_lib"
     }
     """
-    echo \$LIBDIR > lib.txt
     RepeatMasker $options -gff -xsmall -q -nolow -pa ${task.cpus} $fasta
     test -f ${genome_rm} || cp $fasta $genome_rm && touch $rm_gff
 

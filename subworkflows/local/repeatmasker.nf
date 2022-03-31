@@ -12,27 +12,42 @@ workflow REPEATMASKER {
     take:
     genome // file path
     rm_lib // file path
-    rm_species
-    rm_db
+    rm_species // tax name
+    rm_db // file path
 
     main:
+
     FASTASPLITTER(genome,params.npart_size)
+
+    // If chunks == 1, forward - else, map each chunk to the meta hash
+    FASTASPLITTER.out.chunks.branch { m,f ->
+       single: f.getClass() != ArrayList
+       multi: f.getClass() == ArrayList
+    }.set { ch_fa_chunks }
+
+    ch_fa_chunks.multi.flatMap { h,fastas ->
+       fastas.collect { [ h,file(it)] }
+    }.set { ch_chunks_split }
+   
+    
     GUNZIP(
        create_meta_channel(rm_db)
     )
+
     REPEATMASKER_STAGELIB(
        rm_lib,
        rm_species,
        GUNZIP.out.gunzip.map {m,g -> g}
     )
+
     REPEATMASKER_REPEATMASK( 
-       FASTASPLITTER.out.chunks,
+       ch_fa_chunks.single.map { m,f -> [m,file(f)]}.mix(ch_chunks_split),
        REPEATMASKER_STAGELIB.out.library.collect().map{it[0].toString()},
        rm_lib.collect(),
        rm_species
     )
     
-    REPEATMASKER_CAT_FASTA(REPEATMASKER_REPEATMASK.out.masked)
+    REPEATMASKER_CAT_FASTA(REPEATMASKER_REPEATMASK.out.masked.groupTuple())
     
     emit:
     fasta = REPEATMASKER_CAT_FASTA.out.fasta
