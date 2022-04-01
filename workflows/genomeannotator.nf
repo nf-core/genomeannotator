@@ -18,7 +18,7 @@ if (params.assembly) { ch_genome = file(params.assembly, checkIfExists: true) } 
 // Set relevant input channels
 if (params.proteins) { ch_proteins = file(params.proteins, checkIfExists: true) } else { ch_proteins = Channel.empty() }
 if (params.proteins_targeted) { ch_proteins_targeted = file(params.proteins_targeted, checkIfExists: true) } else { ch_proteins_targeted = Channel.empty() }
-if (params.transcripts) { ch_t = file(params.transcripts) } else { ch_transcripts = Channel.empty() }
+if (params.transcripts) { ch_t = file(params.transcripts, checkIfExists:true) } else { ch_transcripts = Channel.empty() }
 if (params.rnaseq_samples) { ch_samplesheet = file(params.rnaseq_samples, checkIfExists: true) } else { ch_samplesheet = Channel.empty() }
 if (params.rm_lib) { ch_repeats = Channel.fromPath(file(params.rm_lib, checkIfExists: true)) } else { ch_repeats = Channel.fromPath("${workflow.projectDir}/assets/repeatmasker/repeats.fa") }
 if (params.references) { ch_ref_genomes = Channel.fromPath(params.references, checkIfExists: true)  } else { ch_ref_genomes = Channel.empty() }

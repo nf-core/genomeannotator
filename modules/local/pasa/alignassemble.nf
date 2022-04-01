@@ -1,6 +1,6 @@
 process PASA_ALIGNASSEMBLE {
     tag "$meta.id"
-    label 'process_high'
+    label 'process_extralong'
     
     if (params.enable_conda) {
         exit 1, "Conda environments cannot be used when using this version of PASA. Please use docker or singularity containers."
