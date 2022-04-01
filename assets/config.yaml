@@ -1,20 +1,38 @@
-assembly: "" 			# Your genome assembly
-proteins: false 		# related proteins
-proteins_targeted: false 	# proteins from this organism
-transcripts: false 		# pre-assembled transcripts/ESTs
-rm_lib: false 			# repeats in FASTA format
-rm_species: false 		# Taxonomic group for repeat-masking
-reads: false 			# Path to RNA-seq data
-references: false 		# Related genoems and their annotations
-aug_species: "human"		# AUGUSTUS profile
-aug_options: "--singlestrand=true --alternatives-from-evidence=on --minexonintronprob=0.08 --minmeanexonintronprob=0.4 --maxtracks=3" # AUGUSTUS additional options
-spaln_taxon: false		# Protein aligner profile
-utr: false			# Predict UTRS with AUGUSTUS
-ncrna: false			# Search for ncRNAs with RFam
-trinity: false			# Reconstruct transcriptome de-novo
-pasa: false			# PASA gene build pipeline
-evm: false			# Consensus gene building
-npart_size: 200000000		# Split assembly into sizes of this
-max_intron_size: 50000		# Largest possible intron
-min_contig_size: 5000		# Remove scaffolds smaller than this
-email: false			# Your Email adress
+# nf-core/genomeannotator basic config file
+# More options are documented at: https://nf-co.re/genomeannotator/parameters
+# Output directory
+outdir: "results"
+# Path to your genome assembly
+assembly: ""
+# Path to proteins from related organisms
+proteins: false
+# Path to proteins from this organism
+proteins_targeted: false
+# Path to pre-assembled transcripts/ESTs
+transcripts: false
+# Path to repeats in FASTA format
+rm_lib: false
+# Taxonomic group for repeat-masking
+rm_species: false
+# Path to RNA-seq samplesheet
+reads: false
+# Path to samplesheet for synteny analysis
+references: false
+# AUGUSTUS species/model
+aug_species: "human"
+# AUGUSTUS additional options
+aug_options: "--singlestrand=true --alternatives-from-evidence=on --minexonintronprob=0.08 --minmeanexonintronprob=0.4 --maxtracks=3"
+# SPALN profile
+spaln_taxon: false
+# Search for ncRNAs with RFam
+ncrna: false
+# Reconstruct transcriptome de-novo
+trinity: false
+# PASA gene build pipeline
+pasa: false
+# Consensus gene building
+evm: false
+# Largest possible intron
+max_intron_size: 50000
+# Remove scaffolds smaller than this
+min_contig_size: 5000

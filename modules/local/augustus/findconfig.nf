@@ -1,26 +1,28 @@
-process AUGUSTUS_STAGECONFIG {
-    tag "${augustus_config_dir}"
+process AUGUSTUS_FINDCONFIG {
+    tag 'STAGING...'
     label 'process_low'
-    
+
     conda (params.enable_conda ? "bioconda::augustus=3.4.0" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/augustus:3.4.0--pl5262h5a9fe7b_2':
-        'quay.io/biocontainers/augustus:3.4.0--pl5262h5a9fe7b_2' }"
+        'https://depot.galaxyproject.org/singularity/augustus:3.4.0--pl5321hd8b735c_4':
+        'quay.io/biocontainers/augustus:3.4.0--pl5321hd8b735c_4' }"
 
     input:
-    path augustus_config_dir
+    path dummy
 
     output:
-    path "augustus_config", emit: config_dir
+    path "config", emit: config
     path "versions.yml"           , emit: versions
+
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
     
     """
-
-    mkdir -p augustus_config
-    cp -R $augustus_config_dir/* augustus_config/
+    touch test.fa
+    cp -R `augustus --species=caenorhabditis test.fa 2>/dev/null | grep "using config directory" | cut -f8 -d " "` config
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

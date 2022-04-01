@@ -58,10 +58,16 @@ workflow GENOME_ALIGN {
        params.npart_size
     )
     // map list of fasta chunks to meta<->fasta pairs
-    FASTASPLITTER.out.chunks.flatMap{ row ->
-       row[1..-1].collect { [row[0].clone(), it]  }
-    }.set {genome_chunks}
+    FASTASPLITTER.out.chunks.branch { m,f ->
+       single: f.getClass() != ArrayList
+       multi: f.getClass() == ArrayList
+    }.set { ch_fa_chunks }
 
+    ch_fa_chunks.multi.flatMap { h,fastas ->
+       fastas.collect { [ h,file(it)] }
+    }.set { ch_chunks_split }
+
+    genome_chunks = ch_chunks_split.mix(ch_fa_chunks.single)
     //
     // MODULE: Align two genome sequences
     //

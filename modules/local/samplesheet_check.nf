@@ -13,7 +13,7 @@ process SAMPLESHEET_CHECK {
     path 'samplesheet.valid.csv'       , emit: csv
     path "versions.yml", emit: versions
 
-    script: // This script is bundled with the pipeline, in nf-core/rnaseq/bin/
+    script: // This script is bundled with the pipeline, in nf-core/genomeannotator/bin/
     """
     check_samplesheet.py \\
         $samplesheet \\

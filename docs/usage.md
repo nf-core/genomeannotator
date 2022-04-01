@@ -6,11 +6,12 @@
 
 ## Introduction
 
-GENOMEANNOTATOR is a pipeline for the annotation of metazoan genomes. While nothing within the pipelines makes it particularily specific to this taxonomic group, it has only been tested (and developed) for this purpose. GENOMEANNOTATOR combines a number of 
-established tools for the assembly, alignment and subsequent integration of so-called evidences into consensus gene builds. The product of GENOMEANNOTATOR are various tracks in GFF format, including gene models, but also various alignments. Output from GENOMEANNOTATOR is
+nf-core/genomeannotator is a pipeline for the annotation of metazoan genomes. While nothing within the pipelines makes it particularily specific to this taxonomic group, it has only been tested (and developed) for this purpose. nf-core/genomeannotator combines a number of
+established tools for the assembly, alignment and subsequent integration of so-called evidences into consensus gene builds. The product of nf-core/genomeannotator are various tracks in GFF format, including gene models, but also various alignments. Output from nf-core/genomeannotator is
 largely compatible with GMOD.
 
-Included in GENOMEANNOTATOR are:
+Included in nf-core/genomeannotator are:
+
 - Protein alignments with SPALN
 - Transcript alignments with Minimap2
 - RNAseq alignments with STAR
@@ -22,7 +23,7 @@ Included in GENOMEANNOTATOR are:
 - Synteny alignments and annotation projection using Satsuma2 and Kraken
 - Various scripts to transform in- and outputs between the above steps
 
-![GENOMEANNOTATOR schema](images/pipeline_schema.png)
+![nf-core/genomeannotator schema](images/pipeline_schema.png)
 
 ## Recommended strategy
 
@@ -30,23 +31,23 @@ A typical annotation run will use tens of thousands of transcripts and/or tens o
 
 If available, adding related genomes and their reference annotations can help to further improve the resulting gene builds. We have had good experiences using [EnsEMBL](https://ftp.ensembl.org/pub/) as a source for this type of data.
 
-Finally, GENOMEANNOTATOR will perform a mandatory repeat masking of the assembly. Consider providing a  comprehensive library of known repeats to speed up this process (else, see below): 
+Finally, nf-core/genomeannotator will perform a mandatory repeat masking of the assembly. Consider providing a comprehensive library of known repeats to speed up this process (else, see below):
 
 ## Limitations
 
-Automatic gene building produces draft annotations. Adding more data can help increase the overall quality, but in the end manual curation should be performed to achieve optimal results. Typical issues include false-positive models, 
-split models or missing models. The extend to which these three problems occurs depends on several factors, starting with the availability of sufficient evidence data as well as a suitable prediction model in AUGUSTUS. 
+Automatic gene building produces draft annotations. Adding more data can help increase the overall quality, but in the end manual curation should be performed to achieve optimal results. Typical issues include false-positive models,
+split models or missing models. The extend to which these three problems occurs depends on several factors, starting with the availability of sufficient evidence data as well as a suitable prediction model in AUGUSTUS.
 
 ## Assembly
 
-The assembly refers to the genome you want to annotate. This file must be in FASTA format. Additionally, we recommend you clean the fasta headers in a way so they do not contain any special characters, unnecessary spaces or other "meta" data. While GENOMEANNOTATOR
-will try to sanitize the FASTA headers as well, it's generally better to take care of that beforehand so there are no surprises afterwards. 
+The assembly refers to the genome you want to annotate. This file must be in FASTA format. Additionally, we recommend you clean the fasta headers in a way so they do not contain any special characters, unnecessary spaces or other "meta" data. While nf-core/genomeannotator
+will try to sanitize the FASTA headers as well, it's generally better to take care of that beforehand so there are no surprises afterwards.
 
 Please also be aware that some public databases do not allow the submission of assemblies that have leading or trailing 'N's in any of their scaffolds.
 
-Finally, note that GENOMEANNOTATOR is not designed for the annotation of incomplete and/or highly fragmented assemblies. While such inputs may still work, some of the alignment heuristics will potentially perform poorly or fail entirely, i.e. crash the pipeline. As
-a rule of thumb, your BUSCO scores should be above 80% and the number of contigs not exceed "a few thousand". There is no strict limit on the size of your assembly, but we have only tested GENOMEANNOTATOR with genomes up to 'human-size', i.e. 3Gb. Much larger genomes
-may cause unforseen issues. If so, please open a ticket on github and we can try to find a solution. 
+Finally, note that nf-core/genomeannotator is not designed for the annotation of incomplete and/or highly fragmented assemblies. While such inputs may still work, some of the alignment heuristics will potentially perform poorly or fail entirely, i.e. crash the pipeline. As
+a rule of thumb, your BUSCO scores should be above 80% and the number of contigs not exceed "a few thousand". There is no strict limit on the size of your assembly, but we have only tested nf-core/genomeannotator with genomes up to 'human-size', i.e. 3Gb. Much larger genomes
+may cause unforseen issues. If so, please open a ticket on github and we can try to find a solution.
 
 ```console
 --assembly '[path to assembly.fasta]'
@@ -56,30 +57,30 @@ may cause unforseen issues. If so, please open a ticket on github and we can try
 
 The pipeline requires one of several types of annotation evidences to guide the gene finding process. Valid options are:
 
-| Type                | Option                 | Description                                                           |
-|---------------------|------------------------|-----------------------------------------------------------------------|
-| Proteins            | `--proteins`           | A file with proteins in FASTA format from related organisms.          |
-| Proteins (specific) | `--proteins_targeted`  | A file with proteins in FASTA format from this organism.              |
-| Transcripts         | `--transcripts`        | A file with transcripts/ESTs in FASTA format from this organism.      |
-| RNAseq reads        | `--rnaseq_samples`     | A samplesheet pointing at available RNAseqs reads from this organism. |  
-| Related genomes     | `--references`         | A list of genomes in FASTA format with matching GTF annotation files. |
+| Type                | Option                | Description                                                           |
+| ------------------- | --------------------- | --------------------------------------------------------------------- |
+| Proteins            | `--proteins`          | A file with proteins in FASTA format from related organisms.          |
+| Proteins (specific) | `--proteins_targeted` | A file with proteins in FASTA format from this organism.              |
+| Transcripts         | `--transcripts`       | A file with transcripts/ESTs in FASTA format from this organism.      |
+| RNAseq reads        | `--rnaseq_samples`    | A samplesheet pointing at available RNAseqs reads from this organism. |
+| Related genomes     | `--references`        | A list of genomes in FASTA format with matching GTF annotation files. |
 
 ## Repeatmasking
 
-Repeatmasking provides important information for the ab-initio prediction of gene models - it is thus a mandatory step in GENOMEANNOTATOR. Repeatmasking can be triggered in three ways. The preferred option is to provide a set of known repeats from public databases
-in FASTA format (--rm_lib). Alternatively, GENOMEANNOTATOR can run the DFam database built into RepeatMasker (--rm_species). If neither option is specified, repeats are modeled de-novo. This can take 24 hours or more, depending on the size of your genomes. Please
-be aware that assemblies based on short reads tend to perform poorly in this as repeats are often collapsed by the assembly software. 
+Repeatmasking provides important information for the ab-initio prediction of gene models - it is thus a mandatory step in nf-core/genomeannotator. Repeatmasking can be triggered in three ways. The preferred option is to provide a set of known repeats from public databases
+in FASTA format (--rm_lib). Alternatively, nf-core/genomeannotator can run the DFam database built into RepeatMasker (--rm_species). If neither option is specified, repeats are modeled de-novo. This can take 24 hours or more, depending on the size of your genomes. Please
+be aware that assemblies based on short reads tend to perform poorly in this as repeats are often collapsed by the assembly software.
 
 ## FASTA inputs
 
-Several inputs to this pipeline are expected in FASTA format  (see table above). Note that the pipeline expects ONE file per input option. If you have multiple files of e.g. proteins, please concatenate them first and make sure no IDs are duplicated. 
+Several inputs to this pipeline are expected in FASTA format (see table above). Note that the pipeline expects ONE file per input option. If you have multiple files of e.g. proteins, please concatenate them first and make sure no IDs are duplicated.
 
-Similar to the assembly, the sequence identifies should be sparse, i.e.should not contain spaces, colons, semicolons or any other form of decoration beyond the basic, unique identifier. GENOMEANNOTATOR will remove any characters from the identifier past the 
-first empty space. 
+Similar to the assembly, the sequence identifies should be sparse, i.e.should not contain spaces, colons, semicolons or any other form of decoration beyond the basic, unique identifier. nf-core/genomeannotator will remove any characters from the identifier past the
+first empty space.
 
 ## RNAseq samplesheet input
 
-If you want to include RNAseq raw reads, you will need to create a samplesheet with information about the input data. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row as shown in the 
+If you want to include RNAseq raw reads, you will need to create a samplesheet with information about the input data. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row as shown in the
 example below.
 
 ```console
@@ -95,18 +96,18 @@ SAMPLE2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,forwar
 ```
 
 | Column         | Description                                                                                                                                                                            |
-|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sample`       | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
 | `fastq_1`      | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `fastq_2`      | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `strandedness` | The orientation the reads were sequenced in. Typically, this will be `forward` as per the Illumina TruSeq library kit (dUTP)                                                           |
 
-If at all possible, you should use poly-A selected, stranded mRNA-seq data for this with a read configuration of 2x150bp. It is not necessary (or recommended) to use biological replicates! Instead, rather try adding several developmental stages and tissues. 
+If at all possible, you should use poly-A selected, stranded mRNA-seq data for this with a read configuration of 2x150bp. It is not necessary (or recommended) to use biological replicates! Instead, rather try adding several developmental stages and tissues.
 
 ## Reference genome alignments
 
-GENOMEANNOTATOR can align your assembly to one or more related reference genomes to lift their existing annotations and use this information during gene building. We have tested this primarily with assemblies and annotations from [EnsEMBL](https://ftp.ensembl.org/pub/), but other sources
-may work too. Note that the annotation must be in GTF format! To pass this data to GENOMEANNOTATOR, a sample sheet is needed.
+nf-core/genomeannotator can align your assembly to one or more related reference genomes to lift their existing annotations and use this information during gene building. We have tested this primarily with assemblies and annotations from [EnsEMBL](https://ftp.ensembl.org/pub/), but other sources
+may work too. Note that the annotation must be in GTF format! To pass this data to nf-core/genomeannotator, a sample sheet is needed.
 
 The format should be as follows:
 
@@ -115,26 +116,26 @@ species,fasta,gtf
 Human,/path/to/human.fasta,/path/to/human.gtf
 ```
 
-| Column         | Description                                                                                                                                                                            |
-|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `species`      | Name of the species as a single string (i.e. should not include spaces or special characters                                                                                           |
-| `fasta `       | The genome sequence in FASTA format.                                                                                                                                                   |
-| `gtf`          | The matching annotation in GTF format.                                                                                                                                                 |
+| Column    | Description                                                                                  |
+| --------- | -------------------------------------------------------------------------------------------- |
+| `species` | Name of the species as a single string (i.e. should not include spaces or special characters |
+| `fasta `  | The genome sequence in FASTA format.                                                         |
+| `gtf`     | The matching annotation in GTF format.                                                       |
 
 Please beware that trying to align larger genomes and/or highly fragmented genomes can take a significant amount of computing time (i.e. days!). In extreme cases, jobs may exceed available walltime. If possible, limit the number of genomes
-you align to only a handful (1-3) and prefer genomes with very high contiguity (ideally chromosome-level assembly). 
+you align to only a handful (1-3) and prefer genomes with very high contiguity (ideally chromosome-level assembly).
 
 ## Evaluating results
 
-Gene builds can be evaluated in two ways - by gauging completeness against a reference data set and by simple visual inspection. 
+Gene builds can be evaluated in two ways - by gauging completeness against a reference data set and by simple visual inspection.
 
-[BUSCO](https://busco.ezlab.org/) can be used to check how many genes specific to a particular taxonomic group were found in a respective annotation set. To enable this metric, run GENOMEANNOTATOR with `--busco_lineage xxx_odb10`, where `xxx` represents 
-a taxonomic group available through BUSCO (see parameter options). 
+[BUSCO](https://busco.ezlab.org/) can be used to check how many genes specific to a particular taxonomic group were found in a respective annotation set. To enable this metric, run nf-core/genomeannotator with `--busco_lineage xxx_odb10`, where `xxx` represents
+a taxonomic group available through BUSCO (see parameter options).
 
 Visual inspection requires for the annotation(s) and supporting alignment tracks to be loaded into a genome browser. This could be something like [IGV](https://software.broadinstitute.org/software/igv/) as a stand-alone option on your personal computer, or
-a community curation platform such as [WebApollo](http://genomearchitect.org/). This process will reveal key issues with your gene build, such as fragmented models caused by inadequate input data or other challenges related to the data. 
+a community curation platform such as [WebApollo](http://genomearchitect.org/). This process will reveal key issues with your gene build, such as fragmented models caused by inadequate input data or other challenges related to the data.
 
-WebApollo in particular is a key component to polishing your automated gene builds for scientific downstream uses. 
+WebApollo in particular is a key component to polishing your automated gene builds for scientific downstream uses.
 
 ## Running the pipeline
 
@@ -150,14 +151,14 @@ However, considering the vast number of available parameters, we recommend you u
 
 ```console
 nextflow run nf-core/genomeannotator -params-file config.yml -profile docker
-``` 
+```
 
 Note that the pipeline will create the following files in your working directory:
 
 ```console
-work            # Directory containing the nextflow working files
-results         # Finished results (configurable, see below)
-.nextflow_log   # Log file from Nextflow
+work                # Directory containing the nextflow working files
+<OUTIDR>            # Finished results in specified location (defined with --outdir)
+.nextflow_log       # Log file from Nextflow
 # Other nextflow hidden files, eg. history of pipeline runs and old logs.
 ```
 
@@ -187,7 +188,7 @@ Use this parameter to choose a configuration profile. Profiles can give configur
 
 Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud) - see below. When using Biocontainers, most of these software packaging methods pull Docker containers from quay.io e.g [FastQC](https://quay.io/repository/biocontainers/fastqc) except for Singularity which directly downloads Singularity images via https hosted by the [Galaxy project](https://depot.galaxyproject.org/singularity/).
 
-> GENOMEANNOTATOR requires Docker or Singularity for execution. Due to some of the more complex dependencies, Conda can not be supported at this time. 
+> nf-core/genomeannotator requires Docker or Singularity for execution. Due to some of the more complex dependencies, Conda can not be supported at this time.
 
 The pipeline also dynamically loads configurations from [https://github.com/nf-core/configs](https://github.com/nf-core/configs) when it runs, making multiple config profiles for various institutional clusters available at run time. For more information and to see if your system is available in these configs please see the [nf-core/configs documentation](https://github.com/nf-core/configs#documentation).
 
@@ -196,25 +197,25 @@ They are loaded in sequence, so later profiles can overwrite earlier profiles.
 
 If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
 
-* `docker`
-    * A generic configuration profile to be used with [Docker](https://docker.com/)
-* `singularity`
-    * A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
-* `podman`
-    * A generic configuration profile to be used with [Podman](https://podman.io/)
-* `shifter`
-    * A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
-* `charliecloud`
-    * A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
-* `conda`
-    * A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter or Charliecloud.
-* `test`
-    * A profile with a complete configuration for automated testing
-    * Includes links to test data so needs no other parameters
+- `docker`
+  - A generic configuration profile to be used with [Docker](https://docker.com/)
+- `singularity`
+  - A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
+- `podman`
+  - A generic configuration profile to be used with [Podman](https://podman.io/)
+- `shifter`
+  - A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
+- `charliecloud`
+  - A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
+- `conda`
+  - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter or Charliecloud.
+- `test`
+  - A profile with a complete configuration for automated testing
+  - Includes links to test data so needs no other parameters
 
 ### `-resume`
 
-Specify this when restarting a pipeline. Nextflow will used cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously.
+Specify this when restarting a pipeline. Nextflow will use cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously. For input to be considered the same, not only the names must be identical but the files' contents as well. For more info about this parameter, see [this blog post](https://www.nextflow.io/blog/2019/demystifying-nextflow-resume.html).
 
 You can also supply a run name to resume a specific run: `-resume [run-name]`. Use the `nextflow log` command to show previous run names.
 
@@ -276,6 +277,7 @@ process {
 ```
 
 > **NB:** We specify the full process name i.e. `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN` in the config file because this takes priority over the short name (`STAR_ALIGN`) and allows existing configuration using the full process name to be correctly overridden.
+
 > If you get a warning suggesting that the process selector isn't recognised check that the process name has been specified correctly.
 
 ### Updating containers
@@ -286,35 +288,35 @@ The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementatio
 2. Find the latest version of the Biocontainer available on [Quay.io](https://quay.io/repository/biocontainers/pangolin?tag=latest&tab=tags)
 3. Create the custom config accordingly:
 
-    * For Docker:
+   - For Docker:
 
-        ```nextflow
-        process {
-            withName: PANGOLIN {
-                container = 'quay.io/biocontainers/pangolin:3.0.5--pyhdfd78af_0'
-            }
-        }
-        ```
+     ```nextflow
+     process {
+         withName: PANGOLIN {
+             container = 'quay.io/biocontainers/pangolin:3.0.5--pyhdfd78af_0'
+         }
+     }
+     ```
 
-    * For Singularity:
+   - For Singularity:
 
-        ```nextflow
-        process {
-            withName: PANGOLIN {
-                container = 'https://depot.galaxyproject.org/singularity/pangolin:3.0.5--pyhdfd78af_0'
-            }
-        }
-        ```
+     ```nextflow
+     process {
+         withName: PANGOLIN {
+             container = 'https://depot.galaxyproject.org/singularity/pangolin:3.0.5--pyhdfd78af_0'
+         }
+     }
+     ```
 
-    * For Conda:
+   - For Conda:
 
-        ```nextflow
-        process {
-            withName: PANGOLIN {
-                conda = 'bioconda::pangolin=3.0.5'
-            }
-        }
-        ```
+     ```nextflow
+     process {
+         withName: PANGOLIN {
+             conda = 'bioconda::pangolin=3.0.5'
+         }
+     }
+     ```
 
 > **NB:** If you wish to periodically update individual tool-specific results (e.g. Pangolin) generated by the pipeline then you must ensure to keep the `work/` directory otherwise the `-resume` ability of the pipeline will be compromised and it will restart from scratch.
 
