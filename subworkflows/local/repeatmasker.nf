@@ -28,17 +28,30 @@ workflow REPEATMASKER {
     ch_fa_chunks.multi.flatMap { h,fastas ->
        fastas.collect { [ h,file(it)] }
     }.set { ch_chunks_split }
-   
-    
-    GUNZIP(
-       create_meta_channel(rm_db)
-    )
 
-    REPEATMASKER_STAGELIB(
-       rm_lib,
-       rm_species,
-       GUNZIP.out.gunzip.map {m,g -> g}
-    )
+    // We can avoid importing a Dfam database if it is not needed.    
+    if (params.rm_db && params.rm_species) {
+       GUNZIP(
+          create_meta_channel(rm_db)
+       )
+       REPEATMASKER_STAGELIB(
+          rm_lib,
+          rm_species,
+          GUNZIP.out.gunzip.map { m,g -> g }
+       )
+    } else if (params.rm_species) {
+       REPEATMASKER_STAGELIB(
+          rm_lib,
+          params.rm_species,
+          file(params.dummy_gff)
+       )
+    } else {
+       REPEATMASKER_STAGELIB(
+          rm_lib,
+          false,
+          file(params.dummy_gff)
+       )
+    }
 
     REPEATMASKER_REPEATMASK( 
        ch_fa_chunks.single.map { m,f -> [m,file(f)]}.mix(ch_chunks_split),

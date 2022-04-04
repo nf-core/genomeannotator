@@ -75,15 +75,49 @@ workflow GENOME_ALIGN {
        genome_chunks.combine(targets_clean)
     )
     
-    grouped_chains = SATSUMA2_SATSUMASYNTENY2.out.chain.groupTuple(by: [0,1,2,3])
+    // Group Satsuma chains by query-target pair and add the target name to meta hash
+    SATSUMA2_SATSUMASYNTENY2.out.chain.map { m,q,t,g,c -> 
+       new_meta = m.clone()
+       new_meta.target = t.getBaseName()
 
-    // [ meta, query_fa, reference_fa, reference_gtf, [chains] 
+       tuple(new_meta,q,t,g,c)
+    }.set { ch_satsuma_chains }
+
+    // [ meta, query_fa, reference_fa, reference_gtf, chain 
+    //
+    // MODULE: Map annotations across genomes using Satsuma chain file
     KRAKEN(
-       grouped_chains
+       ch_satsuma_chains
     )
+
+    KRAKEN.out.gtf
+    .groupTuple()
+    .set { ch_kraken_gtf }
+
+    ch_kraken_gtf.multiMap { meta,gtfs ->
+       metadata: [ "${meta.id}-${meta.target}",m ]
+       gtfs: [ "${meta.id}-${meta.target}",gtfs ]
+    }.set { ch_grouped_gtfs }
+
+    ch_grouped_gtfs.gtfs.collectFile { mkey,file -> [ "${mkey}.kraken.gtf",file] }
+    .map { file -> [file.simpleName,file]}
+    .set { ch_merged_gtfs }
+
+    ch_grouped_gtfs.metadata.join(
+       ch_merged_gtfs
+    )
+    .map { k,m,f -> tuple(m,f) }
+    .set { ch_kraken_merged_gtf }
+
+    //
+    // MODULE: Convert Kraken GTF files to GFF
+    //
     SATSUMA_KRAKEN2GFF(
-       KRAKEN.out.gtf
+       ch_kraken_merged_gtf
     )
+    //
+    // MODULE: Convert GFF file to hints
+    // 
     SATSUMA_GTF2HINTS(
        KRAKEN.out.gtf,
        params.pri_trans

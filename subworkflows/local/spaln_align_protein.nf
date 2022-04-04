@@ -70,6 +70,7 @@ workflow SPALN_ALIGN_PROTEIN {
        gff = SPALN_MERGE.out.gff
        gff_training = HELPER_SPALNTOTRAINING.out.gff
        evm = HELPER_SPALNTOEVM.out.gff
+       gff_training = HELPER_SPALNTOTRAINING.out.gff
        versions = GAAS_FASTACLEANER.out.versions
 
 }

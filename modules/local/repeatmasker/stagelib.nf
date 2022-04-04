@@ -20,8 +20,10 @@ process REPEATMASKER_STAGELIB {
     script:
     def args = task.ext.args ?: ''
     def options = ""
+    def copy_option = ""
     if (species) {
        options = "-species $species"
+       copy_option = "cp $db Libraries/Dfam.h5"
     } else {
        options = "-lib $fasta"
     }
@@ -29,7 +31,7 @@ process REPEATMASKER_STAGELIB {
        cp ${baseDir}/assets/repeatmasker/my_genome.fa .
        cp ${baseDir}/assets/repeatmasker/repeats.fa .
        cp -R /usr/local/share/RepeatMasker/Libraries .
-       cp $db Libraries/Dfam.h5
+       $copy_option
        export LIBDIR=\$PWD/Libraries
        RepeatMasker $options my_genome.fa > out
 

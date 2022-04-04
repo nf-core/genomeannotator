@@ -22,7 +22,7 @@ if (params.transcripts) { ch_t = file(params.transcripts, checkIfExists:true) } 
 if (params.rnaseq_samples) { ch_samplesheet = file(params.rnaseq_samples, checkIfExists: true) } else { ch_samplesheet = Channel.empty() }
 if (params.rm_lib) { ch_repeats = Channel.fromPath(file(params.rm_lib, checkIfExists: true)) } else { ch_repeats = Channel.fromPath("${workflow.projectDir}/assets/repeatmasker/repeats.fa") }
 if (params.references) { ch_ref_genomes = Channel.fromPath(params.references, checkIfExists: true)  } else { ch_ref_genomes = Channel.empty() }
-if (params.rm_db)  { ch_rm_db = file(params.rm_db) } else { ch_rm_db = Channel.empty() }
+if (params.rm_db && params.rm_species)  { ch_rm_db = file(params.rm_db) } else { ch_rm_db = Channel.empty() }
 if (params.aug_config_dir) { ch_aug_config_folder = file(params.aug_config_dir, checkIfExists: true) } else { ch_aug_config_folder = Channel.empty() }
 
 /*
@@ -215,6 +215,7 @@ workflow GENOMEANNOTATOR {
        ch_versions = ch_versions.mix(SPALN_ALIGN_MODELS.out.versions)
        ch_hints = ch_hints.mix(SPALN_ALIGN_MODELS.out.hints)
        ch_genes_gff = ch_genes_gff.mix(SPALN_ALIGN_MODELS.out.gff)
+       ch_training_genes = SPALN_ALIGN_MODELS.out.gff_training
     }
 
     //
@@ -305,7 +306,7 @@ workflow GENOMEANNOTATOR {
              ch_aug_config_folder,
              params.aug_species
           )
-          ch_aug_config_final = AUGUSTUS_TRAINING.out.aug_config_folder             
+          ch_aug_config_final = AUGUSTUS_TRAINING.out.aug_config_dir
        } else if (params.pasa) {
           AUGUSTUS_TRAINING(
              ch_training_genes.collect(),

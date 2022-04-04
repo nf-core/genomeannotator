@@ -15,7 +15,7 @@ process AUGUSTUS_TRAINING {
     val(species)
 
     output:
-    tuple val(meta), path(aug_config), emit: aug_config_dir
+    path(aug_config), emit: aug_config_dir
     path "versions.yml"           , emit: versions
 
     script:
