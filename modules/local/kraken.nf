@@ -18,7 +18,7 @@ process KRAKEN {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    mapped_gtf = meta.id + "-" + target.getBaseName() + ".mapped.gtf"
+    mapped_gtf = query.getBaseName() + "-" + target.getBaseName() + ".mapped.gtf"
     """
     cat $chains > satsuma_chain.out
     kraken_build_config.pl --ref_fa $target --query_fa $query --chain satsuma_chain.out > kraken.config

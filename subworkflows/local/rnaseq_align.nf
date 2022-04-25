@@ -30,10 +30,6 @@ workflow RNASEQ_ALIGN {
     )
     
     FASTP.out.reads
-        .map {
-           meta,fastq ->
-               meta.id = (meta.id.contains("SRR")) ? meta.id : meta.id.split('_')[0..-2].join('_')
-           [ meta , fastq ] }
         .groupTuple(by: [0])
         .branch {
            meta, fastq ->

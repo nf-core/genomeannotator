@@ -1,6 +1,6 @@
 process STAR_INDEX {
     tag "$meta.id"
-    label 'process_long'
+    label 'process_medium'
     
     conda (params.enable_conda ? "bioconda::star=2.6.1d bioconda::samtools=1.10 conda-forge::gawk=5.1.0" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

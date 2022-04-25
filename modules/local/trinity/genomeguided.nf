@@ -1,6 +1,6 @@
 process TRINITY_GENOMEGUIDED {
     tag "$meta.id"
-    label 'process_high'
+    label 'process_extralong'
     
     conda (params.enable_conda ? "bioconda::trinity=2.13.2" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

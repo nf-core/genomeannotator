@@ -78,7 +78,7 @@ workflow GENOME_ALIGN {
     // Group Satsuma chains by query-target pair and add the target name to meta hash
     SATSUMA2_SATSUMASYNTENY2.out.chain.map { m,q,t,g,c -> 
        new_meta = m.clone()
-       new_meta.target = t.getBaseName()
+       new_meta.target = t.getSimpleName()
 
        tuple(new_meta,q,t,g,c)
     }.set { ch_satsuma_chains }
@@ -90,22 +90,17 @@ workflow GENOME_ALIGN {
        ch_satsuma_chains
     )
 
-    KRAKEN.out.gtf
-    .groupTuple()
-    .set { ch_kraken_gtf }
-
-    ch_kraken_gtf.multiMap { meta,gtfs ->
-       metadata: [ "${meta.id}-${meta.target}",m ]
-       gtfs: [ "${meta.id}-${meta.target}",gtfs ]
+    // [ meta, gtf ]
+    KRAKEN.out.gtf.multiMap { m,f ->
+       meta: [ "${m.id}-${m.target}",m ]
+       gtf: [ "${m.id}-${m.target}",f ]
     }.set { ch_grouped_gtfs }
 
-    ch_grouped_gtfs.gtfs.collectFile { mkey,file -> [ "${mkey}.kraken.gtf",file] }
+    ch_grouped_gtfs.gtf.collectFile { mkey,file -> [ "${mkey}.kraken.gtf",file] }
     .map { file -> [file.simpleName,file]}
     .set { ch_merged_gtfs }
 
-    ch_grouped_gtfs.metadata.join(
-       ch_merged_gtfs
-    )
+    ch_grouped_gtfs.meta.unique().join(ch_merged_gtfs)
     .map { k,m,f -> tuple(m,f) }
     .set { ch_kraken_merged_gtf }
 
@@ -119,7 +114,7 @@ workflow GENOME_ALIGN {
     // MODULE: Convert GFF file to hints
     // 
     SATSUMA_GTF2HINTS(
-       KRAKEN.out.gtf,
+       ch_kraken_merged_gtf,
        params.pri_trans
     )
 

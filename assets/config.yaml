@@ -15,7 +15,7 @@ rm_lib: false
 # Taxonomic group for repeat-masking
 rm_species: false
 # Path to RNA-seq samplesheet
-reads: false
+rnaseq_samples: false
 # Path to samplesheet for synteny analysis
 references: false
 # AUGUSTUS species/model

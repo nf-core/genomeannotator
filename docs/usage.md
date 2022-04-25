@@ -65,10 +65,23 @@ The pipeline requires one of several types of annotation evidences to guide the 
 | RNAseq reads        | `--rnaseq_samples`    | A samplesheet pointing at available RNAseqs reads from this organism. |
 | Related genomes     | `--references`        | A list of genomes in FASTA format with matching GTF annotation files. |
 
+## Tools
+
+The pipeline supports several tool chains, depending on the available input data and user choices. 
+
+| Tool chain      | Description                      | Flag         | Required inputs                                         |
+| --------------- | -------------------------------- | ------------ | ------------------------------------------------------- |
+| STAR            | RNAseq alignments                |              | `--rnaseq_samples`                                      |
+| PASA            | Gene building from transcripts   | --pasa       | `--transcripts` and/or `--rnaseq_samples` + `--trinity` |
+| Trinity         | De-novo transcriptome assembly   | --trinity    | `--rnaseq_samples`                                      |
+| Satsuma         | Genome alignments and lift-over  |              | `--references`                                          |
+| EvidenceModeler | Consensus gene building          | --evm        |                                                         |
+| Infernal        | ncRNA search                     | --ncrna      |                                                         |
+              
 ## Repeatmasking
 
 Repeatmasking provides important information for the ab-initio prediction of gene models - it is thus a mandatory step in nf-core/genomeannotator. Repeatmasking can be triggered in three ways. The preferred option is to provide a set of known repeats from public databases
-in FASTA format (--rm_lib). Alternatively, nf-core/genomeannotator can run the DFam database built into RepeatMasker (--rm_species). If neither option is specified, repeats are modeled de-novo. This can take 24 hours or more, depending on the size of your genomes. Please
+in FASTA format (--rm_lib). Alternatively, nf-core/genomeannotator can run the DFam database built into RepeatMasker (--rm_species). If neither option is specified, repeats are modeled de-novo. This can take 24 hours or more, depending on the size of your genome. Please
 be aware that assemblies based on short reads tend to perform poorly in this as repeats are often collapsed by the assembly software.
 
 ## FASTA inputs

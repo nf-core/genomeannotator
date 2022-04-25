@@ -11,13 +11,13 @@ process HELPER_CREATEGFFIDS {
     tuple val(meta), path(gff)
 
     output:
-    tuple val(meta), path("*.stable_id.gff"), emit: gff
+    tuple val(meta), path("*.stable_id.gff3"), emit: gff
     path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    updated_gff = gff.getBaseName() + ".stable_id.gff"
+    updated_gff = gff.getBaseName() + ".stable_id.gff3"
     """
     create_gff_ids.pl --gff $gff > $updated_gff
 

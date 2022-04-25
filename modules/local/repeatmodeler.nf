@@ -1,6 +1,6 @@
 process REPEATMODELER {
     tag "$meta.id"
-    label 'process_high'
+    label 'process_extralong'
     
     conda (params.enable_conda ? "bioconda::repeatmodeler=2.0.2a" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

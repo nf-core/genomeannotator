@@ -25,7 +25,7 @@ process HELPER_RFAMTOGFF {
     // If no ncRNAs were found, emit an empty gff3 file with header
     """
     rfam2gff.pl --infile $tbl --family $families > $gff
-    test -f ${gff} || cat "##gff-version 3" >> $gff
+    test -f ${gff} || echo "##gff-version 3" >> $gff
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

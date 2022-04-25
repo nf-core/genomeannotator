@@ -291,6 +291,7 @@ workflow GENOMEANNOTATOR {
         ch_versions = ch_versions.mix(PASA_PIPELINE.out.versions)
         ch_genes_gff = ch_genes_gff.mix(PASA_PIPELINE.out.gff)
         ch_training_genes =  PASA_PIPELINE.out.gff_training
+        ch_proteins_fa = PASA_PIPELINE.out.proteins
     }
 
     //

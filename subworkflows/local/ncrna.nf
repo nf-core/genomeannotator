@@ -50,7 +50,7 @@ workflow NCRNA {
        tbl: [m.id,t ]
     }.set { ch_rfam_tbls }
 
-    ch_rfam_tbls.tbl.collectFile { mkey, file -> [ "${mkey}.rfam.gff", file ] }
+    ch_rfam_tbls.tbl.collectFile { mkey, file -> [ "${mkey}.rfam.tbl", file ] }
     .map { file -> [ file.simpleName, file ] }
     .set { ch_merged_tbls }
 

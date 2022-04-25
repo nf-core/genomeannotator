@@ -8,6 +8,7 @@ include { PASA_SEQCLEAN } from '../../modules/local/pasa/seqclean'
 include { PASA_ALIGNASSEMBLE } from '../../modules/local/pasa/alignassemble'
 include { PASA_ASMBLSTOTRAINING } from '../../modules/local/pasa/asmblstotraining'
 include { HELPER_PASA2TRAINING } from '../../modules/local/helper/pasa2training'
+include { GFFREAD as PASA_GFF2PROTEINS } from '../../modules/local/gffread'
 
 workflow PASA_PIPELINE {
 
@@ -39,10 +40,14 @@ workflow PASA_PIPELINE {
            PASA_ASMBLSTOTRAINING.out.gff,
            params.pasa_nmodels
        )
+       PASA_GFF2PROTEINS(
+          PASA_ASMBLSTOTRAINING.out.gff.join(genome)
+       )
   
     emit:
        gff = PASA_ASMBLSTOTRAINING.out.gff
        gff_training = HELPER_PASA2TRAINING.out.gff
+       proteins = PASA_GFF2PROTEINS.out.proteins
        versions = PASA_ALIGNASSEMBLE.out.versions
 
 }
