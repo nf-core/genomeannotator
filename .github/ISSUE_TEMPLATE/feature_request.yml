@@ -1,5 +1,5 @@
 name: Feature request
-description: Suggest an idea for the nf-core/esga pipeline
+description: Suggest an idea for the nf-core/genomeannotator pipeline
 labels: enhancement
 body:
   - type: textarea

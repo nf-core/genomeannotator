@@ -1,8 +1,8 @@
 //
-// This file holds several functions specific to the workflow/esga.nf in the nf-core/esga pipeline
+// This file holds several functions specific to the workflow/genomeannotator.nf in the nf-core/genomeannotator pipeline
 //
 
-class WorkflowEsga {
+class WorkflowGenomeannotator {
 
     //
     // Check and validate parameters
@@ -48,11 +48,11 @@ class WorkflowEsga {
     //
     private static void genomeExistsError(params, log) {
         if (params.genomes && params.genome && !params.genomes.containsKey(params.genome)) {
-            log.error "=============================================================================\n" +
+            log.error "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
                 "  Genome '${params.genome}' not found in any config files provided to the pipeline.\n" +
                 "  Currently, the available genome keys are:\n" +
                 "  ${params.genomes.keySet().join(", ")}\n" +
-                "==================================================================================="
+                "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
             System.exit(1)
         }
     }

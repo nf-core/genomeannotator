@@ -1,5 +1,5 @@
 //
-// This file holds several functions specific to the main.nf workflow in the nf-core/esga pipeline
+// This file holds several functions specific to the main.nf workflow in the nf-core/genomeannotator pipeline
 //
 
 class WorkflowMain {
