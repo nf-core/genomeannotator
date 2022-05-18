@@ -60,6 +60,7 @@ include { EVM } from '../subworkflows/local/evm.nf'
 include { FASTA_PREPROCESS as TRANSCRIPT_PREPROCESS } from '../subworkflows/local/fasta_preprocess'
 include { BUSCO_QC } from '../subworkflows/local/busco_qc'
 include { NCRNA } from '../subworkflows/local/ncrna'
+include { FUNCTIONAL_ANNOTATION } from '../subworkflows/local/eggnog_mapper'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -70,6 +71,7 @@ include { NCRNA } from '../subworkflows/local/ncrna'
 //
 // MODULE: Installed directly from nf-core/modules
 //
+
 include { SAMTOOLS_MERGE } from '../modules/local/samtools/merge'
 include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
@@ -103,6 +105,7 @@ workflow GENOMEANNOTATOR {
     ch_proteins_fa = Channel.empty()
     ch_busco_qc = Channel.empty()
     ch_training_genes = Channel.empty()
+    ch_func_annot = Channel.from([])
 
     //
     // SUBWORKFLOW: Turn transcript inputs to channel
@@ -120,6 +123,8 @@ workflow GENOMEANNOTATOR {
     if (!params.aug_config_dir) {
        AUGUSTUS_FINDCONFIG(ch_empty_gff)
        ch_aug_config_folder = AUGUSTUS_FINDCONFIG.out.config
+    } else {
+       ch_aug_config_folder = Channel.fromPath(file(params.aug_config_dir))
     }
     //
     // MODULE: Stage Augustus config dir to be editable
@@ -337,7 +342,7 @@ workflow GENOMEANNOTATOR {
     ch_versions = ch_versions.mix(AUGUSTUS_PIPELINE.out.versions)
     ch_genes_gff = ch_genes_gff.mix(AUGUSTUS_PIPELINE.out.gff)
     ch_proteins_fa = ch_proteins_fa.mix(AUGUSTUS_PIPELINE.out.proteins)
-
+    //ch_func_annot = ch_func_annot.mix(AUGUSTUS_PIPELINE.out.func_annot)
     //
     // SUBWORKFLOW: Consensus gene building with EVM
     //
@@ -350,6 +355,7 @@ workflow GENOMEANNOTATOR {
           ch_evm_weights
        )
        ch_proteins_fa = ch_proteins_fa.mix(EVM.out.proteins)
+       ch_func_annot = ch_func_annot.mix(EVM.out.func_annot)
     }
 
     //
@@ -363,6 +369,17 @@ workflow GENOMEANNOTATOR {
        )
        ch_busco_qc = BUSCO_QC.out.busco_summary
     } 
+
+    //
+    // SUBWORKDLOW: Functional annotation using Eggnog_mapper
+    //
+    if (params.functional_annotation) {
+
+       FUNCTIONAL_ANNOTATION(
+          ch_func_annot
+       )
+
+    }
 
     //
     // MODULE: Collect all software versions

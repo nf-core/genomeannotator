@@ -68,8 +68,11 @@ workflow AUGUSTUS_PIPELINE {
        AUGUSTUS_CREATEGFFIDS.out.gff.join(genome)
     )
 
+    ch_func_annot = AUGUSTUS_GFF2PROTEINS.out.proteins.join(AUGUSTUS_CREATEGFFIDS.out.gff)
+
     emit:
     gff = AUGUSTUS_CREATEGFFIDS.out.gff
     proteins = AUGUSTUS_GFF2PROTEINS.out.proteins
     versions = FASTASPLITTER.out.versions
+    func_annot = ch_func_annot
 }

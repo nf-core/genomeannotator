@@ -42,8 +42,11 @@ workflow EVM {
        HELPER_EVM2GFF.out.gff.join(genome)
     )
        
+    ch_func_annot = HELPER_EVM2GFF.out.gff.join(EVIDENCEMODELER_GFF2PROTEINS.out.proteins)
+
     emit:
     proteins = EVIDENCEMODELER_GFF2PROTEINS.out.proteins
     versions = EVIDENCEMODELER_PARTITION.out.versions
+    func_annot = ch_func_annot
 
 }
