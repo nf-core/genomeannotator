@@ -1,5 +1,5 @@
 process EGGNOGMAPPER_DB {
-    tag "$meta.id"
+
     label 'process_long'
 
     conda (params.enable_conda ? "eggnog-mapper=2.1.7" : null)
@@ -22,7 +22,7 @@ process EGGNOGMAPPER_DB {
 
     """
     mkdir -p db
-    download_eggnog_data.py -d $tax_id --data_dir db -y
+    download_eggnog_data.py -H -P -d $tax_id --data_dir db -y
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

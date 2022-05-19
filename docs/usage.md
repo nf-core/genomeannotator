@@ -138,6 +138,11 @@ Human,/path/to/human.fasta,/path/to/human.gtf
 Please beware that trying to align larger genomes and/or highly fragmented genomes can take a significant amount of computing time (i.e. days!). In extreme cases, jobs may exceed available walltime. If possible, limit the number of genomes
 you align to only a handful (1-3) and prefer genomes with very high contiguity (ideally chromosome-level assembly).
 
+## Functional annotation
+
+nf-core/genomeannotator can perform functional annotation of the resulting gene build(s) using [EggNOG-mapper](https://github.com/eggnogdb/eggnog-mapper) - if either `--eggnog_mapper_db` or `--eggnog_taxonomy` are set. The first option points to a local folder containing an EggnogMapper database that you 
+previously downloaded database for your taxonomic group of interest. Otherwise, you can specify `--eggnog_taxonomy TAX_ID`, where TAX_ID refers to one of the pre-compiled dataset IDs from the EggNOG-mapper [database](http://eggnog5.embl.de/#/app/downloads)). Note that your compute nodes must have access to the internet for this to work. 
+
 ## Evaluating results
 
 Gene builds can be evaluated in two ways - by gauging completeness against a reference data set and by simple visual inspection.

@@ -155,25 +155,18 @@
                     "help_text": "Use this to provide the path to a local copy of the busco database (usually /path/to/busco_downloads). For details, see the BUSCO [documentation](https://busco.ezlab.org/busco_userguide.html#download-and-automated-update).",
                     "default": null
                 },
-                "functional_annotation": {
-                    "type": "boolean",
-                    "fa_icon": "fas fa-wrench",
-                    "description": "Enable functional annotation of gene build(s)",
-                    "help_text": "Perform functional annotation using EggnogMapper. Requires either eggnog_mapper_db or eggnog_taxonomy.",
-                    "default": false
-                },
                 "eggnog_mapper_db": {
                     "type": "string",
                     "fa_icon": "fas fa-folder-open",
                     "description": "Path to a pre-installed EggnogMapper database.",
-                    "help_text": "Path to local EggnogMapper database, including the desired taxon level.",
+                    "help_text": "Path to local EggnogMapper database, including the desired taxon level. This triggers the functional annotation sub-workflow.",
                     "default": null
                 },
                 "eggnog_taxonomy": {
                     "type": "integer",
                     "fa_icon": "fas fa-wrench",
                     "description": "Taxonomy ID for EggnogMapper",
-                    "help_text": "If no local database is available for EggnogMapper, use this taxonomy ID to download one. A list of supported ID is available [here](http://eggnog5.embl.de/#/app/downloads).",
+                    "help_text": "Use this taxonomy ID to download an EggnogMapper database. A list of supported ID is available [here](http://eggnog5.embl.de/#/app/downloads). This triggers the functional annotation sub-workflow",
                     "defaul": null
                 },
                 "dummy_gff": {

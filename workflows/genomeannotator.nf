@@ -373,7 +373,7 @@ workflow GENOMEANNOTATOR {
     //
     // SUBWORKDLOW: Functional annotation using Eggnog_mapper
     //
-    if (params.functional_annotation) {
+    if (params.eggnog_mapper_db || params.eggnog_taxonomy) {
 
        FUNCTIONAL_ANNOTATION(
           ch_func_annot

@@ -47,8 +47,8 @@ class WorkflowGenomeannotator {
             log.error "This does not look like a valid busco lineage name! Was expecting xxx_odb10!"
             System.exit(1)
         }
-        if (params.functional_annotation && !params.eggnog_mapper_db && !params.eggnog_taxonomy) {
-           log.error "Functional annotation requires either a pre-installed eggnog_mapper db or a tax id to download one."
+        if (params.eggnog_mapper_db && params.eggnog_taxonomy) {
+           log.error "Cannot provide both a local EggnogMapper database and as well as a taxonomy ID."
         }  
 
     }
