@@ -30,6 +30,7 @@ process BUSCO_BUSCO {
 
     busco -m proteins -i $proteins $options -l $lineage_path -o busco -c ${task.cpus} --offline
     cp busco/short_summary*specific*busco.txt $busco_summary
+    rm -Rf busco
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

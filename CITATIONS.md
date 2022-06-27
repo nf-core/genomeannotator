@@ -77,6 +77,9 @@
 - [Deeptools](https://pubmed.ncbi.nlm.nih.gov/27079975/)
   > Ramírez F, Ryan DP, Grüning B, ... and Manke T. deepTools2: a next generation web server for deep-sequencing data analysis. Nucleic Acids Res. 2016 Jul 8;44(W1):W160-5. doi: 10.1093/nar/gkw257. Epub 2016 Apr 13.
 
+- [EggNOG-mapper](https://github.com/eggnogdb/eggnog-mapper)
+  > Cantalapiedra CP,  Hernandez-Plaza A, Letunic I, Bork P, Huerta-Cepas J. eggNOG-mapper v2: functional annotation, orthology assignments, and domain prediction at the metagenomic scale. Molecular Biology and Evolution. 2021. https://doi.org/10.1093/molbev/msab293
+
 ## Software packaging/containerisation tools
 
 - [Anaconda](https://anaconda.com)

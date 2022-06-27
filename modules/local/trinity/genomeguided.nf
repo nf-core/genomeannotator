@@ -12,7 +12,7 @@ process TRINITY_GENOMEGUIDED {
     val(max_intron_size)
 
     output:
-    tuple val(meta),path("transcriptome_trinity/Trinity-GG.fasta"), emit: fasta
+    tuple val(meta),path("Trinity-GG.fasta"), emit: fasta
     path "versions.yml"           , emit: versions
 
     script:
@@ -26,7 +26,10 @@ process TRINITY_GENOMEGUIDED {
        --max_memory ${task.memory.toGiga()-1}G \
        --output transcriptome_trinity \
        $trinity_option
-   
+
+    mv transcriptome_trinity/Trinity-GG.fasta . 
+    rm -Rf transcriptome_trinity
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         trinity: \$(echo \$(Trinity --version ) | grep "Trinity version" | cut -f3 -d" " | sed "s/Trinity-//" )
