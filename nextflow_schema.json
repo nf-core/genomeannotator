@@ -359,6 +359,13 @@
                     "default": "PIPELINE_BASE/assets/pasa/alignAssembly.config",
                     "fa_icon": "fas fa-wrench",
                     "description": "Built-in config file for PASA."
+                },
+                "pasa_aligner": {
+                    "type" : "string",
+                    "default" : "minimap2",
+                    "fa_icon" : "fas fa-wrench",
+                    "description" : "Aligners to use in PASA pipeline.",
+                    "help_text" : "Alignment tool(s) to be used by PASA (minimap2,gmap,blat). Multiple options are allowed, separated by comma."
                 }
             }
         },

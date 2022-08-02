@@ -30,6 +30,8 @@ ncrna: false
 trinity: false
 # PASA gene build pipeline
 pasa: false
+# PASA alignment options (minimap2, gmap and/or blat)
+pasa_aligner: "minimap2"
 # Consensus gene building
 evm: false
 # Largest possible intron

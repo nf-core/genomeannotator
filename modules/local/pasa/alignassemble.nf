@@ -35,7 +35,7 @@ process PASA_ALIGNASSEMBLE {
     make_pasa_config.pl --infile ${pasa_config} --trunk $prefix --outfile pasa_DB.config
 
     \$PASAHOME/Launch_PASA_pipeline.pl \
-       --ALIGNERS blat,gmap \
+       --ALIGNERS ${params.pasa_aligner} \
        -c pasa_DB.config -C -R \
        -t $transcripts_clean \
        -T \
