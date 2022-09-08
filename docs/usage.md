@@ -94,7 +94,7 @@ first empty space.
 ## RNAseq samplesheet input
 
 If you want to include RNAseq raw reads, you will need to create a samplesheet with information about the input data. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row as shown in the
-example below.
+example below. Please note that single-end data is not currently supported. 
 
 ```console
 --rnaseq_samples '[path to samplesheet file]'
