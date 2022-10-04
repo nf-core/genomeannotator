@@ -4,7 +4,8 @@
     nf-core/genomeannotator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Github : https://github.com/nf-core/genomeannotator
-Website: https://nf-co.re/genomeannotator
+
+    Website: https://nf-co.re/genomeannotator
     Slack  : https://nfcore.slack.com/channels/genomeannotator
 ----------------------------------------------------------------------------------------
 */
