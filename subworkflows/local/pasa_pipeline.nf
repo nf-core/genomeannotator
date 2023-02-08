@@ -18,37 +18,37 @@ workflow PASA_PIPELINE {
 
     main:
 
-       GAAS_FASTACLEANER(
-          transcripts
-       )
-       EXONERATE_FASTACLEAN(
-          GAAS_FASTACLEANER.out.fasta
-       )
-       PASA_SEQCLEAN(
-          EXONERATE_FASTACLEAN.out.fasta
-       )
-       PASA_ALIGNASSEMBLE(
-          genome,
-          PASA_SEQCLEAN.out.fasta,
-          params.pasa_config_file,
-          params.max_intron_size
-       )
-       PASA_ASMBLSTOTRAINING(
-          PASA_ALIGNASSEMBLE.out.pasa_out
-       )
-       HELPER_PASA2TRAINING(
-           PASA_ASMBLSTOTRAINING.out.gff,
-           params.pasa_nmodels
-       )
-       PASA_GFF2PROTEINS(
-          PASA_ASMBLSTOTRAINING.out.gff.join(genome)
-       )
-  
+        GAAS_FASTACLEANER(
+            transcripts
+        )
+        EXONERATE_FASTACLEAN(
+            GAAS_FASTACLEANER.out.fasta
+        )
+        PASA_SEQCLEAN(
+            EXONERATE_FASTACLEAN.out.fasta
+        )
+        PASA_ALIGNASSEMBLE(
+            genome,
+            PASA_SEQCLEAN.out.fasta,
+            params.pasa_config_file,
+            params.max_intron_size
+        )
+        PASA_ASMBLSTOTRAINING(
+            PASA_ALIGNASSEMBLE.out.pasa_out
+        )
+        HELPER_PASA2TRAINING(
+            PASA_ASMBLSTOTRAINING.out.gff,
+            params.pasa_nmodels
+        )
+        PASA_GFF2PROTEINS(
+            PASA_ASMBLSTOTRAINING.out.gff.join(genome)
+        )
+
     emit:
-       gff = PASA_ASMBLSTOTRAINING.out.gff
-       gff_training = HELPER_PASA2TRAINING.out.gff
-       proteins = PASA_GFF2PROTEINS.out.proteins
-       versions = PASA_ALIGNASSEMBLE.out.versions
+        gff = PASA_ASMBLSTOTRAINING.out.gff
+        gff_training = HELPER_PASA2TRAINING.out.gff
+        proteins = PASA_GFF2PROTEINS.out.proteins
+        versions = PASA_ALIGNASSEMBLE.out.versions
 
 }
 

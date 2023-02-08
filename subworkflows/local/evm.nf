@@ -20,28 +20,28 @@ workflow EVM {
     main:
 
     EVIDENCEMODELER_PARTITION(
-       genome,
-       genes_gff,
-       proteins_gff,
-       transcripts_gff,
-       params.evm_weights
+        genome,
+        genes_gff,
+        proteins_gff,
+        transcripts_gff,
+        params.evm_weights
     )
     EVIDENCEMODELER_EXECUTE(
         EVIDENCEMODELER_PARTITION.out.commands.splitText(by: params.nevm, file: true)
     )
-    
+
     EVIDENCEMODELER_MERGE(
-       EVIDENCEMODELER_PARTITION.out.partitions,
-       EVIDENCEMODELER_EXECUTE.out.log.groupTuple(by: [0]),
-       genome.collect()
+        EVIDENCEMODELER_PARTITION.out.partitions,
+        EVIDENCEMODELER_EXECUTE.out.log.groupTuple(by: [0]),
+        genome.collect()
     )
     HELPER_EVM2GFF(
-       EVIDENCEMODELER_MERGE.out.partitions
+        EVIDENCEMODELER_MERGE.out.partitions
     )
     EVIDENCEMODELER_GFF2PROTEINS(
-       HELPER_EVM2GFF.out.gff.join(genome)
+        HELPER_EVM2GFF.out.gff.join(genome)
     )
-       
+
     ch_func_annot = HELPER_EVM2GFF.out.gff.join(EVIDENCEMODELER_GFF2PROTEINS.out.proteins)
 
     emit:

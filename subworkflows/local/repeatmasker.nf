@@ -21,47 +21,47 @@ workflow REPEATMASKER {
 
     // If chunks == 1, forward - else, map each chunk to the meta hash
     FASTASPLITTER.out.chunks.branch { m,f ->
-       single: f.getClass() != ArrayList
-       multi: f.getClass() == ArrayList
+        single: f.getClass() != ArrayList
+        multi: f.getClass() == ArrayList
     }.set { ch_fa_chunks }
 
     ch_fa_chunks.multi.flatMap { h,fastas ->
-       fastas.collect { [ h,file(it)] }
+        fastas.collect { [ h,file(it)] }
     }.set { ch_chunks_split }
 
-    // We can avoid importing a Dfam database if it is not needed.    
+    // We can avoid importing a Dfam database if it is not needed.
     if (params.rm_db && params.rm_species) {
-       GUNZIP(
-          create_meta_channel(rm_db)
-       )
-       REPEATMASKER_STAGELIB(
-          rm_lib,
-          rm_species,
-          GUNZIP.out.gunzip.map { m,g -> g }
-       )
+        GUNZIP(
+            create_meta_channel(rm_db)
+        )
+        REPEATMASKER_STAGELIB(
+            rm_lib,
+            rm_species,
+            GUNZIP.out.gunzip.map { m,g -> g }
+        )
     } else if (params.rm_species) {
-       REPEATMASKER_STAGELIB(
-          rm_lib,
-          params.rm_species,
-          file(params.dummy_gff)
-       )
+        REPEATMASKER_STAGELIB(
+            rm_lib,
+            params.rm_species,
+            file(params.dummy_gff)
+        )
     } else {
-       REPEATMASKER_STAGELIB(
-          rm_lib,
-          false,
-          file(params.dummy_gff)
-       )
+        REPEATMASKER_STAGELIB(
+            rm_lib,
+            false,
+            file(params.dummy_gff)
+        )
     }
 
-    REPEATMASKER_REPEATMASK( 
-       ch_fa_chunks.single.map { m,f -> [m,file(f)]}.mix(ch_chunks_split),
-       REPEATMASKER_STAGELIB.out.library.collect().map{it[0].toString()},
-       rm_lib.collect(),
-       rm_species
+    REPEATMASKER_REPEATMASK(
+        ch_fa_chunks.single.map { m,f -> [m,file(f)]}.mix(ch_chunks_split),
+        REPEATMASKER_STAGELIB.out.library.collect().map{it[0].toString()},
+        rm_lib.collect(),
+        rm_species
     )
-    
+
     REPEATMASKER_CAT_FASTA(REPEATMASKER_REPEATMASK.out.masked.groupTuple())
-    
+
     emit:
     fasta = REPEATMASKER_CAT_FASTA.out.fasta
     versions = REPEATMASKER_STAGELIB.out.versions.mix(REPEATMASKER_REPEATMASK.out.versions,FASTASPLITTER.out.versions,REPEATMASKER_CAT_FASTA.out.versions)

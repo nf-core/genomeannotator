@@ -1,7 +1,7 @@
 process REPEATMASKER_REPEATMASK {
     tag "$meta.id | $fasta"
     label 'process_high'
-    
+
     conda (params.enable_conda ? "bioconda::repeatmasker=4.1.2.p1" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/repeatmasker:4.1.2.p1--pl5321hdfd78af_1':
@@ -30,9 +30,9 @@ process REPEATMASKER_REPEATMASK {
     rm_out = base_name + ".out"
     def options = ""
     if (rm_species) {
-       options = "-species $rm_species"
+        options = "-species $rm_species"
     } else {
-       options = "-lib $rm_lib"
+        options = "-lib $rm_lib"
     }
     """
     RepeatMasker $options -gff -xsmall -q -nolow -pa ${task.cpus} $fasta

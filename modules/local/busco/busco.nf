@@ -24,7 +24,7 @@ process BUSCO_BUSCO {
     busco_summary = "short_summary_" + proteins.getBaseName() + ".txt"
     def options = ""
     if (!lineage_path.contains("/") ) {
-       options = "--download_path $db"
+        options = "--download_path $db"
     }
     """
 

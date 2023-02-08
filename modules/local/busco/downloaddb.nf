@@ -20,9 +20,8 @@ process BUSCO_DOWNLOADDB {
     script:
     def args = task.ext.args ?: ''
     lineage_folder = "busco_downloads/lineages/${busco_tax}"
- 
-    """
 
+    """
     busco --download $busco_tax
 
     cat <<-END_VERSIONS > versions.yml

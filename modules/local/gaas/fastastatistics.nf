@@ -1,7 +1,7 @@
 process GAAS_FASTASTATISTICS {
     tag "$meta.id"
     label 'process_low'
-    
+
     conda (params.enable_conda ? "bioconda::gaas=1.2.0" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/gaas:1.2.0--pl526r35_0':
@@ -16,9 +16,9 @@ process GAAS_FASTASTATISTICS {
 
     script:
     def args = task.ext.args ?: ''
-    
+
     """
-       gaas_fasta_statistics.pl -f $fasta -o stats
+    gaas_fasta_statistics.pl -f $fasta -o stats
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

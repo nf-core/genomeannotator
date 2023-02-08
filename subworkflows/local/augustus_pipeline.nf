@@ -19,36 +19,36 @@ workflow AUGUSTUS_PIPELINE {
     main:
 
     FASTASPLITTER(
-       genome,
-       params.npart_size
-    )           
+        genome,
+        params.npart_size
+    )
 
-    // Splitter either outputs one file, or a list of files. 
+    // Splitter either outputs one file, or a list of files.
     FASTASPLITTER.out.chunks.branch { m,f ->
-       single: f.getClass() != ArrayList
-       multi: f.getClass() == ArrayList
+        single: f.getClass() != ArrayList
+        multi: f.getClass() == ArrayList
     }.set { ch_fa_chunks }
 
     ch_fa_chunks.multi.flatMap { h,fastas ->
-       fastas.collect { [ h,file(it)] }
+        fastas.collect { [ h,file(it)] }
     }.set { ch_chunks_split }
 
     AUGUSTUS_AUGUSTUSBATCH(
-       ch_chunks_split.mix(ch_fa_chunks.single),
-       hints.collect(),
-       aug_config_folder.collect().map{ it[0].toString() },
-       aug_extrinsic_cfg.collect(),
-       params.aug_chunk_length,
-       params.aug_species
+        ch_chunks_split.mix(ch_fa_chunks.single),
+        hints.collect(),
+        aug_config_folder.collect().map{ it[0].toString() },
+        aug_extrinsic_cfg.collect(),
+        params.aug_chunk_length,
+        params.aug_species
     )
     AUGUSTUS_FIXJOINGENES(
-       AUGUSTUS_AUGUSTUSBATCH.out.gff
+        AUGUSTUS_AUGUSTUSBATCH.out.gff
     )
 
     AUGUSTUS_FIXJOINGENES.out.gff
     .multiMap { m,gff ->
-       metadata: [m.id, m]
-       gffs: [m.id,gff ]
+        metadata: [m.id, m]
+        gffs: [m.id,gff ]
     }.set { ch_gffs }
 
     ch_gffs.gffs.collectFile { mkey, file -> [ "${mkey}.augustus.gff", file ] }
@@ -56,16 +56,16 @@ workflow AUGUSTUS_PIPELINE {
     .set { ch_merged_gffs }
 
     ch_gffs.metadata.join(
-       ch_merged_gffs
+        ch_merged_gffs
     )
     .map { k,m,f -> tuple(m,f) }
     .set { ch_genome_gff }
 
     AUGUSTUS_CREATEGFFIDS(
-       ch_genome_gff
-    )    
+        ch_genome_gff
+    )
     AUGUSTUS_GFF2PROTEINS(
-       AUGUSTUS_CREATEGFFIDS.out.gff.join(genome)
+        AUGUSTUS_CREATEGFFIDS.out.gff.join(genome)
     )
 
     ch_func_annot = AUGUSTUS_GFF2PROTEINS.out.proteins.join(AUGUSTUS_CREATEGFFIDS.out.gff)

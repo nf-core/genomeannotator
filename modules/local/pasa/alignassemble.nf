@@ -1,7 +1,7 @@
 process PASA_ALIGNASSEMBLE {
     tag "$meta.id"
     label 'process_extralong'
-    
+
     if (params.enable_conda) {
         exit 1, "Conda environments cannot be used when using this version of PASA. Please use docker or singularity containers."
     }
@@ -35,15 +35,15 @@ process PASA_ALIGNASSEMBLE {
     make_pasa_config.pl --infile ${pasa_config} --trunk $prefix --outfile pasa_DB.config
 
     \$PASAHOME/Launch_PASA_pipeline.pl \
-       --ALIGNERS ${params.pasa_aligner} \
-       -c pasa_DB.config -C -R \
-       -t $transcripts_clean \
-       -T \
-       -u $transcripts \
-       -I $max_intron_size \
-       --transcribed_is_aligned_orient \
-       -g $genome \
-       --CPU ${task.cpus} \
+    --ALIGNERS ${params.pasa_aligner} \
+    -c pasa_DB.config -C -R \
+    -t $transcripts_clean \
+    -T \
+    -u $transcripts \
+    -I $max_intron_size \
+    --transcribed_is_aligned_orient \
+    -g $genome \
+    --CPU ${task.cpus} \
 
     cp $pasa_assemblies_fasta $pasa_fa_clean
     cp $pasa_assemblies_gff $pasa_gff_clean

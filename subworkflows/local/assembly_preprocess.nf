@@ -11,10 +11,10 @@ workflow ASSEMBLY_PREPROCESS {
     genome // file: /path/to/samplesheet.csv
 
     main:
-       	
+
     GAAS_ASSEMBLYFILTERBYSIZE(
-       create_genome_channel(genome),
-       params.min_contig_size
+        create_genome_channel(genome),
+        params.min_contig_size
     )
     GAAS_FASTACLEANER(GAAS_ASSEMBLYFILTERBYSIZE.out.fasta)
     GAAS_FASTASTATISTICS(GAAS_FASTACLEANER.out.fasta)

@@ -1,7 +1,7 @@
 process FASTASPLITTER {
     tag "$meta.id - $fasta"
     label 'process_low'
-    
+
     conda (params.enable_conda ? "bioconda::multiqc:1.12" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/multiqc:1.12--pyhdfd78af_0':
@@ -19,7 +19,7 @@ process FASTASPLITTER {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-       fasta-splitter.pl -part-sequence-size $fsize $fasta
+    fasta-splitter.pl -part-sequence-size $fsize $fasta
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -6,48 +6,48 @@ include { GUNZIP as GUNZIP_RFAM_CM; GUNZIP as GUNZIP_RFAM_FAMILY } from '../../m
 
 workflow NCRNA {
 
-   take:
-   genome
-   rfam_cm_gz
-   rfam_family_gz
+    take:
+    genome
+    rfam_cm_gz
+    rfam_family_gz
 
-   main:
-   FASTASPLITTER(
-      genome,
-      params.npart_size
-   )
+    main:
+    FASTASPLITTER(
+        genome,
+        params.npart_size
+    )
 
    // Splitter either outputs one file or a list of files
-   FASTASPLITTER.out.chunks.branch { m,f ->
-       single: f.getClass() != ArrayList
-       multi: f.getClass() == ArrayList
+    FASTASPLITTER.out.chunks.branch { m,f ->
+        single: f.getClass() != ArrayList
+        multi: f.getClass() == ArrayList
     }.set { ch_fa_chunks }
 
     ch_fa_chunks.multi.flatMap { h,fastas ->
-       fastas.collect { [ h,file(it)] }
+        fastas.collect { [ h,file(it)] }
     }.set { ch_chunks_split }
 
-   GUNZIP_RFAM_CM(
-      create_file_channel(rfam_cm_gz)
-   )
-   
-   GUNZIP_RFAM_FAMILY(
-      create_file_channel(rfam_family_gz)
-   )
+    GUNZIP_RFAM_CM(
+        create_file_channel(rfam_cm_gz)
+    )
 
-   INFERNAL_PRESS(
-      GUNZIP_RFAM_CM.out.gunzip.map {m,f -> f}
-   )
-  
-   INFERNAL_SEARCH(
-      ch_chunks_split.mix(ch_fa_chunks.single),
-      INFERNAL_PRESS.out.cm.collect()
-   )
+    GUNZIP_RFAM_FAMILY(
+        create_file_channel(rfam_family_gz)
+    )
+
+    INFERNAL_PRESS(
+        GUNZIP_RFAM_CM.out.gunzip.map {m,f -> f}
+    )
+
+    INFERNAL_SEARCH(
+        ch_chunks_split.mix(ch_fa_chunks.single),
+        INFERNAL_PRESS.out.cm.collect()
+    )
 
     INFERNAL_SEARCH.out.tbl
     .multiMap { m,t ->
-       metadata: [m.id, m]
-       tbl: [m.id,t ]
+        metadata: [m.id, m]
+        tbl: [m.id,t ]
     }.set { ch_rfam_tbls }
 
     ch_rfam_tbls.tbl.collectFile { mkey, file -> [ "${mkey}.rfam.tbl", file ] }
@@ -55,18 +55,18 @@ workflow NCRNA {
     .set { ch_merged_tbls }
 
     ch_rfam_tbls.metadata.join(
-       ch_merged_tbls
+        ch_merged_tbls
     )
     .map { k,m,f -> tuple(m,f) }
     .set { ch_rfam_gff }
-   
-   HELPER_RFAMTOGFF(
-      ch_rfam_gff,
-      GUNZIP_RFAM_FAMILY.out.gunzip.map{m,f -> f}
-   )
 
-   emit:
-   gff = HELPER_RFAMTOGFF.out.gff
+    HELPER_RFAMTOGFF(
+        ch_rfam_gff,
+        GUNZIP_RFAM_FAMILY.out.gunzip.map{m,f -> f}
+    )
+
+    emit:
+    gff = HELPER_RFAMTOGFF.out.gff
 
 }
 

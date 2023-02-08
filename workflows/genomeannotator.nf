@@ -34,7 +34,7 @@ if (params.aug_config_dir) { ch_aug_config_folder = file(params.aug_config_dir, 
 ch_multiqc_config        = file("$projectDir/assets/multiqc_config.yaml", checkIfExists: true)
 ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
 ch_aug_extrinsic_cfg = params.aug_extrinsic_cfg ? Channel.from( file(params.aug_extrinsic_cfg, checkIfExists: true) ) : Channel.from( file("${workflow.projectDir}/assets/augustus/augustus_default.cfg"))
-ch_evm_weights = Channel.from(file(params.evm_weights, checkIfExists: true)) 
+ch_evm_weights = Channel.from(file(params.evm_weights, checkIfExists: true))
 ch_rfam_cm = file("${workflow.projectDir}/assets/rfam/14.2/Rfam.cm.gz", checkIfExists: true)
 ch_rfam_family = file("${workflow.projectDir}/assets/rfam/14.2/family.txt.gz", checkIfExists: true)
 
@@ -111,20 +111,20 @@ workflow GENOMEANNOTATOR {
     // SUBWORKFLOW: Turn transcript inputs to channel
     //
     if (params.transcripts) {
-       TRANSCRIPT_PREPROCESS(
-          ch_t
-       )
-       ch_transcripts = ch_transcripts.mix(TRANSCRIPT_PREPROCESS.out.fasta)
+        TRANSCRIPT_PREPROCESS(
+            ch_t
+        )
+        ch_transcripts = ch_transcripts.mix(TRANSCRIPT_PREPROCESS.out.fasta)
     }
 
     //
-    // MODULE: Find the default Augustus config dir if none is provided. 
+    // MODULE: Find the default Augustus config dir if none is provided.
     //
     if (!params.aug_config_dir) {
-       AUGUSTUS_FINDCONFIG(ch_empty_gff)
-       ch_aug_config_folder = AUGUSTUS_FINDCONFIG.out.config
+        AUGUSTUS_FINDCONFIG(ch_empty_gff)
+        ch_aug_config_folder = AUGUSTUS_FINDCONFIG.out.config
     } else {
-       ch_aug_config_folder = Channel.fromPath(file(params.aug_config_dir))
+        ch_aug_config_folder = Channel.fromPath(file(params.aug_config_dir))
     }
     //
     // MODULE: Stage Augustus config dir to be editable
@@ -140,131 +140,131 @@ workflow GENOMEANNOTATOR {
     )
     ch_versions = ch_versions.mix(ASSEMBLY_PREPROCESS.out.versions)
 
-    // 
+    //
     // SUBWORKFLOW: Search for ncRNAs
     //
     if (params.ncrna) {
-       NCRNA(
-          ASSEMBLY_PREPROCESS.out.fasta,
-          ch_rfam_cm,
-          ch_rfam_family
-       )
+        NCRNA(
+            ASSEMBLY_PREPROCESS.out.fasta,
+            ch_rfam_cm,
+            ch_rfam_family
+        )
     }
 
     //
     // SUBWORKFLOW: Align genomes and map annotations
     //
     if (params.references) {
-       GENOME_ALIGN(
-          ASSEMBLY_PREPROCESS.out.fasta,
-          ch_ref_genomes
-       )
-       ch_versions = ch_versions.mix(GENOME_ALIGN.out.versions)
-       ch_hints = ch_hints.mix(GENOME_ALIGN.out.hints)
-       ch_genes_gff = ch_genes_gff.mix(GENOME_ALIGN.out.gff)
-    }          
+        GENOME_ALIGN(
+            ASSEMBLY_PREPROCESS.out.fasta,
+            ch_ref_genomes
+        )
+        ch_versions = ch_versions.mix(GENOME_ALIGN.out.versions)
+        ch_hints = ch_hints.mix(GENOME_ALIGN.out.hints)
+        ch_genes_gff = ch_genes_gff.mix(GENOME_ALIGN.out.gff)
+    }
 
-    //  
+    //
     // SUBWORKFLOW: Repeat modelling if no repeats are provided
     //
     if (!params.rm_lib && !params.rm_species) {
-       REPEATMODELER(
-          ASSEMBLY_PREPROCESS.out.fasta
-       )
-       ch_repeats = REPEATMODELER.out.fasta.map {m,fasta -> fasta}
+        REPEATMODELER(
+            ASSEMBLY_PREPROCESS.out.fasta
+        )
+        ch_repeats = REPEATMODELER.out.fasta.map {m,fasta -> fasta}
     }
 
     //
     // MODULE: Repeatmask the genome; if a repeat species is provided, use that - else the repeats in FASTA format
     if (params.rm_species) {
-       REPEATMASKER(
-          ASSEMBLY_PREPROCESS.out.fasta,
-          ch_repeats,
-          params.rm_species,
-          ch_rm_db
-       )
-       ch_versions = ch_versions.mix(REPEATMASKER.out.versions)
-       ch_genome_rm = REPEATMASKER.out.fasta
+        REPEATMASKER(
+            ASSEMBLY_PREPROCESS.out.fasta,
+            ch_repeats,
+            params.rm_species,
+            ch_rm_db
+        )
+        ch_versions = ch_versions.mix(REPEATMASKER.out.versions)
+        ch_genome_rm = REPEATMASKER.out.fasta
     } else {
-       REPEATMASKER(
-          ASSEMBLY_PREPROCESS.out.fasta,
-          ch_repeats,
-          false,
-          ch_rm_db
-       )
-       ch_versions = ch_versions.mix(REPEATMASKER.out.versions)
-       ch_genome_rm = REPEATMASKER.out.fasta
+        REPEATMASKER(
+            ASSEMBLY_PREPROCESS.out.fasta,
+            ch_repeats,
+            false,
+            ch_rm_db
+        )
+        ch_versions = ch_versions.mix(REPEATMASKER.out.versions)
+        ch_genome_rm = REPEATMASKER.out.fasta
     }
 
     //
     // SUBWORKFLOW: Align proteins from related organisms with SPALN
     if (params.proteins) {
-       SPALN_ALIGN_PROTEIN(
-          ASSEMBLY_PREPROCESS.out.fasta,
-          ch_proteins,
-          params.spaln_protein_id
-       )
-       ch_versions = ch_versions.mix(SPALN_ALIGN_PROTEIN.out.versions)
-       ch_hints = ch_hints.mix(SPALN_ALIGN_PROTEIN.out.hints)
-       ch_proteins_gff = ch_proteins_gff.mix(SPALN_ALIGN_PROTEIN.out.evm)
-    } 
+        SPALN_ALIGN_PROTEIN(
+            ASSEMBLY_PREPROCESS.out.fasta,
+            ch_proteins,
+            params.spaln_protein_id
+        )
+        ch_versions = ch_versions.mix(SPALN_ALIGN_PROTEIN.out.versions)
+        ch_hints = ch_hints.mix(SPALN_ALIGN_PROTEIN.out.hints)
+        ch_proteins_gff = ch_proteins_gff.mix(SPALN_ALIGN_PROTEIN.out.evm)
+    }
 
-    // 
-    // SUBWORKFLOW: Align species-specific proteins 
+    //
+    // SUBWORKFLOW: Align species-specific proteins
     if (params.proteins_targeted) {
-       SPALN_ALIGN_MODELS(
-          ASSEMBLY_PREPROCESS.out.fasta,
-          ch_proteins_targeted,
-          params.spaln_protein_id_targeted
-       )
-       ch_versions = ch_versions.mix(SPALN_ALIGN_MODELS.out.versions)
-       ch_hints = ch_hints.mix(SPALN_ALIGN_MODELS.out.hints)
-       ch_genes_gff = ch_genes_gff.mix(SPALN_ALIGN_MODELS.out.gff)
-       ch_training_genes = SPALN_ALIGN_MODELS.out.gff_training
+        SPALN_ALIGN_MODELS(
+            ASSEMBLY_PREPROCESS.out.fasta,
+            ch_proteins_targeted,
+            params.spaln_protein_id_targeted
+        )
+        ch_versions = ch_versions.mix(SPALN_ALIGN_MODELS.out.versions)
+        ch_hints = ch_hints.mix(SPALN_ALIGN_MODELS.out.hints)
+        ch_genes_gff = ch_genes_gff.mix(SPALN_ALIGN_MODELS.out.gff)
+        ch_training_genes = SPALN_ALIGN_MODELS.out.gff_training
     }
 
     //
     // SUBWORKFLOW: Align RNAseq reads
     //
     if (params.rnaseq_samples) {
-       RNASEQ_ALIGN(
-          ASSEMBLY_PREPROCESS.out.fasta.collect(),
-          ch_samplesheet
-       )
-       // 
+        RNASEQ_ALIGN(
+            ASSEMBLY_PREPROCESS.out.fasta.collect(),
+            ch_samplesheet
+        )
+       //
        // MODULE: Merge all BAM files
        //
-       RNASEQ_ALIGN.out.bam.map{ meta, bam ->
+        RNASEQ_ALIGN.out.bam.map{ meta, bam ->
         new_meta = [:]
         new_meta.id = meta.ref
         tuple(new_meta,bam)
-       }.groupTuple(by:[0])
-       .set{bam_mapped}
+        }.groupTuple(by:[0])
+        .set{bam_mapped}
 
        //
        // MODULE: Merge BAM files
        //
-       SAMTOOLS_MERGE(
-          bam_mapped
-       )
-       AUGUSTUS_BAM2HINTS(
-          SAMTOOLS_MERGE.out.bam,
-          params.pri_rnaseq
-       )
-       ch_hints = ch_hints.mix(AUGUSTUS_BAM2HINTS.out.gff)
-       ch_versions = ch_versions.mix(RNASEQ_ALIGN.out.versions.first(),AUGUSTUS_BAM2HINTS.out.versions,SAMTOOLS_MERGE.out.versions)
+        SAMTOOLS_MERGE(
+            bam_mapped
+        )
+        AUGUSTUS_BAM2HINTS(
+            SAMTOOLS_MERGE.out.bam,
+            params.pri_rnaseq
+        )
+        ch_hints = ch_hints.mix(AUGUSTUS_BAM2HINTS.out.gff)
+        ch_versions = ch_versions.mix(RNASEQ_ALIGN.out.versions.first(),AUGUSTUS_BAM2HINTS.out.versions,SAMTOOLS_MERGE.out.versions)
 
        //
        // SUBWORKFLOW: Assemble transcripts using Trinity and align to genome
        //
-       if (params.trinity) {
-          TRINITY_GENOMEGUIDED(
-             SAMTOOLS_MERGE.out.bam,
-             params.max_intron_size
-          )
-          ch_transcripts = ch_transcripts.mix(TRINITY_GENOMEGUIDED.out.fasta)
-          ch_versions = ch_versions.mix(TRINITY_GENOMEGUIDED.out.versions)
-       }
+        if (params.trinity) {
+            TRINITY_GENOMEGUIDED(
+                SAMTOOLS_MERGE.out.bam,
+                params.max_intron_size
+            )
+            ch_transcripts = ch_transcripts.mix(TRINITY_GENOMEGUIDED.out.fasta)
+            ch_versions = ch_versions.mix(TRINITY_GENOMEGUIDED.out.versions)
+        }
     }
 
     //
@@ -272,13 +272,13 @@ workflow GENOMEANNOTATOR {
     //
 
     if (params.transcripts || params.trinity) {
-       MINIMAP_ALIGN_TRANSCRIPTS(
-          ASSEMBLY_PREPROCESS.out.fasta.collect(),
-          ch_transcripts
-       )
-       ch_versions = ch_versions.mix(MINIMAP_ALIGN_TRANSCRIPTS.out.versions)
-       ch_transcripts_gff = ch_transcripts_gff.mix(MINIMAP_ALIGN_TRANSCRIPTS.out.gff)
-       ch_hints = ch_hints.mix(MINIMAP_ALIGN_TRANSCRIPTS.out.hints)
+        MINIMAP_ALIGN_TRANSCRIPTS(
+            ASSEMBLY_PREPROCESS.out.fasta.collect(),
+            ch_transcripts
+        )
+        ch_versions = ch_versions.mix(MINIMAP_ALIGN_TRANSCRIPTS.out.versions)
+        ch_transcripts_gff = ch_transcripts_gff.mix(MINIMAP_ALIGN_TRANSCRIPTS.out.gff)
+        ch_hints = ch_hints.mix(MINIMAP_ALIGN_TRANSCRIPTS.out.hints)
     }
 
     //
@@ -286,12 +286,12 @@ workflow GENOMEANNOTATOR {
     //
     if (params.pasa) {
         PASA_PIPELINE(
-           ASSEMBLY_PREPROCESS.out.fasta,
-           ch_transcripts.map { m,t -> t }.collectFile(name: "transcripts.merged.fa").map { it ->
-              def mmeta = [:]
-              mmeta.id = "merged"
-              tuple(mmeta,it)
-           }
+            ASSEMBLY_PREPROCESS.out.fasta,
+            ch_transcripts.map { m,t -> t }.collectFile(name: "transcripts.merged.fa").map { it ->
+                def mmeta = [:]
+                mmeta.id = "merged"
+                tuple(mmeta,it)
+            }
         )
         ch_versions = ch_versions.mix(PASA_PIPELINE.out.versions)
         ch_genes_gff = ch_genes_gff.mix(PASA_PIPELINE.out.gff)
@@ -304,28 +304,28 @@ workflow GENOMEANNOTATOR {
     //
     if (params.aug_training) {
 
-       if (params.proteins_targeted) {
-          AUGUSTUS_TRAINING(
-             ch_training_genes.collect(),
-             REPEATMASKER.out.fasta,
-             ch_aug_config_folder.collect().map {it[0].toString() },
-             ch_aug_config_folder,
-             params.aug_species
-          )
-          ch_aug_config_final = AUGUSTUS_TRAINING.out.aug_config_dir
-       } else if (params.pasa) {
-          AUGUSTUS_TRAINING(
-             ch_training_genes.collect(),
-             REPEATMASKER.out.fasta.collect(),
-             ch_aug_config_folder.collect().map {it[0].toString() },
-             ch_aug_config_folder,
-             params.aug_species
-          )
-          ch_aug_config_final = AUGUSTUS_TRAINING.out.aug_config_dir
-       }
+        if (params.proteins_targeted) {
+            AUGUSTUS_TRAINING(
+                ch_training_genes.collect(),
+                REPEATMASKER.out.fasta,
+                ch_aug_config_folder.collect().map {it[0].toString() },
+                ch_aug_config_folder,
+                params.aug_species
+            )
+            ch_aug_config_final = AUGUSTUS_TRAINING.out.aug_config_dir
+        } else if (params.pasa) {
+            AUGUSTUS_TRAINING(
+                ch_training_genes.collect(),
+                REPEATMASKER.out.fasta.collect(),
+                ch_aug_config_folder.collect().map {it[0].toString() },
+                ch_aug_config_folder,
+                params.aug_species
+            )
+            ch_aug_config_final = AUGUSTUS_TRAINING.out.aug_config_dir
+        }
 
     } else {
-       ch_aug_config_final = ch_aug_config_folder
+        ch_aug_config_final = ch_aug_config_folder
     }
 
     //
@@ -334,10 +334,10 @@ workflow GENOMEANNOTATOR {
     all_hints = ch_hints.unique().collectFile(name: 'hints.gff')
 
     AUGUSTUS_PIPELINE(
-       REPEATMASKER.out.fasta,
-       all_hints,
-       ch_aug_config_final,
-       ch_aug_extrinsic_cfg,
+        REPEATMASKER.out.fasta,
+        all_hints,
+        ch_aug_config_final,
+        ch_aug_extrinsic_cfg,
     )
     ch_versions = ch_versions.mix(AUGUSTUS_PIPELINE.out.versions)
     ch_genes_gff = ch_genes_gff.mix(AUGUSTUS_PIPELINE.out.gff)
@@ -347,37 +347,37 @@ workflow GENOMEANNOTATOR {
     // SUBWORKFLOW: Consensus gene building with EVM
     //
     if (params.evm) {
-       EVM(
-          ch_genome_rm,
-          ch_genes_gff.map{m,g -> g}.collectFile(name: 'genes.gff3'),
-          ch_proteins_gff.map{m,p -> p}.mix(ch_empty_gff).collectFile(name: 'proteins.gff3'),
-          ch_transcripts_gff.map{m,t ->t}.mix(ch_empty_gff).collectFile(name: 'transcripts.gff3'),
-          ch_evm_weights
-       )
-       ch_proteins_fa = ch_proteins_fa.mix(EVM.out.proteins)
-       ch_func_annot = ch_func_annot.mix(EVM.out.func_annot)
+        EVM(
+            ch_genome_rm,
+            ch_genes_gff.map{m,g -> g}.collectFile(name: 'genes.gff3'),
+            ch_proteins_gff.map{m,p -> p}.mix(ch_empty_gff).collectFile(name: 'proteins.gff3'),
+            ch_transcripts_gff.map{m,t ->t}.mix(ch_empty_gff).collectFile(name: 'transcripts.gff3'),
+            ch_evm_weights
+        )
+        ch_proteins_fa = ch_proteins_fa.mix(EVM.out.proteins)
+        ch_func_annot = ch_func_annot.mix(EVM.out.func_annot)
     }
 
     //
     // SUBWORKFLOW: Check proteome completeness with BUSCO
     //
     if (params.busco_lineage) {
-       BUSCO_QC(
-          ch_proteins_fa,
-          params.busco_lineage,
-          params.busco_db_path
-       )
-       ch_busco_qc = BUSCO_QC.out.busco_summary
-    } 
+        BUSCO_QC(
+            ch_proteins_fa,
+            params.busco_lineage,
+            params.busco_db_path
+        )
+        ch_busco_qc = BUSCO_QC.out.busco_summary
+    }
 
     //
     // SUBWORKDLOW: Functional annotation using Eggnog_mapper
     //
     if (params.eggnog_mapper_db || params.eggnog_taxonomy) {
 
-       FUNCTIONAL_ANNOTATION(
-          ch_func_annot
-       )
+        FUNCTIONAL_ANNOTATION(
+            ch_func_annot
+        )
 
     }
 

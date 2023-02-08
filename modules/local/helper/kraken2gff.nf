@@ -1,7 +1,7 @@
 process HELPER_KRAKEN2GFF {
     tag "$meta.id"
     label 'process_medium'
-    
+
     conda (params.enable_conda ? "bioconda::perl-bioperl=1.7.8" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/perl-bioperl:1.7.2--pl526_11':
@@ -26,7 +26,7 @@ process HELPER_KRAKEN2GFF {
     grep -v "#" kraken.gff | sort -k1,1 -k4,4n -k5,5n -t\$'\t' >sorted.gff
     sed 's/;type.*\$//' sorted.gff > $gff
     rm *.bak* kraken.gff sorted.gff
- 
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         helper: 1.0

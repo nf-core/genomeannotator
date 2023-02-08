@@ -1,7 +1,7 @@
 process EVIDENCEMODELER_PARTITION {
     //tag "$meta.id"
     label 'process_medium'
-    
+
     conda (params.enable_conda ? "bioconda::evidencemodeler=1.1.1" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/evidencemodeler:1.1.1--hdfd78af_3':
@@ -28,22 +28,22 @@ process EVIDENCEMODELER_PARTITION {
     protein_options = ""
     transcript_options = ""
     if (proteins) {
-       protein_options = "--protein_alignments $proteins"   
+        protein_options = "--protein_alignments $proteins"
     }
     if (transcripts) {
-       transcript_options = "--transcript_alignments $transcripts"
+        transcript_options = "--transcript_alignments $transcripts"
     }
     """
     /usr/local/opt/evidencemodeler-1.1.1/EvmUtils/partition_EVM_inputs.pl --genome $genome \
-       --gene_predictions $genes \
-       --segmentSize 2000000 --overlapSize 200000 --partition_listing $partitions \
-       $protein_options $transcript_options
+    --gene_predictions $genes \
+    --segmentSize 2000000 --overlapSize 200000 --partition_listing $partitions \
+    $protein_options $transcript_options
 
     /usr/local/opt/evidencemodeler-1.1.1/EvmUtils/write_EVM_commands.pl --genome $genome \
-       --weights \$PWD/${weights} \
-       --gene_predictions $genes \
-       --output_file_name evm.out \
-       --partitions $partitions > $evm_commands
+    --weights \$PWD/${weights} \
+    --gene_predictions $genes \
+    --output_file_name evm.out \
+    --partitions $partitions > $evm_commands
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

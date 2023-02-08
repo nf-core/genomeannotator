@@ -15,9 +15,9 @@ workflow RNASEQ_ALIGN {
     samplesheet // file path
 
     main:
-    
+
     STAR_INDEX(
-       genome
+        genome
     )
     SAMPLESHEET_CHECK ( samplesheet )
         .csv
@@ -26,25 +26,25 @@ workflow RNASEQ_ALIGN {
         .set { reads }
 
     FASTP(
-       reads
+        reads
     )
-    
+
     FASTP.out.reads
         .groupTuple(by: [0])
         .branch {
-           meta, fastq ->
-              single: fastq.size() == 1
-                 return [ meta, fastq.flatten() ]
-              multiple: fastq.size() > 1
-                 return [ meta, fastq.flatten() ]
-              
+            meta, fastq ->
+                single: fastq.size() == 1
+                    return [ meta, fastq.flatten() ]
+                multiple: fastq.size() > 1
+                    return [ meta, fastq.flatten() ]
+
         }
-        .set { ch_fastq }
+    .set { ch_fastq }
 
     //
     // MODULE: concatenate reads per library
     CAT_FASTQ(
-       ch_fastq.multiple
+        ch_fastq.multiple
     ).reads
     .mix( ch_fastq.single )
     .set { ch_cat_fastq }
@@ -52,23 +52,23 @@ workflow RNASEQ_ALIGN {
     //
     // MODULE: Align reads, first pass to produce junction information
     STAR_ALIGN_PASS_ONE(
-       STAR_INDEX.out.star_index.collect(),
-       ch_cat_fastq,
-       Channel.from(params.dummy_gff).collect(),
-       true
+        STAR_INDEX.out.star_index.collect(),
+        ch_cat_fastq,
+        Channel.from(params.dummy_gff).collect(),
+        true
     )
 
     junctions = STAR_ALIGN_PASS_ONE.out.junctions.collectFile(name: 'all_juncs.gtf')
-   
+
     //
     // MODULE: Align reads with junction information
     STAR_ALIGN_PASS_TWO(
-       STAR_INDEX.out.star_index.collect(),
-       FASTP.out.reads,
-       junctions.collect(),
-       false
+        STAR_INDEX.out.star_index.collect(),
+        FASTP.out.reads,
+        junctions.collect(),
+        false
     )
- 
+
     emit:
     bam = STAR_ALIGN_PASS_TWO.out.bam
     json = FASTP.out.json

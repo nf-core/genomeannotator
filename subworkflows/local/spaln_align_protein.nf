@@ -22,56 +22,56 @@ workflow SPALN_ALIGN_PROTEIN {
 
     main:
 
-       GAAS_FASTACLEANER(
-          create_fasta_channel(proteins)
-       )
-       EXONERATE_FASTACLEAN(
-          GAAS_FASTACLEANER.out.fasta
-       )
-       GAAS_FASTAFILTERBYSIZE(
-          EXONERATE_FASTACLEAN.out.fasta,
-          params.min_prot_length
-       )
-       SPALN_MAKEINDEX(genome)  
+        GAAS_FASTACLEANER(
+            create_fasta_channel(proteins)
+        )
+        EXONERATE_FASTACLEAN(
+            GAAS_FASTACLEANER.out.fasta
+        )
+        GAAS_FASTAFILTERBYSIZE(
+            EXONERATE_FASTACLEAN.out.fasta,
+            params.min_prot_length
+        )
+        SPALN_MAKEINDEX(genome)
 
-       ch_fasta_chunks = GAAS_FASTAFILTERBYSIZE.out.fasta.splitFasta(by: params.nproteins, file: true, elem: [1])       
-       SPALN_ALIGN(
-          SPALN_MAKEINDEX.out.spaln_index,
-          ch_fasta_chunks,
-          params.spaln_q,
-          params.spaln_taxon,
-          params.spaln_options
-       )
+        ch_fasta_chunks = GAAS_FASTAFILTERBYSIZE.out.fasta.splitFasta(by: params.nproteins, file: true, elem: [1])
+        SPALN_ALIGN(
+            SPALN_MAKEINDEX.out.spaln_index,
+            ch_fasta_chunks,
+            params.spaln_q,
+            params.spaln_taxon,
+            params.spaln_options
+        )
 
-       SPALN_MERGE(
-          SPALN_MAKEINDEX.out.spaln_index,
-          SPALN_ALIGN.out.align.groupTuple().map { m,files -> tuple(m,files.flatten()) },
-          protein_identity
-       )
+        SPALN_MERGE(
+            SPALN_MAKEINDEX.out.spaln_index,
+            SPALN_ALIGN.out.align.groupTuple().map { m,files -> tuple(m,files.flatten()) },
+            protein_identity
+        )
 
-       AUGUSTUS_ALIGNTOHINTS(
-          SPALN_MERGE.out.gff,
-         "spaln",
-          params.max_intron_size,
-          params.pri_prot
-       )
+        AUGUSTUS_ALIGNTOHINTS(
+            SPALN_MERGE.out.gff,
+            "spaln",
+            params.max_intron_size,
+            params.pri_prot
+        )
 
-       HELPER_SPALNTOGMOD(
-          SPALN_MERGE.out.gff
-       )
-       HELPER_SPALNTOEVM(
-          SPALN_MERGE.out.gff
-       )
-       HELPER_SPALNTOTRAINING(
-          SPALN_MERGE.out.gff
-       )
+        HELPER_SPALNTOGMOD(
+            SPALN_MERGE.out.gff
+        )
+        HELPER_SPALNTOEVM(
+            SPALN_MERGE.out.gff
+        )
+        HELPER_SPALNTOTRAINING(
+            SPALN_MERGE.out.gff
+        )
     emit:
-       hints = AUGUSTUS_ALIGNTOHINTS.out.gff
-       gff = SPALN_MERGE.out.gff
-       gff_training = HELPER_SPALNTOTRAINING.out.gff
-       evm = HELPER_SPALNTOEVM.out.gff
-       gff_training = HELPER_SPALNTOTRAINING.out.gff
-       versions = GAAS_FASTACLEANER.out.versions
+        hints = AUGUSTUS_ALIGNTOHINTS.out.gff
+        gff = SPALN_MERGE.out.gff
+        gff_training = HELPER_SPALNTOTRAINING.out.gff
+        evm = HELPER_SPALNTOEVM.out.gff
+        gff_training = HELPER_SPALNTOTRAINING.out.gff
+        versions = GAAS_FASTACLEANER.out.versions
 
 }
 

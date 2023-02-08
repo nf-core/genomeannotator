@@ -9,9 +9,9 @@ workflow FASTA_PREPROCESS {
     fasta // file: /path/to/samplesheet.csv
 
     main:
-       	
+
     GAAS_FASTACLEANER(
-       create_fasta_channel(fasta)
+        create_fasta_channel(fasta)
     )
 
     emit:

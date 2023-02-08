@@ -1,7 +1,7 @@
 process PASA_ASMBLSTOTRAINING {
     tag "$meta.id"
     label 'process_medium'
-    
+
     if (params.enable_conda) {
         exit 1, "Conda environments cannot be used when using this version of PASA. Please use docker or singularity containers."
     }
@@ -20,8 +20,8 @@ process PASA_ASMBLSTOTRAINING {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     \$PASAHOME/scripts/pasa_asmbls_to_training_set.dbi \
-       --pasa_transcripts_fasta $fasta \
-       --pasa_transcripts_gff3 $gff 
+    --pasa_transcripts_fasta $fasta \
+    --pasa_transcripts_gff3 $gff
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

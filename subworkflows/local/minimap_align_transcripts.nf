@@ -18,48 +18,48 @@ workflow MINIMAP_ALIGN_TRANSCRIPTS {
 
     main:
 
-       GAAS_FASTACLEANER(
-          transcripts
-       )
-       EXONERATE_FASTACLEAN(
-          GAAS_FASTACLEANER.out.fasta
-       )
-       MINIMAP2_ALIGN(
-          EXONERATE_FASTACLEAN.out.fasta.splitFasta(by: 100000, file: true),
-          genome.collect(),
-          params.max_intron_size
-       )
-   
-       MINIMAP2_ALIGN.out.bam
-          .groupTuple()
-          .branch {
-             meta,bam ->
-                single: bam.size() == 1
-                   return [meta, bam ]
-                multiple: bam.size() > 1
-                   return [meta, bam ]
-          }
-       .set { ch_bams }
-                    
-       SAMTOOLS_MERGE(
-         ch_bams.multiple
-       )
-       MINIMAP_BAMTOGFF(
-          SAMTOOLS_MERGE.out.bam.mix(ch_bams.single)
-       )
-       HELPER_MINIMAPTOHINTS(
-          MINIMAP_BAMTOGFF.out.gff,
-          params.t_est,
-          params.pri_est
-       )
-       HELPER_MATCH2GMOD(
-          MINIMAP_BAMTOGFF.out.gff
-       )
-  
+        GAAS_FASTACLEANER(
+            transcripts
+        )
+        EXONERATE_FASTACLEAN(
+            GAAS_FASTACLEANER.out.fasta
+        )
+        MINIMAP2_ALIGN(
+            EXONERATE_FASTACLEAN.out.fasta.splitFasta(by: 100000, file: true),
+            genome.collect(),
+            params.max_intron_size
+        )
+
+        MINIMAP2_ALIGN.out.bam
+            .groupTuple()
+            .branch {
+                meta,bam ->
+                    single: bam.size() == 1
+                    return [meta, bam ]
+                    multiple: bam.size() > 1
+                    return [meta, bam ]
+            }
+        .set { ch_bams }
+
+        SAMTOOLS_MERGE(
+            ch_bams.multiple
+        )
+        MINIMAP_BAMTOGFF(
+            SAMTOOLS_MERGE.out.bam.mix(ch_bams.single)
+        )
+        HELPER_MINIMAPTOHINTS(
+            MINIMAP_BAMTOGFF.out.gff,
+            params.t_est,
+            params.pri_est
+        )
+        HELPER_MATCH2GMOD(
+            MINIMAP_BAMTOGFF.out.gff
+        )
+
     emit:
-       hints = HELPER_MINIMAPTOHINTS.out.gff
-       gff = MINIMAP_BAMTOGFF.out.gff
-       bam = SAMTOOLS_MERGE.out.bam
-       versions = MINIMAP2_ALIGN.out.versions
+        hints = HELPER_MINIMAPTOHINTS.out.gff
+        gff = MINIMAP_BAMTOGFF.out.gff
+        bam = SAMTOOLS_MERGE.out.bam
+        versions = MINIMAP2_ALIGN.out.versions
 
 }

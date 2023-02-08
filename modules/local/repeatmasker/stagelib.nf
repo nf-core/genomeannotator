@@ -2,7 +2,7 @@ process REPEATMASKER_STAGELIB {
 
     tag "$fasta"
     label 'process_low'
-    
+
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/repeatmasker:4.1.2.p1--pl5321hdfd78af_1':
         'quay.io/biocontainers/repeatmasker:4.1.2.p1--pl5321hdfd78af_1' }"
@@ -22,18 +22,18 @@ process REPEATMASKER_STAGELIB {
     def options = ""
     def copy_option = ""
     if (species) {
-       options = "-species $species"
-       copy_option = "cp $db Libraries/Dfam.h5"
+        options = "-species $species"
+        copy_option = "cp $db Libraries/Dfam.h5"
     } else {
-       options = "-lib $fasta"
+        options = "-lib $fasta"
     }
     """
-       cp ${baseDir}/assets/repeatmasker/my_genome.fa .
-       cp ${baseDir}/assets/repeatmasker/repeats.fa .
-       cp -R /usr/local/share/RepeatMasker/Libraries .
-       $copy_option
-       export LIBDIR=\$PWD/Libraries
-       RepeatMasker $options my_genome.fa > out
+    cp ${baseDir}/assets/repeatmasker/my_genome.fa .
+    cp ${baseDir}/assets/repeatmasker/repeats.fa .
+    cp -R /usr/local/share/RepeatMasker/Libraries .
+    $copy_option
+    export LIBDIR=\$PWD/Libraries
+    RepeatMasker $options my_genome.fa > out
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

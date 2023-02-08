@@ -1,7 +1,7 @@
 process GFFREAD {
     tag "$meta.id"
     label 'process_low'
-    
+
     conda (params.enable_conda ? "bioconda::gffread=0.12.7" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/gffread:0.12.7--h9a82719_0':
@@ -9,7 +9,7 @@ process GFFREAD {
 
     input:
     tuple val(meta), path(gff),path(fasta)
-   
+
     output:
     tuple val(meta), path(proteins), emit: proteins
     tuple val(meta), path(cdna), emit: cdna

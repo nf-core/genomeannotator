@@ -1,7 +1,7 @@
 process TRINITY_GENOMEGUIDED {
     tag "$meta.id"
     label 'process_extralong'
-    
+
     conda (params.enable_conda ? "bioconda::trinity=2.13.2" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/trinity:2.13.2--h00214ad_1':
@@ -21,13 +21,13 @@ process TRINITY_GENOMEGUIDED {
     trinity_option = ( meta.strandedness == "unstranded" ) ? "" : "--SS_lib_type RF"
     """
     Trinity --genome_guided_bam $bam \
-       --genome_guided_max_intron ${max_intron_size} \
-       --CPU ${task.cpus} \
-       --max_memory ${task.memory.toGiga()-1}G \
-       --output transcriptome_trinity \
-       $trinity_option
+    --genome_guided_max_intron ${max_intron_size} \
+    --CPU ${task.cpus} \
+    --max_memory ${task.memory.toGiga()-1}G \
+    --output transcriptome_trinity \
+    $trinity_option
 
-    mv transcriptome_trinity/Trinity-GG.fasta . 
+    mv transcriptome_trinity/Trinity-GG.fasta .
     rm -Rf transcriptome_trinity
 
     cat <<-END_VERSIONS > versions.yml

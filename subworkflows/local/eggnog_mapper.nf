@@ -7,7 +7,7 @@ workflow FUNCTIONAL_ANNOTATION {
     annotation
 
     main:
-    
+
     if (!params.eggnog_mapper_db) {
         EGGNOGMAPPER_DB(
             params.eggnog_taxonomy
@@ -18,8 +18,8 @@ workflow FUNCTIONAL_ANNOTATION {
     }
 
     EGGNOGMAPPER_EMAPPER(
-       annotation,
-       ch_eggnog_db.collect()
+        annotation,
+        ch_eggnog_db.collect()
     )
 
     emit:

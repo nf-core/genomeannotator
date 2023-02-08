@@ -19,34 +19,34 @@ workflow GENOME_ALIGN {
     main:
 
     samples
-       .splitCsv ( header:true, sep:',' )
-       .map { create_target_channel(it) }
-       .set { targets }
+        .splitCsv ( header:true, sep:',' )
+        .map { create_target_channel(it) }
+        .set { targets }
 
     //
     // MODULE: Clean the target genome
     //
     GAAS_FASTACLEANER(
-       targets.map { m,f,g ->
-          tuple(m,f)
-       }
+        targets.map { m,f,g ->
+            tuple(m,f)
+        }
     )
 
-    // 
+    //
     // MODULE: Remove small contigs from the assembly
     //
     GAAS_FASTAFILTERBYSIZE(
-       GAAS_FASTACLEANER.out.fasta,
-       params.min_contig_size
+        GAAS_FASTACLEANER.out.fasta,
+        params.min_contig_size
     )
 
     // Merge cleaned fasta with gtf again
     GAAS_FASTAFILTERBYSIZE.out.fasta
-       .join(
-          targets.map { m,f,g ->
-             tuple(m,g)
-          }
-       )
+        .join(
+            targets.map { m,f,g ->
+                tuple(m,g)
+            }
+        )
     .set { targets_clean }
 
     //
@@ -54,17 +54,17 @@ workflow GENOME_ALIGN {
     //
 
     FASTASPLITTER(
-       genome,
-       params.npart_size
+        genome,
+        params.npart_size
     )
     // map list of fasta chunks to meta<->fasta pairs
     FASTASPLITTER.out.chunks.branch { m,f ->
-       single: f.getClass() != ArrayList
-       multi: f.getClass() == ArrayList
+        single: f.getClass() != ArrayList
+        multi: f.getClass() == ArrayList
     }.set { ch_fa_chunks }
 
     ch_fa_chunks.multi.flatMap { h,fastas ->
-       fastas.collect { [ h,file(it)] }
+        fastas.collect { [ h,file(it)] }
     }.set { ch_chunks_split }
 
     genome_chunks = ch_chunks_split.mix(ch_fa_chunks.single)
@@ -72,28 +72,28 @@ workflow GENOME_ALIGN {
     // MODULE: Align two genome sequences
     //
     SATSUMA2_SATSUMASYNTENY2(
-       genome_chunks.combine(targets_clean)
+        genome_chunks.combine(targets_clean)
     )
-    
-    // Group Satsuma chains by query-target pair and add the target name to meta hash
-    SATSUMA2_SATSUMASYNTENY2.out.chain.map { m,q,t,g,c -> 
-       new_meta = m.clone()
-       new_meta.target = t.getSimpleName()
 
-       tuple(new_meta,q,t,g,c)
+    // Group Satsuma chains by query-target pair and add the target name to meta hash
+    SATSUMA2_SATSUMASYNTENY2.out.chain.map { m,q,t,g,c ->
+        new_meta = m.clone()
+        new_meta.target = t.getSimpleName()
+
+        tuple(new_meta,q,t,g,c)
     }.set { ch_satsuma_chains }
 
-    // [ meta, query_fa, reference_fa, reference_gtf, chain 
+    // [ meta, query_fa, reference_fa, reference_gtf, chain
     //
     // MODULE: Map annotations across genomes using Satsuma chain file
     KRAKEN(
-       ch_satsuma_chains
+        ch_satsuma_chains
     )
 
     // [ meta, gtf ]
     KRAKEN.out.gtf.multiMap { m,f ->
-       meta: [ "${m.id}-${m.target}",m ]
-       gtf: [ "${m.id}-${m.target}",f ]
+        meta: [ "${m.id}-${m.target}",m ]
+        gtf: [ "${m.id}-${m.target}",f ]
     }.set { ch_grouped_gtfs }
 
     ch_grouped_gtfs.gtf.collectFile { mkey,file -> [ "${mkey}.kraken.gtf",file] }
@@ -108,20 +108,20 @@ workflow GENOME_ALIGN {
     // MODULE: Convert Kraken GTF files to GFF
     //
     SATSUMA_KRAKEN2GFF(
-       ch_kraken_merged_gtf
+        ch_kraken_merged_gtf
     )
     //
     // MODULE: Convert GFF file to hints
-    // 
+    //
     SATSUMA_GTF2HINTS(
-       ch_kraken_merged_gtf,
-       params.pri_trans
+        ch_kraken_merged_gtf,
+        params.pri_trans
     )
 
     emit:
-       versions = SATSUMA2_SATSUMASYNTENY2.out.versions
-       gff = SATSUMA_KRAKEN2GFF.out.gff
-       hints = SATSUMA_GTF2HINTS.out.gff
+        versions = SATSUMA2_SATSUMASYNTENY2.out.versions
+        gff = SATSUMA_KRAKEN2GFF.out.gff
+        hints = SATSUMA_GTF2HINTS.out.gff
 }
 
 def create_target_channel(LinkedHashMap row) {
@@ -129,7 +129,7 @@ def create_target_channel(LinkedHashMap row) {
     // species,fasta,gtf
     def meta = [:]
     meta.id           = row.species
-   
+
     array = [ meta, file(row.fasta), file(row.gtf) ]
 
     return array
