@@ -6,7 +6,6 @@
                                         `._,._,'
   nf-core/genomeannotator v${version}
 ----------------------------------------------------
-
 Run Name: $runName
 
 <% if (success){

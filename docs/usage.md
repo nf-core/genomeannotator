@@ -49,7 +49,7 @@ Finally, note that nf-core/genomeannotator is not designed for the annotation of
 a rule of thumb, your BUSCO scores should be above 80% and the number of contigs not exceed "a few thousand". There is no strict limit on the size of your assembly, but we have only tested nf-core/genomeannotator with genomes up to 'human-size', i.e. 3Gb. Much larger genomes
 may cause unforseen issues. If so, please open a ticket on github and we can try to find a solution.
 
-```console
+```bash
 --assembly '[path to assembly.fasta]'
 ```
 
@@ -67,7 +67,7 @@ The pipeline requires one of several types of annotation evidences to guide the 
 
 ## Tools
 
-The pipeline supports several tool chains, depending on the available input data and user choices. 
+The pipeline supports several tool chains, depending on the available input data and user choices.
 
 | Tool chain      | Description                      | Flag         | Required inputs                                         |
 | --------------- | -------------------------------- | ------------ | ------------------------------------------------------- |
@@ -77,7 +77,7 @@ The pipeline supports several tool chains, depending on the available input data
 | Satsuma         | Genome alignments and lift-over  |              | `--references`                                          |
 | EvidenceModeler | Consensus gene building          | --evm        |                                                         |
 | Infernal        | ncRNA search                     | --ncrna      |                                                         |
-              
+
 ## Repeatmasking
 
 Repeatmasking provides important information for the ab-initio prediction of gene models - it is thus a mandatory step in nf-core/genomeannotator. Repeatmasking can be triggered in three ways. The preferred option is to provide a set of known repeats from public databases
@@ -94,15 +94,15 @@ first empty space.
 ## RNAseq samplesheet input
 
 If you want to include RNAseq raw reads, you will need to create a samplesheet with information about the input data. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row as shown in the
-example below. Please note that single-end data is not currently supported. 
+example below. Please note that single-end data is not currently supported.
 
-```console
+```bash
 --rnaseq_samples '[path to samplesheet file]'
 ```
 
 The format should be as follows:
 
-```console
+```bash
 sample,fastq_1,fastq_2,strandedness
 SAMPLE1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,forward
 SAMPLE2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,forward
@@ -124,7 +124,7 @@ may work too. Note that the annotation must be in GTF format! To pass this data 
 
 The format should be as follows:
 
-```console
+```bash
 species,fasta,gtf
 Human,/path/to/human.fasta,/path/to/human.gtf
 ```
@@ -140,8 +140,8 @@ you align to only a handful (1-3) and prefer genomes with very high contiguity (
 
 ## Functional annotation
 
-nf-core/genomeannotator can perform functional annotation of the resulting gene build(s) using [EggNOG-mapper](https://github.com/eggnogdb/eggnog-mapper) - if either `--eggnog_mapper_db` or `--eggnog_taxonomy` are set. The first option points to a local folder containing an EggnogMapper database that you 
-previously downloaded database for your taxonomic group of interest. Otherwise, you can specify `--eggnog_taxonomy TAX_ID`, where TAX_ID refers to one of the pre-compiled dataset IDs from the EggNOG-mapper [database](http://eggnog5.embl.de/#/app/downloads)). Note that your compute nodes must have access to the internet for this to work. 
+nf-core/genomeannotator can perform functional annotation of the resulting gene build(s) using [EggNOG-mapper](https://github.com/eggnogdb/eggnog-mapper) - if either `--eggnog_mapper_db` or `--eggnog_taxonomy` are set. The first option points to a local folder containing an EggnogMapper database that you
+previously downloaded database for your taxonomic group of interest. Otherwise, you can specify `--eggnog_taxonomy TAX_ID`, where TAX_ID refers to one of the pre-compiled dataset IDs from the EggNOG-mapper [database](http://eggnog5.embl.de/#/app/downloads)). Note that your compute nodes must have access to the internet for this to work.
 
 ## Evaluating results
 
@@ -159,7 +159,7 @@ WebApollo in particular is a key component to polishing your automated gene buil
 
 The typical command for running the pipeline is as follows:
 
-```console
+```bash
 nextflow run nf-core/genomeannotator --assembly my_asembly.fa --proteins proteins.fa --transcripts ESTs.fa --rnaseq_samples samplesheet.csv -profile docker
 ```
 
@@ -167,13 +167,13 @@ This will launch the pipeline with the `docker` configuration profile. See below
 
 However, considering the vast number of available parameters, we recommend you use a YAML file as input. We have included an example with the pipeline [here](https://github.com/nf-core/genomeannotator/blob/master/assets/config.yaml).
 
-```console
+```bash
 nextflow run nf-core/genomeannotator -params-file config.yml -profile docker
 ```
 
 Note that the pipeline will create the following files in your working directory:
 
-```console
+```bash
 work                # Directory containing the nextflow working files
 <OUTIDR>            # Finished results in specified location (defined with --outdir)
 .nextflow_log       # Log file from Nextflow
@@ -184,7 +184,7 @@ work                # Directory containing the nextflow working files
 
 When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
-```console
+```bash
 nextflow pull nf-core/genomeannotator
 ```
 
@@ -192,9 +192,9 @@ nextflow pull nf-core/genomeannotator
 
 It is a good idea to specify a pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
 
-First, go to the [nf-core/genomeannotator releases page](https://github.com/nf-core/genomeannotator/releases) and find the latest version number - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`.
+First, go to the [nf-core/genomeannotator releases page](https://github.com/nf-core/genomeannotator/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
 
-This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future.
+This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future. For example, at the bottom of the MultiQC reports.
 
 ## Core Nextflow arguments
 
@@ -204,7 +204,7 @@ This version number will be logged in reports when you run the pipeline, so that
 
 Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments.
 
-Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud) - see below. When using Biocontainers, most of these software packaging methods pull Docker containers from quay.io e.g [FastQC](https://quay.io/repository/biocontainers/fastqc) except for Singularity which directly downloads Singularity images via https hosted by the [Galaxy project](https://depot.galaxyproject.org/singularity/).
+Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud, Conda) - see below.
 
 > nf-core/genomeannotator requires Docker or Singularity for execution. Due to some of the more complex dependencies, Conda can not be supported at this time.
 
@@ -213,8 +213,11 @@ The pipeline also dynamically loads configurations from [https://github.com/nf-c
 Note that multiple profiles can be loaded, for example: `-profile test,docker` - the order of arguments is important!
 They are loaded in sequence, so later profiles can overwrite earlier profiles.
 
-If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
+If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended, since it can lead to different results on different machines dependent on the computer enviroment.
 
+- `test`
+  - A profile with a complete configuration for automated testing
+  - Includes links to test data so needs no other parameters
 - `docker`
   - A generic configuration profile to be used with [Docker](https://docker.com/)
 - `singularity`
@@ -227,9 +230,6 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
   - A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
 - `conda`
   - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter or Charliecloud.
-- `test`
-  - A profile with a complete configuration for automated testing
-  - Includes links to test data so needs no other parameters
 
 ### `-resume`
 
@@ -278,8 +278,14 @@ Work dir:
 Tip: you can replicate the issue by changing to the process work dir and entering the command `bash .command.run`
 ```
 
+#### For beginners
+
+A first step to bypass this error, you could try to increase the amount of CPUs, memory, and time for the whole pipeline. Therefor you can try to increase the resource for the parameters `--max_cpus`, `--max_memory`, and `--max_time`. Based on the error above, you have to increase the amount of memory. Therefore you can go to the [parameter documentation of rnaseq](https://nf-co.re/rnaseq/3.9/parameters) and scroll down to the `show hidden parameter` button to get the default value for `--max_memory`. In this case 128GB, you than can try to run your pipeline again with `--max_memory 200GB -resume` to skip all process, that were already calculated. If you can not increase the resource of the complete pipeline, you can try to adapt the resource for a single process as mentioned below.
+
+#### Advanced option on process level
+
 To bypass this error you would need to find exactly which resources are set by the `STAR_ALIGN` process. The quickest way is to search for `process STAR_ALIGN` in the [nf-core/rnaseq Github repo](https://github.com/nf-core/rnaseq/search?q=process+STAR_ALIGN).
-We have standardised the structure of Nextflow DSL2 pipelines such that all module files will be present in the `modules/` directory and so, based on the search results, the file we want is `modules/nf-core/software/star/align/main.nf`.
+We have standardised the structure of Nextflow DSL2 pipelines such that all module files will be present in the `modules/` directory and so, based on the search results, the file we want is `modules/nf-core/star/align/main.nf`.
 If you click on the link to that file you will notice that there is a `label` directive at the top of the module that is set to [`label process_high`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/modules/nf-core/software/star/align/main.nf#L9).
 The [Nextflow `label`](https://www.nextflow.io/docs/latest/process.html#label) directive allows us to organise workflow processes in separate groups which can be referenced in a configuration file to select and configure subset of processes having similar computing requirements.
 The default values for the `process_high` label are set in the pipeline's [`base.config`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L33-L37) which in this case is defined as 72GB.
@@ -295,10 +301,10 @@ process {
 ```
 
 > **NB:** We specify the full process name i.e. `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN` in the config file because this takes priority over the short name (`STAR_ALIGN`) and allows existing configuration using the full process name to be correctly overridden.
-
+>
 > If you get a warning suggesting that the process selector isn't recognised check that the process name has been specified correctly.
 
-### Updating containers
+### Updating containers (advanced users)
 
 The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. If for some reason you need to use a different version of a particular tool with the pipeline then you just need to identify the `process` name and override the Nextflow `container` definition for that process using the `withName` declaration. For example, in the [nf-core/viralrecon](https://nf-co.re/viralrecon) pipeline a tool called [Pangolin](https://github.com/cov-lineages/pangolin) has been used during the COVID-19 pandemic to assign lineages to SARS-CoV-2 genome sequenced samples. Given that the lineage assignments change quite frequently it doesn't make sense to re-release the nf-core/viralrecon everytime a new version of Pangolin has been released. However, you can override the default container used by the pipeline by creating a custom config file and passing it as a command-line argument via `-c custom.config`.
 
@@ -346,6 +352,14 @@ See the main [Nextflow documentation](https://www.nextflow.io/docs/latest/config
 
 If you have any questions or issues please send us a message on [Slack](https://nf-co.re/join/slack) on the [`#configs` channel](https://nfcore.slack.com/channels/configs).
 
+## Azure Resource Requests
+
+To be used with the `azurebatch` profile by specifying the `-profile azurebatch`.
+We recommend providing a compute `params.vm_type` of `Standard_D16_v3` VMs by default but these options can be changed if required.
+
+Note that the choice of VM size depends on your quota and the overall workload during the analysis.
+For a thorough list, please refer the [Azure Sizes for virtual machines in Azure](https://docs.microsoft.com/en-us/azure/virtual-machines/sizes).
+
 ## Running in the background
 
 Nextflow handles job submissions and supervises the running jobs. The Nextflow process must run until the pipeline is finished.
@@ -360,6 +374,6 @@ Some HPC setups also allow you to run nextflow within a cluster job submitted yo
 In some cases, the Nextflow Java virtual machines can start to request a large amount of memory.
 We recommend adding the following line to your environment to limit this (typically in `~/.bashrc` or `~./bash_profile`):
 
-```console
+```bash
 NXF_OPTS='-Xms1g -Xmx4g'
 ```
