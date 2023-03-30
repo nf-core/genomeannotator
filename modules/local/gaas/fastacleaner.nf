@@ -8,19 +8,19 @@ process GAAS_FASTACLEANER {
         'quay.io/biocontainers/gaas:1.2.0--pl526r35_0' }"
 
     input:
-    tuple val(meta), path(fasta)
+    tuple val(meta), path(fa)
 
     output:
-    tuple val(meta), path(fasta_clean), emit: fasta
+    tuple val(meta), path(fa_clean), emit: fasta
     path "versions.yml"           , emit: versions
 
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    fasta_clean = fasta.getBaseName() + ".clean.fa"
+    fa_clean = fa.getBaseName() + ".clean.fa"
     """
-    sed "s/[.]\$//" $fasta | sed "s/ .*//" > tmp
-    gaas_fasta_cleaner.pl -f tmp -o $fasta_clean
+    sed "s/[.]\$//" $fa | sed "s/ .*//" > tmp
+    gaas_fasta_cleaner.pl -f tmp -o $fa_clean
     rm tmp
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

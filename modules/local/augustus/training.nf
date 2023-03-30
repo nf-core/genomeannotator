@@ -1,7 +1,7 @@
 process AUGUSTUS_TRAINING {
     tag "$meta.id"
     label 'process_long'
-    
+
     conda (params.enable_conda ? "bioconda::augustus=3.4.0" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/augustus:3.4.0--pl5321hd8b735c_4':
@@ -11,7 +11,7 @@ process AUGUSTUS_TRAINING {
     tuple val(meta), path(gff)
     tuple val(meta_g), path(genome)
     env AUGUSTUS_CONFIG_PATH
-    path aug_config    
+    path aug_config
     val(species)
 
     output:
@@ -29,14 +29,14 @@ process AUGUSTUS_TRAINING {
     aug_folder = "${aug_config}/species/${species}"
     aug_folder_path = file(aug_folder)
     if (!aug_folder_path.exists()) {
-       options = "new_species.pl --species=${species}"
+        options = "new_species.pl --species=${species}"
     }
 
     """
     gff2gbSmallDNA.pl $gff $genome 1000 $complete_gb
     randomSplit.pl $complete_gb 250
     if [ ! -d $aug_folder ]; then
-       $options
+        $options
     fi
     etraining --species=$species --stopCodonExcludedFromCDS=true $train_gb
     augustus --stopCodonExcludedFromCDS=true --species=$species $test_gb | tee $training_stats
