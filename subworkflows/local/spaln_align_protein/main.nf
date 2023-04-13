@@ -2,16 +2,16 @@
 // Check input samplesheet and get read channels
 //
 
-include { GAAS_FASTACLEANER } from '../../modules/local/gaas/fastacleaner/main'
-include { EXONERATE_FASTACLEAN } from '../../modules/local/exonerate/fastaclean/main'
-include { GAAS_FASTAFILTERBYSIZE } from '../../modules/local/gaas/fastafilterbysize/main'
-include { SPALN_MAKEINDEX } from '../../modules/local/spaln/makeindex/main'
-include { SPALN_ALIGN } from '../../modules/local/spaln/align/main'
-include { SPALN_MERGE } from '../../modules/local/spaln/merge/main'
-include { HELPER_SPALNTOEVM } from '../../modules/local/helper/spalntoevm'
-include { HELPER_SPALNTOGMOD } from '../../modules/local/helper/spalntogmod'
-include { HELPER_SPALNTOTRAINING } from '../../modules/local/helper/spalntotraining'
-include { AUGUSTUS_ALIGNTOHINTS } from '../../modules/local/augustus/aligntohints/main'
+include { GAAS_FASTACLEANER } from '../../../modules/local/gaas/fastacleaner/main'
+include { EXONERATE_FASTACLEAN } from '../../../modules/local/exonerate/fastaclean/main'
+include { GAAS_FASTAFILTERBYSIZE } from '../../../modules/local/gaas/fastafilterbysize/main'
+include { SPALN_MAKEINDEX } from '../../../modules/local/spaln/makeindex/main'
+include { SPALN_ALIGN } from '../../../modules/local/spaln/align/main'
+include { SPALN_MERGE } from '../../../modules/local/spaln/merge/main'
+include { HELPER_SPALNTOEVM } from '../../../modules/local/helper/spalntoevm'
+include { HELPER_SPALNTOGMOD } from '../../../modules/local/helper/spalntogmod'
+include { HELPER_SPALNTOTRAINING } from '../../../modules/local/helper/spalntotraining'
+include { AUGUSTUS_ALIGNTOHINTS } from '../../../modules/local/augustus/aligntohints/main'
 
 workflow SPALN_ALIGN_PROTEIN {
 

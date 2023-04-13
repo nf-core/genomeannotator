@@ -2,11 +2,11 @@
 // Check input samplesheet and get read channels
 //
 
-include { SAMPLESHEET_CHECK } from '../../modules/local/samplesheet_check'
-include { STAR_INDEX } from '../../modules/local/star/index/main'
-include { STAR_ALIGN as STAR_ALIGN_PASS_ONE ; STAR_ALIGN as STAR_ALIGN_PASS_TWO } from '../../modules/local/star/align/main'
-include { FASTP } from '../../modules/local/fastp'
-include { CAT_FASTQ } from '../../modules/nf-core/cat/fastq/main'
+include { SAMPLESHEET_CHECK } from '../../../modules/local/samplesheet_check'
+include { STAR_INDEX } from '../../../modules/local/star/index/main'
+include { STAR_ALIGN as STAR_ALIGN_PASS_ONE ; STAR_ALIGN as STAR_ALIGN_PASS_TWO } from '../../../modules/local/star/align/main'
+include { FASTP } from '../../../modules/local/fastp'
+include { CAT_FASTQ } from '../../../modules/nf-core/cat/fastq/main'
 
 workflow RNASEQ_ALIGN {
 

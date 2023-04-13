@@ -1,8 +1,8 @@
-include { INFERNAL_PRESS } from '../../modules/local/infernal/press/main'
-include { INFERNAL_SEARCH } from '../../modules/local/infernal/search/main'
-include { FASTASPLITTER } from '../../modules/local/fastasplitter'
-include { HELPER_RFAMTOGFF } from '../../modules/local/helper/rfamtogff'
-include { GUNZIP as GUNZIP_RFAM_CM; GUNZIP as GUNZIP_RFAM_FAMILY } from '../../modules/nf-core/gunzip/main'
+include { INFERNAL_PRESS } from '../../../modules/local/infernal/press/main'
+include { INFERNAL_SEARCH } from '../../../modules/local/infernal/search/main'
+include { FASTASPLITTER } from '../../../modules/local/fastasplitter'
+include { HELPER_RFAMTOGFF } from '../../../modules/local/helper/rfamtogff'
+include { GUNZIP as GUNZIP_RFAM_CM; GUNZIP as GUNZIP_RFAM_FAMILY } from '../../../modules/nf-core/gunzip/main'
 
 workflow NCRNA {
 

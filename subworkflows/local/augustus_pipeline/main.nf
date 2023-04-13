@@ -2,12 +2,12 @@
 // Clean and filter assembly
 //
 
-include { FASTASPLITTER } from '../../modules/local/fastasplitter'
-include { AUGUSTUS_AUGUSTUSBATCH } from '../../modules/local/augustus/batch/main'
-include { AUGUSTUS_FIXJOINGENES } from '../../modules/local/augustus/fixjoingenes/main'
-include { HELPER_CREATEGFFIDS as AUGUSTUS_CREATEGFFIDS } from '../../modules/local/helper/creategffids'
-include { GFFREAD as AUGUSTUS_GFF2PROTEINS } from '../../modules/local/gffread'
-include { CAT_GFF as AUGUSTUS_MERGE_CHUNKS } from '../../modules/local/cat/gff'
+include { FASTASPLITTER } from '../../../modules/local/fastasplitter'
+include { AUGUSTUS_AUGUSTUSBATCH } from '../../../modules/local/augustus/batch/main'
+include { AUGUSTUS_FIXJOINGENES } from '../../../modules/local/augustus/fixjoingenes/main'
+include { HELPER_CREATEGFFIDS as AUGUSTUS_CREATEGFFIDS } from '../../../modules/local/helper/creategffids'
+include { GFFREAD as AUGUSTUS_GFF2PROTEINS } from '../../../modules/local/gffread'
+include { CAT_GFF as AUGUSTUS_MERGE_CHUNKS } from '../../../modules/local/cat/gff'
 
 ch_versions = Channel.from([])
 
@@ -20,10 +20,13 @@ workflow AUGUSTUS_PIPELINE {
 
     main:
 
+    // Split assembly into smaller pieces for parallelization
     FASTASPLITTER(
         genome,
         params.npart_size
     )
+
+    ch_versions = ch_versions.mix(FASTASPLITTER.out.versions)
 
     // Splitter either outputs one file, or a list of files.
     FASTASPLITTER.out.chunks.branch { m,f ->
@@ -31,12 +34,11 @@ workflow AUGUSTUS_PIPELINE {
         multi: f.getClass() == ArrayList
     }.set { ch_fa_chunks }
 
-    ch_versions = ch_versions.mix(FASTASPLITTER.out.versions)
-
     ch_fa_chunks.multi.flatMap { h,fastas ->
         fastas.collect { [ h,file(it)] }
     }.set { ch_chunks_split }
 
+    // Run Augustus in a custom 'batch' configuration to speed it up
     AUGUSTUS_AUGUSTUSBATCH(
         ch_chunks_split.mix(ch_fa_chunks.single),
         hints.collect(),
@@ -48,9 +50,12 @@ workflow AUGUSTUS_PIPELINE {
 
     ch_versions = ch_versions.mix(AUGUSTUS_AUGUSTUSBATCH.out.versions)
 
+    // Merge results from separate processing chunks
     AUGUSTUS_FIXJOINGENES(
         AUGUSTUS_AUGUSTUSBATCH.out.gff
     )
+
+    ch_versions = ch_versions.mix(AUGUSTUS_FIXJOINGENES.out.versions)
 
     AUGUSTUS_FIXJOINGENES.out.gff
     .multiMap { m,gff ->
@@ -68,9 +73,12 @@ workflow AUGUSTUS_PIPELINE {
     .map { k,m,f -> tuple(m,f) }
     .set { ch_genome_gff }
 
+    // Fix feature IDs after merging
     AUGUSTUS_CREATEGFFIDS(
         ch_genome_gff
     )
+
+    // Extract protein sequences from final call set
     AUGUSTUS_GFF2PROTEINS(
         AUGUSTUS_CREATEGFFIDS.out.gff.join(genome)
     )

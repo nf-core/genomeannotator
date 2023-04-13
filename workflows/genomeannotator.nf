@@ -52,19 +52,19 @@ ch_rfam_family = file("${workflow.projectDir}/assets/rfam/14.2/family.txt.gz", c
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 
-include { ASSEMBLY_PREPROCESS } from '../subworkflows/local/assembly_preprocess'
-include { REPEATMASKER } from '../subworkflows/local/repeatmasker'
-include { SPALN_ALIGN_PROTEIN ; SPALN_ALIGN_PROTEIN as SPALN_ALIGN_MODELS } from '../subworkflows/local/spaln_align_protein'
-include { RNASEQ_ALIGN } from '../subworkflows/local/rnaseq_align'
-include { MINIMAP_ALIGN_TRANSCRIPTS ; MINIMAP_ALIGN_TRANSCRIPTS as TRINITY_ALIGN_TRANSCRIPTS } from '../subworkflows/local/minimap_align_transcripts'
-include { AUGUSTUS_PIPELINE } from '../subworkflows/local/augustus_pipeline'
-include { PASA_PIPELINE } from '../subworkflows/local/pasa_pipeline'
-include { GENOME_ALIGN } from '../subworkflows/local/genome_align'
-include { EVM } from '../subworkflows/local/evm.nf'
-include { FASTA_PREPROCESS as TRANSCRIPT_PREPROCESS } from '../subworkflows/local/fasta_preprocess'
-include { BUSCO_QC } from '../subworkflows/local/busco_qc'
-include { NCRNA } from '../subworkflows/local/ncrna'
-include { FUNCTIONAL_ANNOTATION } from '../subworkflows/local/eggnog_mapper'
+include { ASSEMBLY_PREPROCESS } from '../subworkflows/local/assembly_preprocess/main'
+include { REPEATMASKER } from '../subworkflows/local/repeatmasker/main'
+include { SPALN_ALIGN_PROTEIN ; SPALN_ALIGN_PROTEIN as SPALN_ALIGN_MODELS } from '../subworkflows/local/spaln_align_protein/main'
+include { RNASEQ_ALIGN } from '../subworkflows/local/rnaseq_align/main'
+include { MINIMAP_ALIGN_TRANSCRIPTS ; MINIMAP_ALIGN_TRANSCRIPTS as TRINITY_ALIGN_TRANSCRIPTS } from '../subworkflows/local/minimap_align_transcripts/main'
+include { AUGUSTUS_PIPELINE } from '../subworkflows/local/augustus_pipeline/main'
+include { PASA_PIPELINE } from '../subworkflows/local/pasa_pipeline/main'
+include { GENOME_ALIGN } from '../subworkflows/local/genome_align/main'
+include { EVM } from '../subworkflows/local/evm/main'
+include { FASTA_PREPROCESS as TRANSCRIPT_PREPROCESS } from '../subworkflows/local/fasta_preprocess/main'
+include { BUSCO_QC } from '../subworkflows/local/busco_qc/main'
+include { NCRNA } from '../subworkflows/local/ncrna/main'
+include { EGGNOG_MAPPER } from '../subworkflows/local/eggnog_mapper/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -347,6 +347,7 @@ workflow GENOMEANNOTATOR {
     ch_genes_gff = ch_genes_gff.mix(AUGUSTUS_PIPELINE.out.gff)
     ch_proteins_fa = ch_proteins_fa.mix(AUGUSTUS_PIPELINE.out.proteins)
     //ch_func_annot = ch_func_annot.mix(AUGUSTUS_PIPELINE.out.func_annot)
+
     //
     // SUBWORKFLOW: Consensus gene building with EVM
     //
@@ -360,6 +361,9 @@ workflow GENOMEANNOTATOR {
         )
         ch_proteins_fa = ch_proteins_fa.mix(EVM.out.proteins)
         ch_func_annot = ch_func_annot.mix(EVM.out.func_annot)
+
+        ch_versions = ch_versions.mix(EVM.out.versions)
+
     }
 
     //
@@ -372,17 +376,21 @@ workflow GENOMEANNOTATOR {
             params.busco_db_path
         )
         ch_busco_qc = BUSCO_QC.out.busco_summary
+
+        ch_versions = ch_versions.mix(BUSCO_QC.out.versions)
+
     }
 
     //
-    // SUBWORKDLOW: Functional annotation using Eggnog_mapper
+    // SUBWORKFLOW: Functional annotation using Eggnog_mapper
     //
     if (params.eggnog_mapper_db || params.eggnog_taxonomy) {
 
-        FUNCTIONAL_ANNOTATION(
+        EGGNOG_MAPPER(
             ch_func_annot
         )
 
+        ch_versions = ch_versions.mix(EGGNOG_MAPPER.out.versions)
     }
 
     //

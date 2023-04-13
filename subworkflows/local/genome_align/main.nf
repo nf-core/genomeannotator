@@ -2,13 +2,13 @@
 // Align genomes and map annotations
 //
 
-include { FASTASPLITTER } from '../../modules/local/fastasplitter'
-include { SATSUMA2_SATSUMASYNTENY2 } from '../../modules/local/satsuma2/synteny/main'
-include { KRAKEN } from '../../modules/local/kraken'
-include { HELPER_KRAKEN2GFF as SATSUMA_KRAKEN2GFF } from '../../modules/local/helper/kraken2gff'
-include { GAAS_FASTACLEANER } from '../../modules/local/gaas/fastacleaner'
-include { HELPER_GTF2HINTS as SATSUMA_GTF2HINTS } from '../../modules/local/helper/gtf2hints'
-include { GAAS_FASTAFILTERBYSIZE } from '../../modules/local/gaas/fastafilterbysize'
+include { FASTASPLITTER } from '../../../modules/local/fastasplitter'
+include { SATSUMA2_SATSUMASYNTENY2 } from '../../../modules/local/satsuma2/synteny/main'
+include { KRAKEN } from '../../../modules/local/kraken'
+include { HELPER_KRAKEN2GFF as SATSUMA_KRAKEN2GFF } from '../../../modules/local/helper/kraken2gff'
+include { GAAS_FASTACLEANER } from '../../../modules/local/gaas/fastacleaner'
+include { HELPER_GTF2HINTS as SATSUMA_GTF2HINTS } from '../../../modules/local/helper/gtf2hints'
+include { GAAS_FASTAFILTERBYSIZE } from '../../../modules/local/gaas/fastafilterbysize'
 
 workflow GENOME_ALIGN {
 

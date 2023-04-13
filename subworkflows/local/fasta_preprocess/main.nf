@@ -2,7 +2,7 @@
 // Clean and filter assembly
 //
 
-include { GAAS_FASTACLEANER } from '../../modules/local/gaas/fastacleaner/main'
+include { GAAS_FASTACLEANER } from '../../../modules/local/gaas/fastacleaner/main'
 
 workflow FASTA_PREPROCESS {
     take:

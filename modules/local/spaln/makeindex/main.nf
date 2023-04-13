@@ -1,11 +1,11 @@
 process SPALN_MAKEINDEX {
     tag "$meta.id"
     label 'process_medium'
-    
+
     conda (params.enable_conda ? "bioconda::spaln=2.4.7" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/spaln:2.4.7--pl5321h9a82719_1':
-        'quay.io/biocontainers/spaln:2.4.7--pl5321h9a82719_1' }"
+        'https://depot.galaxyproject.org/singularity/spaln:2.4.7--pl5321hd03093a_2':
+        'quay.io/biocontainers/spaln:2.4.7--pl5321hd03093a_2' }"
 
     input:
     tuple val(meta), path(fasta)
