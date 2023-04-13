@@ -1,5 +1,5 @@
 process BUSCO_DOWNLOADDB {
-    //tag busco_tax
+
     label 'process_low'
 
     conda (params.enable_conda ? "bioconda::busco=5.3.0" : null)
@@ -12,6 +12,7 @@ process BUSCO_DOWNLOADDB {
 
     output:
     tuple val(lineage_folder),path("busco_downloads"), emit: busco_lineage_dir
+    path(lineage_folder)
     path "versions.yml"           , emit: versions
 
     when:

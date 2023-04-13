@@ -53,8 +53,8 @@ jobs:
           message: |
             ## Python linting (`black`) is failing
 
-      - name: Install Prettier
-        run: npm install -g prettier
+            To keep the code consistent with lots of contributors, we run automated code consistency checks.
+            To fix this CI test, please run:
 
             * Install [`black`](https://black.readthedocs.io/en/stable/): `pip install black`
             * Fix formatting errors in your pipeline: `black .`

@@ -21,9 +21,12 @@ workflow MINIMAP_ALIGN_TRANSCRIPTS {
         GAAS_FASTACLEANER(
             transcripts
         )
+
         EXONERATE_FASTACLEAN(
             GAAS_FASTACLEANER.out.fasta
         )
+
+        // Split transcripts for parallel processing
         MINIMAP2_ALIGN(
             EXONERATE_FASTACLEAN.out.fasta.splitFasta(by: 100000, file: true),
             genome.collect(),
@@ -44,14 +47,17 @@ workflow MINIMAP_ALIGN_TRANSCRIPTS {
         SAMTOOLS_MERGE(
             ch_bams.multiple
         )
+
         MINIMAP_BAMTOGFF(
             SAMTOOLS_MERGE.out.bam.mix(ch_bams.single)
         )
+
         HELPER_MINIMAPTOHINTS(
             MINIMAP_BAMTOGFF.out.gff,
             params.t_est,
             params.pri_est
         )
+
         HELPER_MATCH2GMOD(
             MINIMAP_BAMTOGFF.out.gff
         )
