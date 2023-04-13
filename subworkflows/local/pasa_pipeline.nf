@@ -2,11 +2,11 @@
 // Check input samplesheet and get read channels
 //
 
-include { GAAS_FASTACLEANER } from '../../modules/local/gaas/fastacleaner'
-include { EXONERATE_FASTACLEAN } from '../../modules/local/exonerate/fastaclean'
-include { PASA_SEQCLEAN } from '../../modules/local/pasa/seqclean'
-include { PASA_ALIGNASSEMBLE } from '../../modules/local/pasa/alignassemble'
-include { PASA_ASMBLSTOTRAINING } from '../../modules/local/pasa/asmblstotraining'
+include { GAAS_FASTACLEANER } from '../../modules/local/gaas/fastacleaner/main'
+include { EXONERATE_FASTACLEAN } from '../../modules/local/exonerate/fastaclean/main'
+include { PASA_SEQCLEAN } from '../../modules/local/pasa/seqclean/main'
+include { PASA_ALIGNASSEMBLE } from '../../modules/local/pasa/alignassemble/main'
+include { PASA_ASMBLSTOTRAINING } from '../../modules/local/pasa/asmblstotraining/main'
 include { HELPER_PASA2TRAINING } from '../../modules/local/helper/pasa2training'
 include { GFFREAD as PASA_GFF2PROTEINS } from '../../modules/local/gffread'
 

@@ -11,7 +11,7 @@ process BUSCO_DOWNLOADDB {
     val(busco_tax)
 
     output:
-    tuple val(lineage_folder),path ("busco_downloads"), emit: busco_lineage_dir
+    tuple val(lineage_folder),path("busco_downloads"), emit: busco_lineage_dir
     path "versions.yml"           , emit: versions
 
     when:

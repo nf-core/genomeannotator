@@ -2,9 +2,9 @@
 // Clean and filter assembly
 //
 
-include { GAAS_FASTACLEANER } from '../../modules/local/gaas/fastacleaner'
-include { GAAS_FASTASTATISTICS } from '../../modules/local/gaas/fastastatistics'
-include { GAAS_FASTAFILTERBYSIZE as GAAS_ASSEMBLYFILTERBYSIZE } from '../../modules/local/gaas/fastafilterbysize'
+include { GAAS_FASTACLEANER } from '../../modules/local/gaas/fastacleaner/main'
+include { GAAS_FASTASTATISTICS } from '../../modules/local/gaas/fastastatistics/main'
+include { GAAS_FASTAFILTERBYSIZE as GAAS_ASSEMBLYFILTERBYSIZE } from '../../modules/local/gaas/fastafilterbysize/main'
 
 workflow ASSEMBLY_PREPROCESS {
     take:

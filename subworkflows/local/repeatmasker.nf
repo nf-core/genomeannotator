@@ -2,11 +2,13 @@
 // Check input samplesheet and get read channels
 //
 
-include { REPEATMASKER_STAGELIB } from '../../modules/local/repeatmasker/stagelib'
-include { REPEATMASKER_REPEATMASK } from '../../modules/local/repeatmasker/repeatmask'
+include { REPEATMASKER_STAGELIB } from '../../modules/local/repeatmasker/stagelib/main'
+include { REPEATMASKER_REPEATMASK } from '../../modules/local/repeatmasker/repeatmask/main'
 include { FASTASPLITTER } from '../../modules/local/fastasplitter'
 include { CAT_FASTA as REPEATMASKER_CAT_FASTA} from '../../modules/local/cat/fasta'
-include { GUNZIP } from '../../modules/nf-core/modules/gunzip/main'
+include { GUNZIP } from '../../modules/nf-core/gunzip/main'
+
+ch_versions = Channel.from([])
 
 workflow REPEATMASKER {
     take:
@@ -39,18 +41,27 @@ workflow REPEATMASKER {
             rm_species,
             GUNZIP.out.gunzip.map { m,g -> g }
         )
+
+        ch_versions = ch_versions.mix(REPEATMASKER_STAGELIB.out.versions)
+
     } else if (params.rm_species) {
         REPEATMASKER_STAGELIB(
             rm_lib,
             params.rm_species,
             file(params.dummy_gff)
         )
+
+        ch_versions = ch_versions.mix(REPEATMASKER_STAGELIB.out.versions)
+
     } else {
         REPEATMASKER_STAGELIB(
             rm_lib,
             false,
             file(params.dummy_gff)
         )
+
+        ch_versions = ch_versions.mix(REPEATMASKER_STAGELIB.out.versions)
+
     }
 
     REPEATMASKER_REPEATMASK(
@@ -60,11 +71,16 @@ workflow REPEATMASKER {
         rm_species
     )
 
+    ch_versions = ch_versions.mix(REPEATMASKER_REPEATMASK.out.versions)
+
     REPEATMASKER_CAT_FASTA(REPEATMASKER_REPEATMASK.out.masked.groupTuple())
+
+    ch_versions = ch_versions.mix(REPEATMASKER_CAT_FASTA.out.versions)
 
     emit:
     fasta = REPEATMASKER_CAT_FASTA.out.fasta
-    versions = REPEATMASKER_STAGELIB.out.versions.mix(REPEATMASKER_REPEATMASK.out.versions,FASTASPLITTER.out.versions,REPEATMASKER_CAT_FASTA.out.versions)
+    versions = ch_versions
+
 }
 
 

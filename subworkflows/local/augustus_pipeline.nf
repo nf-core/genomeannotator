@@ -3,11 +3,13 @@
 //
 
 include { FASTASPLITTER } from '../../modules/local/fastasplitter'
-include { AUGUSTUS_AUGUSTUSBATCH } from '../../modules/local/augustus/augustusbatch'
-include { AUGUSTUS_FIXJOINGENES } from '../../modules/local/augustus/fixjoingenes'
+include { AUGUSTUS_AUGUSTUSBATCH } from '../../modules/local/augustus/batch/main'
+include { AUGUSTUS_FIXJOINGENES } from '../../modules/local/augustus/fixjoingenes/main'
 include { HELPER_CREATEGFFIDS as AUGUSTUS_CREATEGFFIDS } from '../../modules/local/helper/creategffids'
 include { GFFREAD as AUGUSTUS_GFF2PROTEINS } from '../../modules/local/gffread'
 include { CAT_GFF as AUGUSTUS_MERGE_CHUNKS } from '../../modules/local/cat/gff'
+
+ch_versions = Channel.from([])
 
 workflow AUGUSTUS_PIPELINE {
     take:
@@ -29,6 +31,8 @@ workflow AUGUSTUS_PIPELINE {
         multi: f.getClass() == ArrayList
     }.set { ch_fa_chunks }
 
+    ch_versions = ch_versions.mix(FASTASPLITTER.out.versions)
+
     ch_fa_chunks.multi.flatMap { h,fastas ->
         fastas.collect { [ h,file(it)] }
     }.set { ch_chunks_split }
@@ -41,6 +45,9 @@ workflow AUGUSTUS_PIPELINE {
         params.aug_chunk_length,
         params.aug_species
     )
+
+    ch_versions = ch_versions.mix(AUGUSTUS_AUGUSTUSBATCH.out.versions)
+
     AUGUSTUS_FIXJOINGENES(
         AUGUSTUS_AUGUSTUSBATCH.out.gff
     )
@@ -73,6 +80,6 @@ workflow AUGUSTUS_PIPELINE {
     emit:
     gff = AUGUSTUS_CREATEGFFIDS.out.gff
     proteins = AUGUSTUS_GFF2PROTEINS.out.proteins
-    versions = FASTASPLITTER.out.versions
+    versions = ch_versions
     func_annot = ch_func_annot
 }

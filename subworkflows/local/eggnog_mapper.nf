@@ -1,5 +1,5 @@
-include { EGGNOGMAPPER_DB } from './../../modules/local/eggnogmapper/db'
-include { EGGNOGMAPPER_EMAPPER} from './../../modules/local/eggnogmapper/emapper'
+include { EGGNOGMAPPER_DB } from './../../modules/local/eggnogmapper/db/main'
+include { EGGNOGMAPPER_EMAPPER} from './../../modules/local/eggnogmapper/emapper/main'
 
 workflow FUNCTIONAL_ANNOTATION {
 

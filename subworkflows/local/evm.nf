@@ -2,9 +2,9 @@
 // Clean and filter assembly
 //
 
-include { EVIDENCEMODELER_MERGE } from '../../modules/local/evidencemodeler/merge'
-include { EVIDENCEMODELER_PARTITION } from '../../modules/local/evidencemodeler/partition'
-include { EVIDENCEMODELER_EXECUTE } from '../../modules/local/evidencemodeler/execute'
+include { EVIDENCEMODELER_MERGE } from '../../modules/local/evidencemodeler/merge/main'
+include { EVIDENCEMODELER_PARTITION } from '../../modules/local/evidencemodeler/partition/main'
+include { EVIDENCEMODELER_EXECUTE } from '../../modules/local/evidencemodeler/execute/main'
 include { HELPER_EVM2GFF } from '../../modules/local/helper/evm2gff'
 include { GFFREAD as EVIDENCEMODELER_GFF2PROTEINS } from '../../modules/local/gffread'
 

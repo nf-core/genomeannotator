@@ -2,10 +2,10 @@
 // Check input samplesheet and get read channels
 //
 
-include { GAAS_FASTACLEANER } from '../../modules/local/gaas/fastacleaner'
-include { EXONERATE_FASTACLEAN } from '../../modules/local/exonerate/fastaclean'
-include { MINIMAP2_ALIGN } from '../../modules/local/minimap2/align'
-include { SAMTOOLS_MERGE } from '../../modules/local/samtools/merge'
+include { GAAS_FASTACLEANER } from '../../modules/local/gaas/fastacleaner/main'
+include { EXONERATE_FASTACLEAN } from '../../modules/local/exonerate/fastaclean/main'
+include { MINIMAP2_ALIGN } from '../../modules/local/minimap2/align/main'
+include { SAMTOOLS_MERGE } from '../../modules/local/samtools/merge/main'
 include { HELPER_BAMTOGFF as MINIMAP_BAMTOGFF } from '../../modules/local/helper/bamtogff'
 include { HELPER_MINIMAPTOHINTS } from '../../modules/local/helper/minimaptohints'
 include { HELPER_MATCH2GMOD } from '../../modules/local/helper/match2gmod'

@@ -31,9 +31,10 @@ if (params.aug_config_dir) { ch_aug_config_folder = file(params.aug_config_dir, 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-ch_multiqc_config        = file("$projectDir/assets/multiqc_config.yaml", checkIfExists: true)
-ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
+ch_multiqc_config          = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+ch_multiqc_custom_config   = params.multiqc_config ? Channel.fromPath( params.multiqc_config, checkIfExists: true ) : Channel.empty()
 ch_multiqc_logo            = params.multiqc_logo   ? Channel.fromPath( params.multiqc_logo, checkIfExists: true ) : Channel.empty()
+
 ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description, checkIfExists: true) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
 
 ch_aug_extrinsic_cfg = params.aug_extrinsic_cfg ? Channel.from( file(params.aug_extrinsic_cfg, checkIfExists: true) ) : Channel.from( file("${workflow.projectDir}/assets/augustus/augustus_default.cfg"))
@@ -75,15 +76,15 @@ include { FUNCTIONAL_ANNOTATION } from '../subworkflows/local/eggnog_mapper'
 // MODULE: Installed directly from nf-core/modules
 //
 
-include { SAMTOOLS_MERGE } from '../modules/local/samtools/merge'
-include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
-include { TRINITY_GENOMEGUIDED } from '../modules/local/trinity/genomeguided'
-include { AUGUSTUS_BAM2HINTS } from '../modules/local/augustus/bam2hints'
-include { AUGUSTUS_FINDCONFIG } from '../modules/local/augustus/findconfig'
+include { SAMTOOLS_MERGE } from '../modules/local/samtools/merge/main'
+include { MULTIQC } from '../modules/nf-core/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { TRINITY_GENOMEGUIDED } from '../modules/local/trinity/genomeguided/main'
+include { AUGUSTUS_BAM2HINTS } from '../modules/local/augustus/bam2hints/main'
+include { AUGUSTUS_FINDCONFIG } from '../modules/local/augustus/findconfig/main'
 include { REPEATMODELER } from '../modules/local/repeatmodeler'
-include { AUGUSTUS_STAGECONFIG } from '../modules/local/augustus/stageconfig'
-include { AUGUSTUS_TRAINING } from '../modules/local/augustus/training'
+include { AUGUSTUS_STAGECONFIG } from '../modules/local/augustus/stageconfig/main'
+include { AUGUSTUS_TRAINING } from '../modules/local/augustus/training/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -388,9 +389,12 @@ workflow GENOMEANNOTATOR {
     // MODULE: Collect all software versions
     // =======
 
-    CUSTOM_DUMPSOFTWAREVERSIONS (
+    ch_version_yaml = Channel.empty()
+
+    CUSTOM_DUMPSOFTWAREVERSIONS(
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
+    ch_version_yaml = CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect()
 
     //
     // MODULE: MultiQC
@@ -402,19 +406,20 @@ workflow GENOMEANNOTATOR {
     ch_methods_description = Channel.value(methods_description)
 
     ch_multiqc_files = Channel.empty()
-    ch_multiqc_files = ch_multiqc_files.mix(Channel.from(ch_multiqc_config))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_custom_config.collect().ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-    ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
+    ch_multiqc_files = ch_multiqc_files.mix(ch_version_yaml)
     ch_multiqc_files = ch_multiqc_files.mix(ch_busco_qc.collect().ifEmpty([]))
 
-    MULTIQC (
+    MULTIQC(
         ch_multiqc_files.collect(),
-        ch_multiqc_config.toList(),
-        ch_multiqc_custom_config.toList(),
-        ch_multiqc_logo.toList()
+        ch_multiqc_config.collect().ifEmpty([]),
+        ch_multiqc_custom_config.collect().ifEmpty([]),
+        ch_multiqc_logo.collect().ifEmpty([])
     )
+
     multiqc_report = MULTIQC.out.report.toList()
+
+}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

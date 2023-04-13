@@ -3,7 +3,7 @@
 //
 
 include { FASTASPLITTER } from '../../modules/local/fastasplitter'
-include { SATSUMA2_SATSUMASYNTENY2 } from '../../modules/local/satsuma2/satsumasynteny2'
+include { SATSUMA2_SATSUMASYNTENY2 } from '../../modules/local/satsuma2/synteny/main'
 include { KRAKEN } from '../../modules/local/kraken'
 include { HELPER_KRAKEN2GFF as SATSUMA_KRAKEN2GFF } from '../../modules/local/helper/kraken2gff'
 include { GAAS_FASTACLEANER } from '../../modules/local/gaas/fastacleaner'

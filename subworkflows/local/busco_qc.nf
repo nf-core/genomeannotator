@@ -1,5 +1,5 @@
-include { BUSCO_DOWNLOADDB } from '../../modules/local/busco/downloaddb'
-include { BUSCO_BUSCO as BUSCO } from '../../modules/local/busco/busco'
+include { BUSCO_DOWNLOADDB } from '../../modules/local/busco/downloaddb/main'
+include { BUSCO_BUSCO as BUSCO } from '../../modules/local/busco/busco/main'
 
 workflow BUSCO_QC {
 
