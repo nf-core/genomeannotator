@@ -1,7 +1,7 @@
 process SATSUMA2_SATSUMASYNTENY2 {
     tag "${meta.id} | ${meta_t.id}"
     label 'process_extralong'
-    
+
     if (params.enable_conda) {
         exit 1, "Conda environments cannot be used when using this version of Satsuma2. Please use docker or singularity containers."
     }
