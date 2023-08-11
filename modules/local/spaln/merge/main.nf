@@ -2,10 +2,10 @@ process SPALN_MERGE {
     tag "$meta.id"
     label 'process_medium'
 
-    conda (params.enable_conda ? "bioconda::spaln=2.4.7" : null)
+    conda (params.enable_conda ? "bioconda::spaln=2.4.13" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/spaln:2.4.7--pl5321hd03093a_2':
-        'quay.io/biocontainers/spaln:2.4.7--pl5321hd03093a_2' }"
+        'https://depot.galaxyproject.org/singularity/spaln:2.4.13f--pl5321h4ac6f70_0':
+        'quay.io/biocontainers/spaln:2.4.13f--pl5321h4ac6f70_0' }"
 
     input:
     tuple val(meta), path(spaln_index)
