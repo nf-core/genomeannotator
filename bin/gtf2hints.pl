@@ -10,12 +10,12 @@ perl my_script.pl
 
   Input:
     [--gtf filename]
-		The name of the file to read. 
+		The name of the file to read.
     [--source name]
 
     [--pri value]
 
-  Ouput:    
+  Ouput:
     [--outfile filename]
         The name of the output file. By default the output is the
         standard output
@@ -51,12 +51,12 @@ my $is_last_cds;
 
 while (<$IN>) {
 
-        my $line = $_;
-        chomp $line;
+    my $line = $_;
+    chomp $line;
 
 	# ctg.000005F     EVM2.2  exon    273274  273476  .       -       .       gene_id "ML000115a"; transcript_id "ML000115a-1"; gene_name "ML000115a;";
 
-        my ($seq,$src,$feature,$start,$stop,$score,$strand,$phase,$info) = split(/\t/,$line);
+    my ($seq,$src,$feature,$start,$stop,$score,$strand,$phase,$info) = split(/\t/,$line);
 
 	my $hint_type = "" ;
 	my $margin = 0;
@@ -64,6 +64,7 @@ while (<$IN>) {
 	if ($feature eq "transcript") {
 		$is_first_cds = 0;
 		$is_last_cds = 0;
+        $hint_type = "genicpart" ;
 	} elsif ($feature eq "CDS") {
 		$hint_type = "CDSpart";
 		if ($stop-$start > 5) {
@@ -76,20 +77,23 @@ while (<$IN>) {
 	} else {
 		next;
 	}
-	
+
 	my %attribs;
 
-        my @fields = split(";",$info);
+    my @fields = split(";",$info);
 
-        foreach my $f (@fields) {
-                my ($key,$value) = split(" ",$f);
-                $attribs{$key} = $value;
-        }
+    foreach my $f (@fields) {
+        my ($key,$value) = split(" ",$f);
+        $attribs{$key} = $value;
+    }
 
 	my $group = $attribs{"transcript_id"};
 
 	$group =~ s/\"//g ;
-	
+
+    # Skip if this is a transcript and not a subfeature
+    next if ($hint_type eq "" ) ;
+
 	printf $seq . "\t" . "transmapped" . "\t" . $hint_type . "\t" . ($start+$margin) . "\t" . ($stop-$margin) . "\t" . "." . "\t" . $strand . "\t" . "." . "\t" . "group=$group;src=$source;pri=$pri\n";
 
 }
