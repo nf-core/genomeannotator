@@ -1,4 +1,6 @@
 #!/usr/bin/env perl
+# A script to accelerate augustus by splitting an input file into individual sequences and building overlapping sub-jobs on those sequences.
+# The overlap is defined as 1/6th of the chunk length
 
 use strict;
 use Getopt::Long;

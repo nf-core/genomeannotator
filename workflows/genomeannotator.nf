@@ -16,9 +16,11 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 if (params.assembly) { ch_genome = file(params.assembly, checkIfExists: true) } else { exit 1, 'No assembly specified!' }
 
 // Set relevant input channels
+// Most of these are meant to be single files; this is because of potential ID collissions that can arise from merging multiple files later on.
+// To enable multiple files, some kind of sanity check is required that can independently resolve such conflicts. TBD.
 if (params.proteins) { ch_proteins = file(params.proteins, checkIfExists: true) } else { ch_proteins = Channel.empty() }
 if (params.proteins_targeted) { ch_proteins_targeted = file(params.proteins_targeted, checkIfExists: true) } else { ch_proteins_targeted = Channel.empty() }
-if (params.transcripts) { ch_t = file(params.transcripts, checkIfExists:true) } else { ch_transcripts = Channel.empty() }
+if (params.transcripts) { ch_t = file(params.transcripts, checkIfExists:true) } else { ch_t = Channel.empty() }
 if (params.rnaseq_samples) { ch_samplesheet = file(params.rnaseq_samples, checkIfExists: true) } else { ch_samplesheet = Channel.empty() }
 if (params.rm_lib) { ch_repeats = Channel.fromPath(file(params.rm_lib, checkIfExists: true)) } else { ch_repeats = Channel.fromPath("${workflow.projectDir}/assets/repeatmasker/repeats.fa") }
 if (params.references) { ch_ref_genomes = Channel.fromPath(params.references, checkIfExists: true)  } else { ch_ref_genomes = Channel.empty() }
@@ -97,19 +99,19 @@ def multiqc_report = []
 
 workflow GENOMEANNOTATOR {
 
-    ch_empty_gff = Channel.fromPath(params.dummy_gff)
-    ch_versions = Channel.empty()
-    ch_hints = Channel.empty()
-    ch_repeats_lib = Channel.empty()
-    ch_proteins_gff = Channel.from([])
-    ch_transcripts_gff = Channel.from([])
-    ch_genes_gff = Channel.empty()
-    ch_transcripts = Channel.empty()
-    ch_genome_rm = Channel.empty()
-    ch_proteins_fa = Channel.empty()
-    ch_busco_qc = Channel.empty()
-    ch_training_genes = Channel.empty()
-    ch_func_annot = Channel.from([])
+    ch_empty_gff        = Channel.fromPath(params.dummy_gff)
+    ch_versions         = Channel.empty()
+    ch_hints            = Channel.empty()
+    ch_repeats_lib      = Channel.empty()
+    ch_proteins_gff     = Channel.from([])
+    ch_transcripts_gff  = Channel.from([])
+    ch_genes_gff        = Channel.empty()
+    ch_transcripts      = Channel.empty()
+    ch_genome_rm        = Channel.empty()
+    ch_proteins_fa      = Channel.empty()
+    ch_busco_qc         = Channel.empty()
+    ch_training_genes   = Channel.empty()
+    ch_func_annot       = Channel.from([])
 
     //
     // SUBWORKFLOW: Turn transcript inputs to channel
@@ -202,9 +204,10 @@ workflow GENOMEANNOTATOR {
 
     //
     // SUBWORKFLOW: Align proteins from related organisms with SPALN
+
     if (params.proteins) {
         SPALN_ALIGN_PROTEIN(
-            ASSEMBLY_PREPROCESS.out.fasta,
+            ASSEMBLY_PREPROCESS.out.fasta.collect(),
             ch_proteins,
             params.spaln_protein_id
         )
@@ -293,7 +296,7 @@ workflow GENOMEANNOTATOR {
             ASSEMBLY_PREPROCESS.out.fasta,
             ch_transcripts.map { m,t -> t }.collectFile(name: "transcripts.merged.fa").map { it ->
                 def mmeta = [:]
-                mmeta.id = "merged"
+                mmeta.id = "merged_transcripts"
                 tuple(mmeta,it)
             }
         )

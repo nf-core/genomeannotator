@@ -64,7 +64,7 @@ while (<$IN>) {
 	if ($feature eq "transcript") {
 		$is_first_cds = 0;
 		$is_last_cds = 0;
-        $hint_type = "genicpart" ;
+                $hint_type = "genicpart" ;
 	} elsif ($feature eq "CDS") {
 		$hint_type = "CDSpart";
 		if ($stop-$start > 5) {

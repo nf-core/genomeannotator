@@ -36,7 +36,7 @@ workflow SPALN_ALIGN_PROTEIN {
 
         ch_fasta_chunks = GAAS_FASTAFILTERBYSIZE.out.fasta.splitFasta(by: params.nproteins, file: true, elem: [1])
         SPALN_ALIGN(
-            SPALN_MAKEINDEX.out.spaln_index,
+            SPALN_MAKEINDEX.out.spaln_index.collect(),
             ch_fasta_chunks,
             params.spaln_q,
             params.spaln_taxon,
@@ -44,7 +44,7 @@ workflow SPALN_ALIGN_PROTEIN {
         )
 
         SPALN_MERGE(
-            SPALN_MAKEINDEX.out.spaln_index,
+            SPALN_MAKEINDEX.out.spaln_index.collect(),
             SPALN_ALIGN.out.align.groupTuple().map { m,files -> tuple(m,files.flatten()) },
             protein_identity
         )

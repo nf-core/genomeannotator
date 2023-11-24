@@ -12,11 +12,11 @@ perl my_script.pl
 
   Input:
     [--infile filename]
-		The name of the file to read. 
+		The name of the file to read.
     [--family filename]
 		Name of the Rfam family.txt SQL dump
 
-  Ouput:    
+  Ouput:
     [--outfile filename]
         The name of the output file. By default the output is the
         standard output
@@ -49,12 +49,11 @@ open (my $FAM, '<', $family) or die "FATAL: Can't open file: $family for reading
 
 foreach my $line (<$FAM>) {
 
-        chomp($line);
+    chomp($line);
 
 	my @elements = split "\t" , $line;
 
 	my $rfam_acc = @elements[0];
-
 	my $biotype = @elements[18];
 	my $this_type = "skip";
 	if ( $biotype =~ /^Gene.*/) {
