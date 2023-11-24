@@ -4,8 +4,8 @@ process REPEATMASKER_REPEATMASK {
 
     conda (params.enable_conda ? "bioconda::repeatmasker=4.1.5" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/repeatmasker:4.1.5--pl5321hdfd78af_0':
-        'quay.io/biocontainers/repeatmasker:4.1.5--pl5321hdfd78af_0' }"
+            'https://depot.galaxyproject.org/singularity/repeatmasker:4.1.2.p1--pl5321hdfd78af_1':
+            'quay.io/biocontainers/repeatmasker:4.1.2.p1--pl5321hdfd78af_1' }"
 
     input:
     tuple val(meta), path(fasta)
