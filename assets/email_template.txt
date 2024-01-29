@@ -4,7 +4,7 @@
   |\\ | |__  __ /  ` /  \\ |__) |__         }  {
   | \\| |       \\__, \\__/ |  \\ |___     \\`-._,-`-,
                                         `._,._,'
-  nf-core/genomeannotator v${version}
+  nf-core/genomeannotator ${version}
 ----------------------------------------------------
 Run Name: $runName
 
