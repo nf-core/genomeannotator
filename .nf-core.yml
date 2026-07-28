@@ -1,5 +1,8 @@
 repository_type: pipeline
-
 lint:
-    nextflow_config:
-        params.input
+  nextflow_config: params.input
+  files_exist:
+    - .github/workflows/linting_comment.yml
+  files_unchanged:
+    - .github/workflows/branch.yml
+    - .github/workflows/linting.yml
